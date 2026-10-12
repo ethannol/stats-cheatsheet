@@ -5,21 +5,87 @@
   "status": "complete",
   "question": "What is the statistical toolkit for environmental data, applied to real observations, with the assumptions, the reading of the output and the pitfalls written down?",
   "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
-  "ledger": {"type": "none"},
+  "aim": "Document the statistical toolkit for environmental data as runnable, annotated examples on real observations, with assumptions, interpretation and failure modes stated for each method.",
+  "scope": "Exploratory analysis, hypothesis tests, regression, time series, trend and change-point detection, extremes, resampling, multivariate and spatial methods, Bayesian estimation and machine learning, on NOAA, NASA GISTEMP, GHCN-Daily and USGS streamflow data.",
+  "conclusion": "Reference material. No empirical claim is made.",
+  "ledger": {
+    "type": "none"
+  },
   "headline": [
-    {"label": "Analysis scripts", "value": {"source": "count_files", "glob": "analyses/*.py"}},
-    {"label": "Figures", "value": {"source": "count_files", "glob": "figures/**/*.png"}},
-    {"label": "Tests", "value": {"source": "regex_count", "glob": "tests/test_*.py", "pattern": "^def test_"}}
+    {
+      "label": "Analysis scripts",
+      "value": {
+        "source": "count_files",
+        "glob": "analyses/*.py"
+      }
+    },
+    {
+      "label": "Figures",
+      "value": {
+        "source": "count_files",
+        "glob": "figures/**/*.png"
+      }
+    },
+    {
+      "label": "Tests",
+      "value": {
+        "source": "regex_count",
+        "glob": "tests/test_*.py",
+        "pattern": "^def test_"
+      }
+    }
   ],
   "finding": [
     "Each script applies one family of methods to real or clearly labelled synthetic data and prints an interpretation, so the output reads like a worked example. The cheat sheet is the index: a table from question to method to script section, with the assumptions and the failure modes beside each."
   ],
-  "traps": [{"id": "censoring", "how": "Censored summaries and Kaplan-Meier appear in the hydrology sections."}, {"id": "spatial-leakage", "how": "The spatial section covers autocorrelation, variograms and why random folds mislead on gridded data."}, {"id": "multiplicity", "how": "The hypothesis-test section covers multiple comparisons and false-discovery control."}],
+  "traps": [
+    {
+      "id": "censoring",
+      "how": "Censored summaries and Kaplan-Meier appear in the hydrology sections."
+    },
+    {
+      "id": "spatial-leakage",
+      "how": "The spatial section covers autocorrelation, variograms and why random folds mislead on gridded data."
+    },
+    {
+      "id": "multiplicity",
+      "how": "The hypothesis-test section covers multiple comparisons and false-discovery control."
+    }
+  ],
   "figures": [],
-  "not_claimed": ["A reference, not a study; no new empirical finding is claimed."],
-  "documents": [{"title": "Cheat sheet", "path": "CHEATSHEET.md"}],
-  "verification": {"tests": {"source": "regex_count", "glob": "tests/test_*.py", "pattern": "^def test_"}},
-  "data": ["NOAA CO2, GISTEMP, GHCN-Daily, USGS streamflow and station climatologies"],
-  "stack": ["EDA", "hypothesis tests", "regression", "time series", "trends and change-points", "extremes", "resampling", "multivariate", "spatial", "Bayesian", "ML"],
-  "links": {"Repository": "https://github.com/ethannol/earth-stats-cheatsheet"}
+  "not_claimed": [
+    "A reference, not a study; no new empirical finding is claimed."
+  ],
+  "documents": [
+    {
+      "title": "Cheat sheet",
+      "path": "CHEATSHEET.md"
+    }
+  ],
+  "verification": {
+    "tests": {
+      "source": "regex_count",
+      "glob": "tests/test_*.py",
+      "pattern": "^def test_"
+    }
+  },
+  "data": [
+    "NOAA CO2, GISTEMP, GHCN-Daily, USGS streamflow and station climatologies"
+  ],
+  "stack": [
+    "EDA",
+    "hypothesis tests",
+    "regression",
+    "time series",
+    "trends and change-points",
+    "extremes",
+    "resampling",
+    "multivariate",
+    "spatial",
+    "Bayesian",
+    "ML"
+  ],
+  "links": {
+    "Repository": "https://github.com/ethannol/earth-stats-cheatsheet"
+  }
 }
