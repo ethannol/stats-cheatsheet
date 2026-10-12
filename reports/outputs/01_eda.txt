@@ -1,0 +1,109 @@
+Matplotlib is building the font cache; this may take a moment.
+
+==============================================================================
+Data audit: Central Park GHCN-Daily
+==============================================================================
+        count   mean    std   min  25%   50%   75%    max
+TMAX  28032.0  17.10  10.23 -12.8  8.9  17.8  26.1   40.0
+TMIN  28032.0   8.83   9.20 -18.9  1.7   8.9  16.7   28.9
+PRCP  28032.0   3.31   9.35   0.0  0.0   0.0   1.3  192.3
+SNOW  28031.0   1.79  16.11   0.0  0.0   0.0   0.0  693.0
+
+Fraction missing per column:
+ TMAX    0.0
+TMIN    0.0
+PRCP    0.0
+SNOW    0.0
+
+Longest run of missing TMAX days: 0
+  > Missingness is the first thing to characterise: is it random (MCAR), related to
+    observed covariates (MAR), or related to the missing value itself (MNAR, e.g. a gauge
+    that fails during floods)? Reindexing to a complete calendar made the gaps visible.
+
+==============================================================================
+Location, spread and shape: TMAX vs PRCP
+==============================================================================
+             TMAX (C)  PRCP all days (mm)  PRCP wet days (mm)  log PRCP wet (ln mm)
+n            28032.00            28032.00             9385.00               9385.00
+mean            17.10                3.31                9.88                  1.39
+median          17.80                0.00                4.60                  1.53
+sd              10.23                9.35               14.01                  1.47
+iqr             17.20                1.30               11.70                  2.30
+mad_scaled      12.45                0.00                5.93                  1.66
+skew            -0.20                5.54                3.44                 -0.18
+excess_kurt     -0.96               49.52               20.33                 -0.91
+p05              0.60                0.00                0.30                 -1.20
+p95             31.70               19.80               36.30                  3.59
+max             40.00              192.30              192.30                  5.26
+
+Fraction of dry days: 0.665
+  > TMAX: mean ~ median, mild negative skew, platykurtic (it is a mixture of seasons, so
+    flatter than normal). PRCP: mean >> median, huge positive skew, kurtosis in the
+    hundreds. On wet days the log transform brings skew near zero: lognormal / gamma are
+    the usual precipitation models. Report medians and quantiles for skewed variables.
+    [fig] figures/01_eda/distributions.png
+
+==============================================================================
+Normality tests at large n reject everything
+==============================================================================
+TMAX (n=all)           Shapiro W=0.9711 p=1.34e-30 | D'Agostino K2=5462.5 p=0.00e+00
+TMAX (n=50 sample)     Shapiro W=0.9370 p=1.03e-02 | D'Agostino K2=5.2 p=7.39e-02
+ln wet PRCP (n=all)    Shapiro W=0.9676 p=3.81e-32 | D'Agostino K2=1409.3 p=9.29e-307
+  > With tens of thousands of points even tiny departures from normality are
+    'significant'. Use QQ plots and ask whether the departure matters for the method you
+    plan to use (the CLT protects means; it does not protect extreme quantiles).
+
+==============================================================================
+Climatology and anomalies
+==============================================================================
+    [fig] figures/01_eda/climatology_anomaly.png
+Autocorrelation of daily TMAX, lag 1: 0.912  | of daily anomaly, lag 1: 0.583
+  > Raw daily TMAX has a lag-1 autocorrelation of 0.91, much of it from the seasonal
+    cycle. Anomalies still have 0.58, which is real weather persistence. Either way, daily
+    values are not independent: n is far smaller than the row count for inference.
+    [fig] figures/01_eda/prcp_by_month.png
+
+==============================================================================
+Correlation: raw vs anomaly, Pearson vs Spearman
+==============================================================================
+Pearson on raw daily values:
+        TMAX   TMIN   PRCP
+TMAX  1.000  0.953 -0.011
+TMIN  0.953  1.000  0.046
+PRCP -0.011  0.046  1.000
+
+Spearman on raw daily values:
+        TMAX   TMIN   PRCP
+TMAX  1.000  0.953 -0.049
+TMIN  0.953  1.000  0.036
+PRCP -0.049  0.036  1.000
+
+Pearson on anomalies:
+            TMAX_anom  TMIN_anom   PRCP
+TMAX_anom      1.000      0.773 -0.058
+TMIN_anom      0.773      1.000  0.071
+PRCP          -0.058      0.071  1.000
+
+TMAX anomaly vs PRCP: Pearson r=-0.058, Spearman rho=-0.066
+  > TMAX-TMIN correlation is 0.95 raw but lower on anomalies: the shared seasonal cycle
+    inflates it. Rain days are cooler than average (negative TMAX-anomaly correlation),
+    which the raw Pearson correlation misses because rain is uncorrelated with season
+    here. Spearman is more negative than Pearson because precipitation is heavy-tailed.
+
+==============================================================================
+Mauna Loa CO2: first look
+==============================================================================
+    [fig] figures/01_eda/co2_overview.png
+count    822.00
+mean     361.36
+std       33.46
+min      312.42
+25%      331.28
+50%      356.36
+75%      387.68
+max      432.34
+First year mean 315.6 ppm, last 12 months mean 428.6 ppm
+  > A smooth monotonic trend with a stable annual cycle (~6 ppm amplitude from Northern
+    Hemisphere photosynthesis) and a growth rate that itself rises from ~0.8 to ~2.5
+    ppm/yr. The growth-rate series is where the interesting variability (ENSO) lives; see
+    04.

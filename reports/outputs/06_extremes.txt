@@ -1,0 +1,65 @@
+
+==============================================================================
+Potomac annual peak daily flow: GEV vs Gumbel vs log-Pearson III
+==============================================================================
+n=95 water years; median peak 109 kcfs; record 426 kcfs in WY1936
+GEV: xi=+0.181 loc=89.0 scale=41.6   Gumbel: loc=93.4 scale=45.3
+AIC GEV=1033.7  AIC Gumbel=1039.2  LRT p=0.006
+parametric bootstrap: 1000 fits (0 discarded as implausible); xi 95% CI = (+0.01, +0.35)
+
+Return levels (kcfs):
+          GEV  Gumbel    LP3  GEV 2.5%  GEV 97.5%
+T (yr)                                           
+2       105.0   110.0  104.0      94.0      117.0
+5       161.0   161.0  163.0     141.0      182.0
+10      205.0   195.0  208.0     174.0      239.0
+25      269.0   238.0  273.0     215.0      338.0
+50      325.0   270.0  327.0     243.0      436.0
+100     388.0   302.0  385.0     275.0      563.0
+200     458.0   333.0  449.0     304.0      723.0
+500     567.0   375.0  544.0     342.0     1008.0
+  > The shape xi=+0.18 is positive (heavy tail), the likelihood-ratio test prefers GEV
+    over Gumbel (p=0.006), yet the bootstrap CI on xi runs +0.01 to +0.35: 95 years
+    constrain the tail only loosely. The three models agree to ~10 years and diverge
+    beyond 100, where the GEV 100-year level has a roughly +-37% interval. Extrapolating
+    to 500 years from 95 years is a modelling assumption, not a measurement. Say so in the
+    report.
+    [fig] figures/06_extremes/flood_frequency.png
+
+==============================================================================
+Central Park daily precipitation: peaks over threshold
+==============================================================================
+    [fig] figures/06_extremes/threshold_selection.png
+threshold u=30 mm: 684 exceedance days -> 634 declustered events (8.34/yr); GPD xi=+0.110 sigma=16.6
+
+Daily precipitation return levels (mm):
+     POT/GPD  AnnMax/GEV
+T                       
+2       85.0        76.0
+5      107.0       104.0
+10     125.0       125.0
+25     151.0       153.0
+50     172.0       176.0
+100    195.0       200.0
+200    220.0       225.0
+500    256.0       262.0
+GEV on annual maxima: xi=+0.094 (n=76)
+  > POT uses 634 events instead of 76 annual maxima, so the tail is better constrained.
+    Both approaches put the 100-year daily rainfall near 195-200 mm. Declustering matters:
+    without it, a 3-day storm counts as 3 'independent' events and lambda is inflated. The
+    positive xi is the usual heavy tail of precipitation.
+
+==============================================================================
+Nonstationary GEV: Central Park annual maximum TMIN with a linear trend in location
+==============================================================================
+stationary: mu=25.28 sigma=1.31 xi=-0.22
+trend:      mu0=24.44 mu1=+0.241 C/decade sigma=1.26 xi=-0.28
+likelihood-ratio stat=11.67  p=0.0006
+20-yr return level: 27.0 C in 1950 -> 28.8 C in 2025; the 1950 20-yr night is now a 1-in-2-year event
+  > Fitting the GEV by writing the negative log-likelihood and calling an optimiser is
+    worth knowing: it generalises to any covariate. The negative shape (xi=-0.28) is
+    typical for temperature: a bounded upper tail. Letting location drift with time is
+    strongly preferred by the likelihood-ratio test; the warmest night of the year has
+    shifted by 1.8 C since 1950, which turns a 1950s 20-year event into a roughly
+    1-in-2-year event today.
+    [fig] figures/06_extremes/nonstationary_gev.png

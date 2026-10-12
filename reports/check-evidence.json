@@ -1,0 +1,59 @@
+{
+  "kind": "checks",
+  "source_commit": "4e2a6849d9f653d4ee51ce250acfe4f7438ee5d2",
+  "source_files": {
+    ".github/workflows/tests.yml": "d1ce29719d00be3ba40751a206f12d5102de8d69095cd8776555e14d80abda33",
+    "analyses/01_eda.py": "feea5dfec23e748e101f16307faa504799ddd75c3d6e7f54db400af6d4f512dd",
+    "analyses/02_hypothesis_tests.py": "5dfdc06979e1e977a56b3b3f8ea1862dff55ac8f0503e4d73a985189fc2edbde",
+    "analyses/03_regression.py": "3d5f5d40dd6a310b2777c097e1204b08d5ece5d26b9cd9f67cee371054eb1cd2",
+    "analyses/04_time_series.py": "9f53b757d789536dfb7aa5c577314ce96247fc069e9c3c9c49f3c6ab1109a94d",
+    "analyses/05_trends_changepoints.py": "17f68e324d24ef4c362436774602c9257baef87f7f441e4119d9c51e1ddd7b2f",
+    "analyses/06_extremes.py": "5a37381afb5bb5fa37a15617c69abc4fefb063d69ca2c4e911203f7da33b2313",
+    "analyses/07_resampling.py": "d8bfc191b16ed73ca0f5376b9ad5c6df6a8a8067c5f46f96e517bf80e61b7cdf",
+    "analyses/08_multivariate.py": "bd20eaf7c815078d1f2339ffb37b4ecc221aac883dbb68e08ef2827a8e9ea938",
+    "analyses/09_spatial.py": "c7a338591de33cdb81ad7c85d32d4a75541bf225526c906adb6902d41524efe9",
+    "analyses/10_bayesian.py": "b3bb4b95b5b7645410acb83a43c528b4f465b7ebbd3a74e2a07fafa812eef39b",
+    "analyses/11_ml.py": "5cb39f179aaef1f0cca88e896269d3d35adcd2bb4c100f05f7fd34a3ada782de",
+    "pyproject.toml": "ec6d736e57430b4afc7c61cc2cf1f9fceb10abac70a6a2eec6b947942fa34881",
+    "scripts/format_results.py": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
+    "scripts/run_results.py": "907fee8cfb43a97ad7f79f2d13e9d9f3d18ef847c5dd2e0335b0aa2d35a4ec45",
+    "src/earthstats/__init__.py": "b7feb97ab7d5a36698bf067acb54e8e3e78ad003bcc2a33bdac14983a76e399b",
+    "src/earthstats/data.py": "36820ca82762344eae7b295222452b066fe417598d1f6d5a4f261bd4382510c1",
+    "src/earthstats/plotting.py": "f8639d94ced8fdd63590fd7f61907b4bbcc702128b7d85ca8ad5286978a0d0fb",
+    "src/earthstats/provenance.py": "72cd40324930c4e9ba05febdd9d76adf4d546a0352ab1f234f34a4c240d7eb91",
+    "src/earthstats/spatial.py": "6a024dc6303684129c16d3700308395b0ea753c918c1fd801fc8dbb3978e95f1",
+    "src/earthstats/stats.py": "9001781eb464cb3106c65c594bb04dde848739998032fcdf817900f0add1b687",
+    "tests/test_data.py": "019a2b7e579b37c8b8870281dd2d8cff057562efd422468db2b65741dee6759c",
+    "tests/test_provenance.py": "018646ec121ae2e71718f284b2d87a3a2a7008fbdd78fe695d1e18500323f686",
+    "tests/test_spatial.py": "901877d053b276a772237fd570cfd49098259842e81e0050b94b8e92a9de4493",
+    "tests/test_stats.py": "15142f772dac50bd89701e826fd2bdd345c2ea5298438d28f309dad0de969b36",
+    "uv.lock": "9e179bc77fcefcbfba5b59f4b17f3ae7c16b89e50ca58cd8b481c4e9be4f0f08"
+  },
+  "checked_at": "2026-10-12T20:35:19.239270+00:00",
+  "started_at": "2026-10-12T20:34:56.708839+00:00",
+  "ok": true,
+  "source_unchanged_during_check": true,
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "pytest",
+    "-q"
+  ],
+  "exit_code": 0,
+  "stdout": "...................                                                      [100%]\n19 passed in 21.94s\n",
+  "stderr": "",
+  "tests": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "pytest",
+      "-q"
+    ]
+  }
+}

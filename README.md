@@ -64,33 +64,26 @@ figures/<topic>/*.png            written by the scripts
 CHEATSHEET.md                    the condensed reference
 ```
 
-## Headline results (as talking points)
+## Worked results and reproducibility
 
-These come straight from the script output; rerun to refresh.
+[Generated worked results](reports/worked-results.md) contain actual script output rather
+than manually refreshed headline numbers. The [run manifest](reports/results.json) records
+the source commit, source patch hash, Python/dependency versions, date cutoff, script and
+output hashes, and figure hashes. [Input provenance](reports/data-manifest.json) records
+request URLs/parameters, SHA-256, sizes and retrieval times. Existing unmanifested caches
+are explicitly labelled `legacy-cache`, with unknown retrieval time; metadata is never
+backdated.
 
-- Central Park summer **nights** warmed 0.7 C between 1951-80 and 1991-2020 (Welch p = 0.0005,
-  Cohen's d = 0.95) while summer **daytime highs** did not change (p = 0.74, CI -0.6 to +0.4 C).
-  Testing on daily values instead of seasonal means gives p = 1e-17 for the same effect:
-  the unit-of-analysis lesson.
-- Regressing global temperature on ln(CO2) implies 2.7 C per doubling: a clean fit (R2 = 0.93)
-  that overshoots the IPCC transient response because every other forcing is collinear with CO2.
-  Residual autocorrelation (DW = 1.4) inflates the naive t-statistic by ~40%.
-- The airline SARIMA(0,1,1)(0,1,1)12 fits Mauna Loa CO2; a 6-year holdout forecast has RMSE
-  1.0 ppm vs 1.7 ppm for seasonal naive with drift. Global temperature's detrended spectrum is
-  red with an ENSO bump; CO2 growth lags warm years.
-- Raw Mann-Kendall on AR(1) noise with rho = 0.6 has a 33% false-positive rate; trend-free
-  pre-whitening makes it *worse* (42%); the Hamed-Rao variance correction holds it at 9%.
-- Potomac 100-year daily flow is ~390 kcfs by GEV with a bootstrap interval of roughly +-37%;
-  Gumbel vs GEV cannot be settled by 95 years of data. NYC's warmest night of the year has
-  risen 1.8 C since 1950, turning a 1950s 20-year event into a roughly 1-in-2-year event.
-- A block bootstrap gives a trend SE 2.6x the iid bootstrap on monthly GISTEMP; the iid
-  bootstrap simply reproduces the (wrong) OLS formula.
-- Regression kriging (lat + elevation + longitude trend, kriged residuals) interpolates station
-  temperature with LOO RMSE 0.8 C vs 2.0 C for IDW. Residuals of the regression have Moran's
-  I = 0.42: spatially clustered errors, so the regression SEs are too small.
-- Rainfall-runoff: weather-only models all plateau at R2 ~0.66 (information limit of one rain
-  gauge), persistence dominates one day ahead, and shuffled K-fold overstates R2 by 0.18 relative
-  to a time-aware split.
+```bash
+make results             # full analysis; run on a workstation/CI, not the laptop
+make reproduce           # requires the exact raw-byte hashes in the committed manifest
+```
+
+`make results` writes per-topic transcripts and selected portfolio preview figures under
+`reports/`. Dates are clipped to `END_DATE` even when an upstream file has newer rows.
+A fixed cutoff does not prevent providers revising historical values: retain the raw
+snapshot alongside its manifest for exact reproduction. Changed bytes are rejected until
+an explicit refresh. Derived caches are rebuilt after loader/cutoff changes.
 
 ## Extending
 

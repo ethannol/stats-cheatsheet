@@ -1,0 +1,93 @@
+
+==============================================================================
+Decomposition: classical vs STL
+==============================================================================
+    [fig] figures/04_time_series/stl.png
+Seasonal amplitude (peak-to-trough): 1960s 5.90 ppm, 2010s 6.81 ppm
+Remainder SD: classical 0.299, STL 0.266
+  > STL lets the seasonal component evolve: the CO2 seasonal amplitude has grown ~15%
+    since the 1960s (longer growing seasons, more vigorous Northern Hemisphere
+    vegetation). Classical decomposition would average that away into the remainder.
+
+==============================================================================
+Stationarity tests on CO2 and its differences
+==============================================================================
+CO2 level                          ADF p=1.000  KPSS p=0.010  -> non-stationary
+first difference                   ADF p=0.000  KPSS p=0.100  -> stationary
+seasonal difference (lag 12)       ADF p=0.006  KPSS p=0.010  -> ambiguous
+first + seasonal difference        ADF p=0.000  KPSS p=0.100  -> stationary
+STL remainder                      ADF p=0.000  KPSS p=0.100  -> stationary
+  > The level is obviously non-stationary. A first difference still has the seasonal cycle
+    (ADF sees stationarity in the mean; KPSS is suspicious); the seasonal difference still
+    carries the growth trend; both together give white-ish noise. That is the (d=1, D=1)
+    of the SARIMA below. KPSS has an awkward p-value range because it is table-based.
+    [fig] figures/04_time_series/acf_pacf.png
+  > After double differencing, the ACF has a negative spike at lag 1 and at lag 12 and
+    little else: the signature of an MA(1) x seasonal MA(1), i.e. the classic 'airline
+    model' SARIMA(0,1,1)(0,1,1)12. Let the data suggest the order, then confirm with AIC.
+
+==============================================================================
+SARIMA fit, holdout forecast and baselines
+==============================================================================
+  (0,1,1)(0,1,1)12 airline     AIC=   386.4  BIC=   400.1
+  (1,1,1)(1,1,1)12             AIC=   387.1  BIC=   410.0
+  (2,1,0)(0,1,1)12             AIC=   394.8  BIC=   413.2
+best by AIC: (0,1,1)(0,1,1)12 airline
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+ma.L1         -0.3804      0.033    -11.523      0.000      -0.445      -0.316
+ma.S.L12      -0.8628      0.021    -40.736      0.000      -0.904      -0.821
+sigma2         0.0964      0.005     20.384      0.000       0.087       0.106
+==============================================================================
+Ljung-Box on residuals p(12)=0.625 p(24)=0.830
+
+Holdout 2020-2025 (72 months):
+                          MAE   RMSE   MAPE   bias
+SARIMA                  0.747  0.991  0.176  0.600
+Holt-Winters            0.785  1.023  0.185  0.660
+Seasonal naive + drift  1.554  1.731  0.369 -1.554
+SARIMA 95% interval coverage on holdout: 1.00
+  > A 6-year horizon is long for a monthly model. The positive bias (0.60 ppm) says the
+    truth ran above the forecast: CO2 growth accelerated after 2020 (El Nino 2023-24),
+    which a model fit through 2019 cannot know. Interval coverage is 1.00: the intervals
+    of a twice-integrated model widen quickly with horizon, so they are wide enough here;
+    at shorter horizons ARIMA intervals are usually too narrow because they ignore
+    parameter and model uncertainty. Always report a trivial baseline: SARIMA roughly
+    halves the seasonal-naive error, which is the honest statement of what the model buys
+    you.
+    [fig] figures/04_time_series/sarima_forecast.png
+
+==============================================================================
+Rolling-origin (expanding window) backtest, 12-month horizon
+==============================================================================
+12-month RMSE by origin year: 2005: 0.26, 2007: 0.44, 2009: 0.72, 2011: 0.32, 2013: 0.34, 2015: 0.81, 2017: 0.40, 2019: 0.31, 2021: 0.42, 2023: 0.82
+mean RMSE=0.48 ppm
+  > Time-series cross-validation = refit at successive origins and score the next h steps.
+    Never random K-fold on time series: the model would see the future.
+
+==============================================================================
+Spectral analysis: where is the variance in frequency?
+==============================================================================
+    [fig] figures/04_time_series/spectra.png
+CO2 dominant frequency: 1.002 cycles/yr (period 1.00 yr); strongest above 1.5 cycles/yr: 2.005
+Variance explained by the annual line (f in 0.9-1.1): 0.80
+  > CO2's spectrum is a line at 1 cycle/yr plus its harmonic at 2 (the seasonal cycle is
+    not a pure sinusoid). Global temperature, once detrended, has a 'red' spectrum: power
+    rising toward low frequencies, as any AR(1)/integrating system does. A bump in the 3-7
+    year band is ENSO. Red noise is why eyeballing 'cycles' in climate series is
+    dangerous: a significance test against an AR(1) background spectrum is required.
+
+==============================================================================
+Cross-correlation: CO2 growth rate vs global temperature anomaly
+==============================================================================
+raw correlation (both trending): r=0.71
+detrended max cross-correlation r=0.39 at lag 5 months (positive = temperature leads CO2 growth)
+    [fig] figures/04_time_series/cross_correlation.png
+  > Two trending series always correlate (r=0.71 raw) and it means nothing. Detrended, the
+    cross-correlation peaks at lag +5 months with temperature leading CO2 growth: El Nino
+    warmth and drought suppress tropical carbon uptake and raise fire emissions. Growth is
+    a trailing 12-month difference centred 6 months back, so relative to the window centre
+    global temperature and CO2 growth are nearly coincident (-1 months); tropical Pacific
+    SST (Nino 3.4) would lead both by a few more months. The 2/sqrt(n) lines are the 95%
+    band for white noise; both series are autocorrelated, so the true band is wider.

@@ -6,27 +6,27 @@ Condensed from the eleven scripts in `analyses/`. Section numbers match the scri
 
 | Question | Method | Where |
 |---|---|---|
-| What does this variable look like? | histogram, QQ plot, median/IQR/MAD, skew; climatology + anomaly | 01 |
-| Are two groups different? | Welch t (means), Mann-Whitney (ranks), permutation (anything); report effect size + CI | 02 |
-| Did a proportion change? | two-proportion z / chi-square; Fisher if small | 02 |
-| Many tests at once | Bonferroni (FWER) or Benjamini-Hochberg (FDR) | 02 |
-| How many samples do I need? | power analysis (effect size / SD, alpha, power) | 02 |
-| How does y depend on x? | OLS + residual diagnostics; HAC/GLS if autocorrelated; GLM if y is counts/positive | 03 |
-| Which of several predictors matter? | multiple regression, standardised coefficients, VIF, AIC/BIC | 03 |
-| Trend + seasonality in a series | STL decomposition; ADF + KPSS; difference; SARIMA with a holdout | 04 |
-| Hidden periodicities | periodogram / Welch PSD after detrending; test against red noise | 04 |
-| Does x lead y? | cross-correlation of *detrended* (or pre-whitened) series | 04 |
-| Is there a monotonic trend? | Mann-Kendall + Sen's slope, with Hamed-Rao correction; OLS with HAC SE | 05 |
-| When did it change? | Pettitt (shift), hinge regression (slope change), CUSUM; PELT for many | 05 |
-| How big is the 100-year event? | GEV on annual maxima or GPD on peaks over threshold; bootstrap the CI | 06 |
-| Are extremes changing? | nonstationary GEV (location ~ time), likelihood-ratio test | 06 |
-| Uncertainty with no formula | bootstrap (BCa); block bootstrap for dependent data; jackknife for bias | 07 |
-| Is my test calibrated? | Monte Carlo from a fitted null (e.g. AR(1)) | 05, 07 |
-| Reduce many variables | standardise, PCA (loadings, scree), then cluster (k-means / Ward) | 08 |
-| Do nearby places resemble each other? | Moran's I on the variable and on model residuals | 09 |
-| Fill in a map between stations | variogram -> kriging (regression kriging with covariates); validate LOO | 09 |
-| Probability statements about parameters | Bayesian: conjugate update or MCMC; credible intervals, posterior predictive | 10 |
-| Predict, and be honest about skill | time-aware CV, baselines, permutation importance, PR-AUC for rare events | 11 |
+| What does this variable look like? | histogram, QQ plot, median/IQR/MAD, skew; climatology + anomaly | [01](analyses/01_eda.py) |
+| Are two groups different? | Welch t (means), Mann-Whitney (ranks), permutation (anything); report effect size + CI | [02](analyses/02_hypothesis_tests.py) |
+| Did a proportion change? | two-proportion z / chi-square; Fisher if small | [02](analyses/02_hypothesis_tests.py) |
+| Many tests at once | Bonferroni (FWER) or Benjamini-Hochberg (FDR) | [02](analyses/02_hypothesis_tests.py) |
+| How many samples do I need? | power analysis (effect size / SD, alpha, power) | [02](analyses/02_hypothesis_tests.py) |
+| How does y depend on x? | OLS + residual diagnostics; HAC/GLS if autocorrelated; GLM if y is counts/positive | [03](analyses/03_regression.py) |
+| Which of several predictors matter? | multiple regression, standardised coefficients, VIF, AIC/BIC | [03](analyses/03_regression.py) |
+| Trend + seasonality in a series | STL decomposition; ADF + KPSS; difference; SARIMA with a holdout | [04](analyses/04_time_series.py) |
+| Hidden periodicities | periodogram / Welch PSD after detrending; test against red noise | [04](analyses/04_time_series.py) |
+| Does x lead y? | cross-correlation of *detrended* (or pre-whitened) series | [04](analyses/04_time_series.py) |
+| Is there a monotonic trend? | Mann-Kendall + Sen's slope, with Hamed-Rao correction; OLS with HAC SE | [05](analyses/05_trends_changepoints.py) |
+| When did it change? | Pettitt (shift), hinge regression (slope change), CUSUM; PELT for many | [05](analyses/05_trends_changepoints.py) |
+| How big is the 100-year event? | GEV on annual maxima or GPD on peaks over threshold; bootstrap the CI | [06](analyses/06_extremes.py) |
+| Are extremes changing? | nonstationary GEV (location ~ time), likelihood-ratio test | [06](analyses/06_extremes.py) |
+| Uncertainty with no formula | bootstrap (BCa); block bootstrap for dependent data; jackknife for bias | [07](analyses/07_resampling.py) |
+| Is my test calibrated? | Monte Carlo from a fitted null (e.g. AR(1)) | [05](analyses/05_trends_changepoints.py), [07](analyses/07_resampling.py) |
+| Reduce many variables | standardise, PCA (loadings, scree), then cluster (k-means / Ward) | [08](analyses/08_multivariate.py) |
+| Do nearby places resemble each other? | Moran's I on the variable and on model residuals | [09](analyses/09_spatial.py) |
+| Fill in a map between stations | variogram -> kriging (regression kriging with covariates); validate LOO | [09](analyses/09_spatial.py) |
+| Probability statements about parameters | Bayesian: conjugate update or MCMC; credible intervals, posterior predictive | [10](analyses/10_bayesian.py) |
+| Predict, and be honest about skill | time-aware CV, baselines, permutation importance, PR-AUC for rare events | [11](analyses/11_ml.py) |
 
 ## 1. Descriptive statistics and EDA
 

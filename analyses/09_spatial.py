@@ -27,6 +27,7 @@ import pandas as pd
 import statsmodels.formula.api as smf
 
 from earthstats import data
+from earthstats.spatial import fit_interpolation_fold
 from earthstats.plotting import banner, note, savefig, setup
 from earthstats.stats import (
     distance_matrix_km,
@@ -138,24 +139,25 @@ elevations, which is crude; use a DEM in real work.""")
 # %% ----------------------------------------------------------- leave-one-out validation
 banner("Leave-one-out cross-validation RMSE (C)")
 errs = {"IDW p=2": [], "IDW p=1": [], "OLS trend only": [], "OK on tavg": [], "regression kriging": []}
-tavg_sph = fit_variogram(*empirical_variogram(D, st.tavg.values, np.arange(0, 1300, 75.0))[:2], spherical)
 for i in range(n):
     keep = np.arange(n) != i
     Di = D[np.ix_(keep, keep)]
     Dqi = D[i, keep][None, :]
     errs["IDW p=2"].append(idw(Dqi, st.tavg.values[keep], 2)[0] - st.tavg[i])
     errs["IDW p=1"].append(idw(Dqi, st.tavg.values[keep], 1)[0] - st.tavg[i])
-    f = smf.ols("tavg ~ lat + elev_km + lon", data=st[keep]).fit()
+    f, tavg_sph_fold, resid_sph_fold = fit_interpolation_fold(st, D, keep, bins)
     pred_trend = f.predict(st.iloc[[i]]).iloc[0]
     errs["OLS trend only"].append(pred_trend - st.tavg[i])
-    ok, _ = ordinary_kriging(Di, Dqi, st.tavg.values[keep], spherical, tavg_sph)
+    ok, _ = ordinary_kriging(Di, Dqi, st.tavg.values[keep], spherical, tavg_sph_fold)
     errs["OK on tavg"].append(ok[0] - st.tavg[i])
-    okr, _ = ordinary_kriging(Di, Dqi, f.resid.values, spherical, sph)
+    okr, _ = ordinary_kriging(Di, Dqi, f.resid.values, spherical, resid_sph_fold)
     errs["regression kriging"].append(pred_trend + okr[0] - st.tavg[i])
 loo = pd.DataFrame({k: [np.sqrt(np.mean(np.square(v))), np.mean(np.abs(v))] for k, v in errs.items()},
                    index=["RMSE", "MAE"]).T.sort_values("RMSE")
 print(loo.round(3).to_string())
-note("""Leave-one-out is the right yardstick for interpolators (fit at data points is trivially
+note("""Each leave-one-out fold refits the trend and both variograms on training stations only.
+Leave-one-out measures local interpolation; spatial block holdouts are needed to assess
+transfer across regions. It is a useful yardstick for interpolators (fit at data points is trivially
 perfect for IDW and kriging). Combining a covariate trend with kriged residuals beats
 either ingredient alone; ordinary kriging on raw temperature struggles because the field
 is not stationary (the mean trends with latitude), which the variogram assumes away.""")

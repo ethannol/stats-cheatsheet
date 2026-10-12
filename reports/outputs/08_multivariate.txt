@@ -1,0 +1,82 @@
+361 stations x 15 climate variables
+
+==============================================================================
+Correlation matrix
+==============================================================================
+    [fig] figures/08_multivariate/correlation_matrix.png
+strongest |r| pairs:
+tavg  htdd   -0.986
+      tmin    0.972
+      tmax    0.971
+tmin  htdd   -0.962
+dt32  emnt   -0.957
+tmax  htdd   -0.955
+  > Fifteen variables, but a handful of underlying factors: 'how warm' (tavg, htdd, cldd,
+    dt32...), 'how wet' (prcp, dp01, dp10), 'how snowy / continental'. PCA will find
+    these.
+
+==============================================================================
+PCA
+==============================================================================
+explained variance by component: [0.637 0.226 0.057 0.025 0.024 0.012] ... cumulative(3) = 0.921
+Kaiser rule (eigenvalue > 1): keep 2 components
+
+loadings:
+       PC1   PC2   PC3
+tavg -0.32  0.06  0.14
+tmax -0.32 -0.04  0.11
+tmin -0.30  0.15  0.16
+prcp -0.05  0.50  0.18
+snow  0.26  0.03  0.31
+dp01  0.15  0.46  0.05
+dp10  0.06  0.52  0.05
+dx90 -0.27 -0.19  0.36
+dx32  0.29 -0.05  0.41
+dt32  0.29 -0.16 -0.00
+dt00  0.24 -0.13  0.51
+emxt -0.20 -0.36  0.03
+emnt -0.30  0.12 -0.11
+htdd  0.32 -0.08  0.02
+cldd -0.28  0.00  0.48
+  > PC1 is a temperature axis (all warm variables load with one sign, all cold variables
+    with the other), PC2 is a wetness axis (prcp, dp01, dp10), PC3 is continentality: many
+    hot days AND many very cold days AND high cooling degree-days load together, which is
+    the large annual range of the interior. Three components carry >90% of the variance in
+    fifteen variables. Interpretation is by loadings, and the signs flip freely between
+    software: always check which direction is 'warm'.
+    [fig] figures/08_multivariate/pca.png
+
+==============================================================================
+k-means: choosing k
+==============================================================================
+  k= 2 inertia=  3092.0 silhouette=0.371
+  k= 3 inertia=  2332.9 silhouette=0.308
+  k= 4 inertia=  1920.5 silhouette=0.329
+  k= 5 inertia=  1580.7 silhouette=0.337
+  k= 6 inertia=  1369.0 silhouette=0.337
+  k= 7 inertia=  1226.0 silhouette=0.334
+  k= 8 inertia=  1109.6 silhouette=0.336
+  k= 9 inertia=  1011.1 silhouette=0.319
+  k=10 inertia=   920.4 silhouette=0.317
+    [fig] figures/08_multivariate/choose_k.png
+  > Neither criterion gives a sharp answer, which is normal for a continuous climate
+    gradient: there are no 'true' clusters, only a useful discretisation. The silhouette
+    is highest at small k (the warm/cold split), the elbow suggests 4-6. Pick k by what
+    the clusters will be used for and report that the choice is a judgement.
+
+k=5: adjusted Rand index between k-means and Ward partitions = 0.58
+
+cluster profiles (means):
+         tavg    prcp    snow   dx90   dt32   lat   elev    n
+cluster                                                      
+0        19.4   456.1    32.0  113.9   29.1  33.5  353.8   43
+1        19.1  1332.0    32.9   76.8   32.3  32.2   84.0   71
+2        12.1  1125.2   710.3   20.3   95.4  40.2  209.3  107
+3        11.8   445.0   573.6   49.4  127.3  40.0  909.9   60
+4         6.9   679.5  1701.9   13.2  171.0  44.6  661.2   80
+    [fig] figures/08_multivariate/clusters_map.png
+  > Unsupervised clusters recover a recognisable climate map: warm-dry (Southwest), warm-
+    wet (Southeast), cool-wet with moderate snow (Northeast, Midwest, Pacific Northwest),
+    cool-dry at high elevation (interior West) and cold-snowy (northern tier). Two
+    different algorithms agree substantially (ARI=0.58) because the structure is real;
+    where they disagree is along the gradients between regimes.

@@ -33,3 +33,12 @@ refresh:
 
 clean:
 	rm -rf figures/*
+
+# Full numerical analyses belong on the Mac mini or CI.
+results:
+	$(PY) scripts/run_results.py
+	$(PY) scripts/format_results.py
+
+reproduce:
+	$(PY) scripts/run_results.py --verify-inputs reports/data-manifest.json
+	$(PY) scripts/format_results.py

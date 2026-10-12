@@ -1,0 +1,50 @@
+
+==============================================================================
+Beta-Binomial: probability that a July day in NYC is wet (>= 1 mm)
+==============================================================================
+    [fig] figures/10_bayesian/beta_binomial.png
+all data: 626/2356 wet; posterior mean=0.2659  95% credible=(0.2483, 0.2839)
+frequentist Clopper-Pearson 95% CI=(0.2480, 0.2840)
+  > With 10 observations the prior dominates and the three posteriors disagree; by a full
+    season they have nearly converged; with 2,300 days the prior is irrelevant and the
+    credible interval equals the frequentist CI to three decimals. The prior matters
+    exactly when you have little data, which is also when you most need to think about it.
+
+==============================================================================
+Gamma-Poisson: hot days (TMAX >= 35 C) and warm nights (TMIN >= 23.9 C) per summer
+==============================================================================
+hot days TMAX>=35C
+  early:  107 events / 30 summers -> rate 3.54 (2.90, 4.24)   var/mean=4.3
+  late:   107 events / 30 summers -> rate 3.54 (2.90, 4.24)   var/mean=4.1
+  rate ratio late/early: median 1.00, 95% credible (0.76, 1.31);  P(ratio > 1) = 0.499
+warm nights TMIN>=23.9C
+  early:  164 events / 30 summers -> rate 5.41 (4.62, 6.27)   var/mean=4.1
+  late:   245 events / 30 summers -> rate 8.07 (7.09, 9.10)   var/mean=3.7
+  rate ratio late/early: median 1.49, 95% credible (1.23, 1.82);  P(ratio > 1) = 1.000
+  > Posterior sampling makes derived quantities trivial: draw rates, divide, and the
+    ratio's credible interval and P(ratio > 1) fall out with no delta method. Hot days
+    show no change (consistent with the TMAX null in section 02); warm nights have become
+    far more frequent. The var/mean column is an overdispersion check: a Poisson has
+    var/mean = 1, but heat waves cluster events, so the variance is several times the mean
+    and the Gamma-Poisson intervals are too narrow. A negative-binomial likelihood (Gamma-
+    mixed Poisson) is the honest fix.
+
+==============================================================================
+Metropolis-Hastings: Bayesian linear trend for GISTEMP 1975-2025 (annual)
+==============================================================================
+acceptance rates: [0.31 0.31 0.31 0.31]  (target ~0.25-0.45)
+  intercept          R-hat=1.000  ESS=5585 of 64000
+  slope (C/decade)   R-hat=1.000  ESS=8939 of 64000
+  log sigma          R-hat=1.000  ESS=3531 of 64000
+
+slope posterior: mean=0.2074  95% credible=(0.1873, 0.2276)
+OLS:             est =0.2074  95% CI      =(0.1871, 0.2277)
+P(slope > 0.15 C/decade) = 1.000;  P(slope > 0.2) = 0.767
+with a sceptical prior N(0, 0.05) on the slope: posterior mean=0.1987 (shrunk from 0.2074); the data still overwhelm it
+    [fig] figures/10_bayesian/metropolis.png
+  > Sixty lines of numpy is a complete MCMC workflow: dispersed starts, burn-in,
+    acceptance tuning, R-hat near 1 and a healthy ESS, then a posterior that matches OLS
+    because the prior is weak and n is moderate. The payoff is the last line: P(slope >
+    0.15 C/decade) is a direct probability statement, which no p-value provides. In
+    practice use PyMC / Stan / NumPyro for the sampler (NUTS) and spend your effort on the
+    model.

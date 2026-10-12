@@ -25,12 +25,14 @@ import io
 import json
 import sys
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import requests
 
 from . import DATA_DIR
+from .provenance import cached_bytes, cached_frame, sha256
 
 RAW = DATA_DIR / "raw"
 END_DATE = "2026-09-30"  # fixed so cached results are reproducible; bump + `make refresh`
@@ -45,22 +47,14 @@ def _get(url: str, params: dict | None = None, timeout: int = 180) -> bytes:
 
 
 def _cached_bytes(name: str, url: str, params: dict | None = None) -> bytes:
-    RAW.mkdir(parents=True, exist_ok=True)
-    path = RAW / name
-    if not path.exists():
-        print(f"  downloading {name} ...", file=sys.stderr)
-        path.write_bytes(_get(url, params))
-    return path.read_bytes()
+    return cached_bytes(RAW / name, url, params, _get, pinned="raw.githubusercontent.com" in url)
 
 
 def _parquet_cached(name: str, builder):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    path = DATA_DIR / f"{name}.parquet"
-    if path.exists():
-        return pd.read_parquet(path)
-    df = builder()
-    df.to_parquet(path)
-    return df
+    # A loader edit or a changed date cutoff always rebuilds old parsed caches.
+    return cached_frame(DATA_DIR / f"{name}.parquet", builder,
+                        identity={"loader_sha256": sha256(Path(__file__)),
+                                  "end_date": END_DATE}, data_dir=DATA_DIR, pd=pd)
 
 
 # --------------------------------------------------------------------------- CO2
@@ -75,7 +69,7 @@ def co2() -> pd.DataFrame:
         df.index.name = "date"
         df = df.rename(columns={"average": "co2", "decimal date": "decimal_date"})
         df = df.replace({-9.99: np.nan, -0.99: np.nan, -1: np.nan})
-        return df[["decimal_date", "co2", "deseasonalized", "ndays", "sdev", "unc"]]
+        return df.loc[:END_DATE, ["decimal_date", "co2", "deseasonalized", "ndays", "sdev", "unc"]]
 
     return _parquet_cached("co2", build)
 
@@ -93,7 +87,7 @@ def gistemp() -> pd.DataFrame:
         long = wide.melt(id_vars="Year", value_vars=months, var_name="mon", value_name="anomaly")
         long["date"] = pd.to_datetime(long.Year.astype(str) + "-" + long.mon, format="%Y-%b")
         out = long.set_index("date").sort_index()[["anomaly"]].dropna()
-        return out
+        return out.loc[:END_DATE]
 
     return _parquet_cached("gistemp", build)
 
@@ -107,7 +101,7 @@ def ghcn_daily(station: str = CENTRAL_PARK, start: str = "1950-01-01") -> pd.Dat
     """Daily TMAX, TMIN (deg C), PRCP, SNOW (mm) for one GHCN-Daily station."""
 
     def build():
-        raw = _cached_bytes(f"ghcnd_{station}.csv", NCEI, dict(
+        raw = _cached_bytes(f"ghcnd_{station}.csv" if start == "1950-01-01" else f"ghcnd_{station}_{start}.csv", NCEI, dict(
             dataset="daily-summaries", stations=station, startDate=start, endDate=END_DATE,
             dataTypes="TMAX,TMIN,PRCP,SNOW", format="csv", units="metric",
             includeStationLocation="1"))
@@ -115,12 +109,12 @@ def ghcn_daily(station: str = CENTRAL_PARK, start: str = "1950-01-01") -> pd.Dat
         df.index.name = "date"
         df.attrs = dict(station=station, lat=float(df.LATITUDE.iloc[0]),
                         lon=float(df.LONGITUDE.iloc[0]), elev=float(df.ELEVATION.iloc[0]))
-        df = df[["TMAX", "TMIN", "PRCP", "SNOW"]].astype(float)
+        df = df.loc[:END_DATE, ["TMAX", "TMIN", "PRCP", "SNOW"]].astype(float)
         # reindex to a complete daily calendar so gaps show up as NaN, not silently missing
         full = pd.date_range(df.index.min(), df.index.max(), freq="D", name="date")
         return df.reindex(full)
 
-    return _parquet_cached(f"ghcnd_{station}", build)
+    return _parquet_cached(f"ghcnd_{station}_{start}_{END_DATE}", build)
 
 
 # ------------------------------------------------------------------ USGS daily Q
@@ -131,7 +125,7 @@ def usgs_daily(site: str = POTOMAC, start: str = "1930-01-01") -> pd.DataFrame:
     """Daily mean discharge (cfs) for a USGS gauge. Columns: flow_cfs, qualifier."""
 
     def build():
-        raw = _cached_bytes(f"usgs_{site}.json", "https://waterservices.usgs.gov/nwis/dv/", dict(
+        raw = _cached_bytes(f"usgs_{site}.json" if start == "1930-01-01" else f"usgs_{site}_{start}.json", "https://waterservices.usgs.gov/nwis/dv/", dict(
             format="json", sites=site, parameterCd="00060", statCd="00003",
             startDT=start, endDT=END_DATE))
         ts = json.loads(raw)["value"]["timeSeries"][0]
@@ -140,12 +134,12 @@ def usgs_daily(site: str = POTOMAC, start: str = "1930-01-01") -> pd.DataFrame:
         df["date"] = pd.to_datetime(df.dateTime.str[:10])
         df["flow_cfs"] = pd.to_numeric(df["value"]).replace(-999999.0, np.nan)
         df["qualifier"] = df.qualifiers.str.join(",")
-        df = df.set_index("date")[["flow_cfs", "qualifier"]]
+        df = df.set_index("date").loc[:END_DATE, ["flow_cfs", "qualifier"]]
         df.attrs = dict(site=site, name=ts["sourceInfo"]["siteName"])
         full = pd.date_range(df.index.min(), df.index.max(), freq="D", name="date")
         return df.reindex(full)
 
-    return _parquet_cached(f"usgs_{site}", build)
+    return _parquet_cached(f"usgs_{site}_{start}_{END_DATE}", build)
 
 
 # ------------------------------------------------------------ station normals
@@ -178,7 +172,7 @@ def station_annual(start: str = "1991-01-01", end: str = "2020-12-31") -> pd.Dat
         chunk = 100
         for i in range(0, len(stations), chunk):
             ids = ",".join(stations.station.iloc[i:i + chunk])
-            raw = _cached_bytes(f"gsoy_{i:04d}.csv", NCEI, dict(
+            raw = _cached_bytes(f"gsoy_{i:04d}.csv" if (start, end) == ("1991-01-01", "2020-12-31") else f"gsoy_{i:04d}_{start}_{end}.csv", NCEI, dict(
                 dataset="global-summary-of-the-year", stations=ids, startDate=start,
                 endDate=end, dataTypes=",".join(GSOY_TYPES), format="csv", units="metric",
                 includeStationLocation="1", includeStationName="1"))
@@ -190,7 +184,7 @@ def station_annual(start: str = "1991-01-01", end: str = "2020-12-31") -> pd.Dat
                                 "elevation": "elev"})
         return df
 
-    return _parquet_cached("gsoy_annual", build)
+    return _parquet_cached(f"gsoy_annual_{start}_{end}", build)
 
 
 def station_normals(min_years: int = 25) -> pd.DataFrame:

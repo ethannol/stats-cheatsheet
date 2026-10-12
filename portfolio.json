@@ -7,7 +7,7 @@
   "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
   "aim": "Document the statistical toolkit for environmental data as runnable, annotated examples on real observations, with assumptions, interpretation and failure modes stated for each method.",
   "scope": "Exploratory analysis, hypothesis tests, regression, time series, trend and change-point detection, extremes, resampling, multivariate and spatial methods, Bayesian estimation and machine learning, on NOAA, NASA GISTEMP, GHCN-Daily and USGS streamflow data.",
-  "conclusion": "Reference material. No empirical claim is made.",
+  "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
   "ledger": {
     "type": "none"
   },
@@ -20,14 +20,14 @@
       }
     },
     {
-      "label": "Figures",
+      "label": "Portfolio figure previews",
       "value": {
         "source": "count_files",
-        "glob": "figures/**/*.png"
+        "glob": "reports/figures/*.png"
       }
     },
     {
-      "label": "Tests",
+      "label": "Top-level test definitions",
       "value": {
         "source": "regex_count",
         "glob": "tests/test_*.py",
@@ -40,19 +40,24 @@
   ],
   "traps": [
     {
-      "id": "censoring",
-      "how": "Censored summaries and Kaplan-Meier appear in the hydrology sections."
-    },
-    {
       "id": "spatial-leakage",
-      "how": "The spatial section covers autocorrelation, variograms and why random folds mislead on gridded data."
+      "how": "Station-temperature interpolation uses leave-one-out validation with the trend and variograms fitted inside each fold. Transfer to an unsampled region requires a separate spatial holdout."
     },
     {
       "id": "multiplicity",
       "how": "The hypothesis-test section covers multiple comparisons and false-discovery control."
     }
   ],
-  "figures": [],
+  "figures": [
+    {
+      "path": "reports/figures/interpolation_maps.png",
+      "caption": "Regression kriging and residual uncertainty; the station-elevation grid is approximate."
+    },
+    {
+      "path": "reports/figures/variogram.png",
+      "caption": "Residual variogram fitted to station climatologies."
+    }
+  ],
   "not_claimed": [
     "A reference, not a study; no new empirical finding is claimed."
   ],
@@ -60,6 +65,10 @@
     {
       "title": "Cheat sheet",
       "path": "CHEATSHEET.md"
+    },
+    {
+      "title": "Generated worked results",
+      "path": "reports/worked-results.md"
     }
   ],
   "verification": {
@@ -67,7 +76,9 @@
       "source": "regex_count",
       "glob": "tests/test_*.py",
       "pattern": "^def test_"
-    }
+    },
+    "artifact": "reports/results.json",
+    "test_artifact": "reports/check-evidence.json"
   },
   "data": [
     "NOAA CO2, GISTEMP, GHCN-Daily, USGS streamflow and station climatologies"

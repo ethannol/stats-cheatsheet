@@ -1,0 +1,89 @@
+
+==============================================================================
+Summer mean TMIN (nights): 1951-1980 vs 1991-2020 (n=30 summers each)
+==============================================================================
+early: mean=18.91 sd=0.76 | late: mean=19.64 sd=0.79 | diff=+0.74 C
+Welch t:        t=3.67  p=0.0005  95% CI diff=(0.33, 1.14)
+Student t:      t=3.67  p=0.0005
+Mann-Whitney U: U=677  p=0.0008
+Permutation:    diff=+0.74  p=0.0007  (20000 shuffles)
+Levene (equal var?): W=0.00 p=0.966
+KS 2-sample:    D=0.400 p=0.0156
+Cohen's d = 0.95
+  > All four tests agree, the usual outcome when n is decent and the effect is real.
+    Report the test whose assumptions you can defend plus the effect size: summer nights
+    are 0.7 C warmer with d = 0.95 (large). Levene finds no variance difference so Student
+    and Welch coincide; prefer Welch by default anyway, it costs almost nothing.
+    [fig] figures/02_hypothesis_tests/two_sample.png
+
+==============================================================================
+Contrast: summer mean TMAX (daytime highs)
+==============================================================================
+diff=-0.09 C  Welch p=0.737  95% CI=(-0.61, 0.43)  d=-0.09  Levene p=0.022
+  > A null result. The CI (-0.61, 0.43) is the honest summary: the data are compatible
+    with anything from a small cooling to a ~0.4 C warming. 'Not significant' does not
+    mean 'no change'. Note also Levene p=0.02: summer TMAX variance increased even though
+    the mean did not, which a t-test is blind to.
+
+==============================================================================
+Pitfall: testing on daily values instead of seasonal means
+==============================================================================
+Daily values: n=2760 vs 2760, t=8.6, p=8.1e-18
+Seasonal means: n=30 vs 30, t=3.7, p=5.3e-04
+lag-1 autocorrelation of JJA daily TMIN: 0.75
+  > Same data, same mean difference, but the daily-level p-value is ~14 orders of
+    magnitude smaller because it pretends to have 2,760 independent observations per
+    period. Days within a summer are autocorrelated (and share the summer's anomaly), so
+    the effective sample size is far lower. Aggregate to the unit that is plausibly
+    independent, or model the dependence explicitly (mixed model, GLS).
+Bootstrap 95% CI for difference in means: (0.34, 1.12)  vs Welch CI (0.33, 1.14)
+
+==============================================================================
+Proportions: warm nights (TMIN >= 21.1 C / 70 F) by period
+==============================================================================
+warm-night fraction: early=0.289 late=0.377
+two-proportion z=6.94 p=3.89e-12 | chi2=47.8 dof=1 p=4.76e-12
+odds ratio (late vs early) = 1.49
+Warm nights per summer: early median=28 late median=36  Mann-Whitney p=0.0031  (n=30 vs 30 summers)
+  > Chi-square and the two-proportion z-test are the same test for a 2x2 table (z^2 =
+    chi2). Both inherit the daily-independence problem. The cleaner design is one count
+    per summer compared with Mann-Whitney or a Poisson / negative-binomial GLM with a
+    period term.
+
+==============================================================================
+Multiple comparisons: monthly TMIN change, 12 tests
+==============================================================================
+ month   diff  p_raw  p_bonferroni  p_bh_fdr  sig_raw  sig_bonf  sig_bh
+     1 1.0432 0.0932        1.0000    0.1243    False     False   False
+     2 1.3062 0.0294        0.3524    0.0503     True     False   False
+     3 0.6345 0.1381        1.0000    0.1507    False     False   False
+     4 0.6826 0.0185        0.2216    0.0424     True     False    True
+     5 0.6196 0.0778        0.9342    0.1168    False     False   False
+     6 0.6897 0.0033        0.0396    0.0307     True      True    True
+     7 0.7891 0.0109        0.1303    0.0326     True     False    True
+     8 0.7281 0.0212        0.2545    0.0424     True     False    True
+     9 0.9182 0.0088        0.1061    0.0326     True     False    True
+    10 0.5749 0.1188        1.0000    0.1426    False     False   False
+    11 0.4002 0.3303        1.0000    0.3303    False     False   False
+    12 1.6465 0.0051        0.0614    0.0307     True     False    True
+
+significant months: raw=7 Bonferroni=1 BH-FDR=6
+  > Running 12 tests at alpha=0.05 gives a 46% chance of at least one false positive under
+    H0. Bonferroni divides alpha by m (controls the family-wise error rate; conservative
+    when tests are correlated). Benjamini-Hochberg controls the expected fraction of false
+    discoveries among rejections; it is the default for screening many hypotheses. Months
+    that survive BH but not Bonferroni are the typical grey zone.
+
+==============================================================================
+Power analysis: how many summers to detect a given TMIN shift?
+==============================================================================
+  shift 0.25 C (d=0.32): n=153 per group for 80% power
+  shift 0.50 C (d=0.64): n=39 per group for 80% power
+  shift 1.00 C (d=1.29): n=11 per group for 80% power
+  achieved power for observed d=0.95 with n=30: 0.950
+    [fig] figures/02_hypothesis_tests/power_curves.png
+  > Power scales with (effect size / SD) and sqrt(n). A 0.25 C shift needs >100 summers
+    per group at this station's interannual variability: the signal-to-noise problem is
+    why climate detection relies on spatial averaging and long records rather than single
+    sites. Post-hoc 'observed power' is just a transform of the p-value; plan power in
+    advance.

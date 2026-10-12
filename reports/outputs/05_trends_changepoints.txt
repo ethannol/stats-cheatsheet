@@ -1,0 +1,88 @@
+
+==============================================================================
+OLS trend per decade, three ways to get the standard error
+==============================================================================
+GISTEMP 1880-2025 (C)            slope=+0.083/decade  SE naive=0.004  SE AR1-adj=0.012  SE HAC=0.008  r1(resid)=0.83  n_eff=14/146
+GISTEMP 1975-2025 (C)            slope=+0.207/decade  SE naive=0.010  SE AR1-adj=0.014  SE HAC=0.014  r1(resid)=0.33  n_eff=25/51
+Central Park TMIN 1950-2025 (C)  slope=+0.229/decade  SE naive=0.032  SE AR1-adj=0.036  SE HAC=0.040  r1(resid)=0.12  n_eff=59/76
+Potomac mean flow (kcfs)         slope=+0.164/decade  SE naive=0.153  SE AR1-adj=0.167  SE HAC=0.152  r1(resid)=0.08  n_eff=80/95
+  > The full-record GISTEMP trend is not linear (flat to 1910, up, flat, up), so the
+    residuals are strongly autocorrelated and the naive SE is badly optimistic. Over
+    1975-2025 the residual autocorrelation is modest. Always print r1 of the residuals
+    next to any trend.
+
+==============================================================================
+Mann-Kendall + Sen's slope (non-parametric)
+==============================================================================
+GISTEMP 1975-2025          MK z=+8.51 p=0.0000 | Hamed-Rao z=+2.66 p=0.0079 (r1=0.33) | Sen +0.206/decade (95% +0.182, +0.227)
+Central Park TMIN          MK z=+5.71 p=0.0000 | Hamed-Rao z=+2.20 p=0.0279 (r1=0.12) | Sen +0.233/decade (95% +0.165, +0.300)
+Potomac mean flow (kcfs)   MK z=+0.56 p=0.5759 | Hamed-Rao z=+0.56 p=0.5759 (r1=0.09) | Sen +0.076/decade (95% -0.201, +0.370)
+  > Potomac annual flow shows no monotonic trend: hydrologic series are noisy, and this is
+    the normal outcome. For GISTEMP and TMIN the trend survives the autocorrelation
+    correction because the signal is large relative to the persistence. Sen's slope is
+    nearly identical to OLS here (no outliers); it would differ on a series with a few
+    extreme years.
+
+==============================================================================
+Autocorrelation and Mann-Kendall: size (no trend) and power (trend) of four variants
+==============================================================================
+           raw MK  simple PW  TFPW (Yue)  Hamed-Rao
+rho test                                           
+0.0 size    0.048      0.051       0.050      0.059
+    power   0.825      0.732       0.824      0.788
+0.3 size    0.124      0.053       0.150      0.090
+    power   0.738      0.378       0.740      0.578
+0.6 size    0.327      0.043       0.415      0.094
+    power   0.585      0.117       0.652      0.273
+  > Size rows should read 0.05. Raw MK rejects a true null ~30% of the time at rho=0.6.
+    Simple pre-whitening fixes the size but, as the power rows show, throws away part of a
+    real trend. Yue's trend-free pre-whitening (TFPW) was designed to keep the power, but
+    under the null it adds a spurious Sen slope back onto whitened noise and over-rejects
+    even more than raw MK (Bayazit & Onoz 2007; Hamed 2009). The Hamed-Rao variance
+    correction holds the size near nominal with a smaller power cost. Knowing which
+    'standard fix' is actually broken is the kind of thing that separates practitioners
+    from tutorial-readers.
+
+==============================================================================
+Change points: Pettitt, CUSUM, hinge regression
+==============================================================================
+GISTEMP annual       Pettitt change after 1937  K=4903  p=2.04e-20
+Potomac mean flow    Pettitt change after 1970  K=518  p=3.12e-01
+Central Park TMIN    Pettitt change after 1997  K=1002  p=2.62e-06
+
+GISTEMP hinge: breakpoint=1975, slope before=+0.037/decade, after=+0.206/decade
+AIC linear=-61.3  AIC hinge=-204.1  (hinge uses 2 extra params incl. breakpoint)
+  > Pettitt finds the year that best splits the series into two medians; on a series with
+    a gradual trend it will always 'find' a change near the middle, so it cannot by itself
+    distinguish shift from trend. The hinge (broken-stick) model estimates where the slope
+    changed; for global temperature the acceleration lands in the 1970s. The breakpoint is
+    itself estimated, so count it as a parameter when comparing AIC.
+    [fig] figures/05_trends/changepoints.png
+
+==============================================================================
+Endpoint sensitivity: trend to 2025 as a function of start year
+==============================================================================
+    [fig] figures/05_trends/endpoint_sensitivity.png
+       slope     lo     hi   n
+start                         
+1950   0.161  0.137  0.185  76
+1975   0.207  0.180  0.234  51
+1998   0.253  0.203  0.304  28
+2005   0.297  0.214  0.380  21
+2010   0.363  0.274  0.452  16
+2015   0.299  0.113  0.486  11
+  > Starting in the 1998 El Nino year was the basis of the 'warming hiatus' claim (which
+    has since filled in: the 1998-2025 trend is now the steepest in the table). For the
+    11-year window the HAC interval runs 0.11 to 0.49 C/decade, from well below to nearly
+    triple the 1950-2025 rate. Short-window trends are endpoint noise; the honest answer
+    is the CI, and the honest design fixes the window before looking.
+
+==============================================================================
+Potomac: quantile trends (is the distribution changing even if the mean is not?)
+==============================================================================
+  annual mean                  MK p=0.576  Sen slope=+0.7% of mean per decade
+  annual 10th pct (low flow)   MK p=0.782  Sen slope=+0.4% of mean per decade
+  annual max                   MK p=0.956  Sen slope=-0.1% of mean per decade
+  > Trend tests on the mean miss changes in the tails. Testing several annual statistics
+    (mean, low-flow quantile, maximum) is standard in hydrology; remember it is also
+    multiple testing (section 02).

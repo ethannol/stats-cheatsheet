@@ -1,0 +1,59 @@
+
+==============================================================================
+Bootstrap CI for the mean and median of wet-day precipitation (2015, n=110)
+==============================================================================
+  mean      est=  9.46  percentile=( 7.37,11.68)  basic=( 7.25,11.56)  BCa=( 7.55,11.90)
+  median    est=  4.95  percentile=( 3.15, 7.60)  basic=( 2.30, 6.75)  BCa=( 3.14, 7.60)
+  90th pct  est= 28.53  percentile=(18.30,34.88)  basic=(22.18,38.76)  BCa=(18.40,35.60)
+  mean: classical t-interval = (7.27, 11.65)
+    [fig] figures/07_resampling/bootstrap_mean.png
+
+==============================================================================
+Coverage check: which interval actually has 95% coverage? (lognormal, n=30)
+==============================================================================
+  mean:t             coverage=0.843
+  mean:percentile    coverage=0.840
+  mean:BCa           coverage=0.875
+  median:percentile  coverage=0.930
+  median:BCa         coverage=0.935
+  > For the mean of a heavily skewed variable at n=30, every interval under-covers; BCa is
+    the least bad. The t-interval is not terrible either (the CLT is forgiving). The
+    bootstrap is not magic at small n with heavy tails: it only sees the tail the sample
+    happened to catch.
+
+==============================================================================
+Trend SE: iid bootstrap vs block bootstrap vs HAC (GISTEMP monthly 1975-2025)
+==============================================================================
+slope = 0.0207 C/yr   residual r1=0.67   n_eff=121 of 612
+  SE OLS (naive)             0.00042
+  SE iid residual bootstrap  0.00043
+  SE iid case bootstrap      0.00045
+  SE block bootstrap (24 mo) 0.00112
+  SE HAC Newey-West (24 lag) 0.00133
+  SE AR(1) n_eff adjusted    0.00094
+  > The iid bootstraps simply reproduce the naive OLS SE because resampling destroys the
+    autocorrelation that makes the naive SE wrong. Block bootstrap keeps 2-year chunks
+    intact and lands in the same place as HAC and the AR(1) adjustment. If the resampling
+    scheme does not preserve the dependence structure, the bootstrap inherits the same
+    mistake as the formula.
+    [fig] figures/07_resampling/block_bootstrap.png
+
+==============================================================================
+Jackknife: bias and SE of the skewness of annual precipitation totals
+==============================================================================
+skewness=0.801  jackknife bias=-0.061  jackknife SE=0.364  bootstrap SE=0.304
+bias-corrected skewness = 0.862
+  > The jackknife is a deterministic, n-evaluation approximation to the bootstrap. Sample
+    skewness is biased toward zero at small n; the jackknife quantifies and corrects it.
+    Do not jackknife a median or other non-smooth statistic; its SE estimate is
+    inconsistent.
+
+==============================================================================
+Monte Carlo: calibrate a trend t-test against an AR(1) null (GISTEMP annual 2000-2025)
+==============================================================================
+slope=+0.266 C/decade  t=10.16  naive p=0.0000  residual phi=0.41
+Monte Carlo AR(1) null: p=0.0000  (null SD of t = 1.61 vs 1.0 for iid)
+  > Simulating from a fitted null model is the most general calibration tool: fit AR(1) to
+    the residuals, generate thousands of trend-free series with the same persistence, and
+    ask how often the t-statistic is as large as observed. The null SD of t exceeds 1 by
+    roughly sqrt(n/n_eff), the same factor as the analytic adjustment in section 05.

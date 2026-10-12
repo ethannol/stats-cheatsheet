@@ -1,0 +1,111 @@
+
+==============================================================================
+(a) Simple OLS: annual GISTEMP anomaly ~ ln(CO2 / 280)
+==============================================================================
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     -0.5792      0.035    -16.346      0.000      -0.650      -0.508
+lnco2          3.9134      0.134     29.228      0.000       3.646       4.181
+==============================================================================
+R^2=0.928  AIC=-118.8  n=68
+
+Implied warming per CO2 doubling (slope * ln 2): 2.71 C (OLS 95% CI 2.53 to 2.90)
+  > The slope is the warming per e-fold of CO2; times ln(2) it is warming per doubling:
+    2.7 C here. The IPCC transient climate response is ~1.8 C (likely 1.4-2.2), so this
+    single-predictor fit overshoots. Why: methane, N2O, halocarbons and declining aerosol
+    cooling all rose alongside CO2, and the coefficient absorbs every one of them (omitted
+    variable bias). The regression is a useful descriptive fit; it is not an attribution
+    study. Physics plus a model of all forcings is what makes the IPCC number defensible.
+
+==============================================================================
+Residual diagnostics
+==============================================================================
+Durbin-Watson=1.38 (2 = none; 1.38 => positive autocorrelation)
+residual lag-1 r=0.28  effective n=38 of 68
+Ljung-Box p (lag1, lag5): [0.0208, 0.0796]
+Breusch-Pagan p=0.573 (heteroscedasticity)  Shapiro p=0.061
+    [fig] figures/03_regression/ols_diagnostics.png
+
+==============================================================================
+Standard errors under autocorrelation: OLS vs HAC vs GLS-AR(1)
+==============================================================================
+                           slope      SE        t
+OLS                       3.9134  0.1339  29.2284
+OLS + n_eff adj           3.9134  0.1792  21.8353
+HAC (Newey-West, 5 lags)  3.9134  0.1921  20.3699
+GLSAR(1) Cochrane-Orcutt  3.9921  0.1776  22.4814
+GLSAR estimated rho = 0.28
+  > Autocorrelation does not bias the slope but the naive OLS SE is too small by roughly
+    sqrt(n / n_eff). HAC (Newey-West) and GLS with AR(1) errors both widen the interval.
+    The conclusion survives here because the signal is enormous; for marginal trends it
+    often does not. Interviewers like to hear 'coefficients unbiased, SEs wrong' in one
+    breath.
+
+==============================================================================
+Model comparison: ln CO2 vs linear time vs both
+==============================================================================
+                 adj R2      AIC      BIC
+T~lnco2           0.927 -118.824 -114.385
+T~year            0.894  -93.009  -88.570
+T~lnco2+year      0.940 -130.724 -124.066
+T~lnco2+lnco2^2   0.934 -124.726 -118.068
+
+In T~lnco2+year: coef(lnco2)=8.36 (was 3.91 alone), p(lnco2)=0.000, p(year)=0.000, corr(lnco2, year)=0.995, VIF=91
+  > ln(CO2) beats a linear time trend (lower AIC/BIC) because CO2 growth accelerated and
+    so did warming. Adding 'year' still improves AIC, but with r=0.995 between the
+    predictors the VIF is 91 and the CO2 coefficient swings from 3.9 to 8.4:
+    multicollinearity makes individual coefficients unstable even when the joint fit is
+    excellent. Observational data alone cannot separate 'CO2' from 'anything else that
+    rose smoothly'.
+
+==============================================================================
+(b) Multiple regression: station mean temperature ~ lat + elev + lon (US airports)
+==============================================================================
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     38.3199      0.639     59.933      0.000      37.063      39.577
+lat           -0.8229      0.013    -65.024      0.000      -0.848      -0.798
+elev_km       -3.3821      0.146    -23.146      0.000      -3.670      -3.095
+lon           -0.0865      0.005    -17.634      0.000      -0.096      -0.077
+==============================================================================
+R^2=0.937  n=366  RMSE=1.26 C
+
+VIF:
+lat        1.04
+elev_km    1.23
+lon        1.20
+
+Standardised coefficients (SD of tavg per SD of x):
+lat       -0.876
+elev_km   -0.339
+lon       -0.255
+  > Elevation coefficient -3.38 C/km is a surface lapse rate. It is shallower than the
+    free-air 6.5 C/km because high stations sit in the dry, sunny interior West where
+    surface heating is strong and because longitude (r with elevation is nonzero) soaks up
+    part of the effect; drop lon and the lapse rate steepens. The latitude coefficient
+    -0.82 C/deg is the meridional gradient and dominates the standardised coefficients.
+    VIFs are small so the coefficients are interpretable. Residual RMSE 1.3 C is coasts,
+    aspect, urban heat; those residuals are spatially autocorrelated, which section 09
+    tests.
+    [fig] figures/03_regression/multiple_regression_partials.png
+
+==============================================================================
+Precipitation ~ predictors: when y is positive and skewed
+==============================================================================
+OLS on prcp:      R2=0.572  Breusch-Pagan p=1.4e-04
+OLS on log(prcp): R2=0.627  Breusch-Pagan p=0.000
+coefficients (multiplicative scale):
+           log-OLS  Gamma GLM log-link
+Intercept   9.3122              8.8123
+lat        -0.0053             -0.0041
+elev_km    -0.5044             -0.5678
+lon         0.0243              0.0184
+  > Annual precipitation is strictly positive and heteroscedastic (wet places vary more).
+    Log-transforming y or using a Gamma GLM with a log link gives multiplicative effects
+    (coefficient = fractional change per unit of x). The two sets of coefficients agree
+    closely. Breusch-Pagan still rejects after the log because the variance also depends
+    on longitude (a wet East / dry West split that lat+lon+elev cannot fully describe);
+    the GLM handles mean-variance coupling by construction and predicts on the natural
+    scale without the back-transform bias of exp(E[log y]).
