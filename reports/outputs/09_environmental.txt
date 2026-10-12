@@ -1,0 +1,86 @@
+309 total-recoverable copper samples 1985-2023 with matched daily flow; 0 non-detects
+
+==============================================================================
+Copper and flow through time
+==============================================================================
+      median_cu   n    p90
+year                      
+1985       51.5   8   95.0
+1991       64.5   4  324.0
+1996       96.0   7  528.0
+2001       25.0   8   79.3
+2006       30.5   7   72.6
+2011       92.6  12  222.4
+2016       41.9   8   60.4
+2021       25.5   8   36.9
+    [fig] figures/09_environmental/timeseries.png
+
+==============================================================================
+Concentration-discharge relationship
+==============================================================================
+log10 C = -0.59 + 0.90 log10 Q   (R2=0.53, n=309)
+a doubling of flow multiplies copper by 1.87
+monthly median Cu (ug/L): 1:38, 2:62, 3:36, 4:38, 5:76, 6:79, 7:19, 8:14, 9:38, 10:16, 11:16, 12:24
+  > The C-Q slope is +0.90: concentration *rises* with flow. That is mobilisation, not
+    dilution: high water scours copper-laden tailings and streambank sediments deposited
+    by a century of mining, the defining signature of this Superfund river. A point-source
+    discharge would show the opposite sign. Any trend analysis must first remove this flow
+    dependence.
+    [fig] figures/09_environmental/concentration_discharge.png
+
+==============================================================================
+Trend: raw vs flow-adjusted
+==============================================================================
+raw log10 Cu               Kendall tau=-0.24 p=0.0343  Sen slope=-0.77 log10-units/century = -1.8%/yr
+flow-adjusted residual     Kendall tau=-0.51 p=0.0000  Sen slope=-1.00 log10-units/century = -2.3%/yr
+
+by era (adj_median = flow-adjusted multiplier vs long-term C-Q line):
+           n  median_cu  median_flow  adj_median
+year                                            
+1969-90   35      54.00        271.0        1.59
+1991-05  116      32.05        241.0        1.01
+2006-15   83      29.90        289.0        0.78
+2016-23   75      29.60        339.0        0.79
+  > Raw and flow-adjusted trends agree in sign here, so the decline is not a flow
+    artefact; in drier or wetter decades they can disagree completely. The era table is
+    the plain-language version: the flow-adjusted copper level in the most recent decade
+    relative to the long-term relationship. Sampling frequency and detection limits also
+    changed across eras, which a single trend test silently ignores.
+
+==============================================================================
+Compliance statistics against an aquatic-life criterion
+==============================================================================
+           n  exceed   frac     lo     hi
+era                                      
+1969-90   35      34  0.971  0.855  0.995
+1991-05  116     107  0.922  0.859  0.959
+2006-15   83      74  0.892  0.807  0.942
+2016-23   75      64  0.853  0.756  0.916
+
+fraction of exceedances occurring on top-quartile flow days: 28% (exceedance rate on those days 100% vs 87% otherwise)
+  > Exceedance fractions with Wilson intervals are the honest compliance summary; 'number
+    of exceedances this year' is a count without a denominator. The decline from 97% to
+    85% is real but the river still exceeds this benchmark in most samples at any flow: a
+    chronic sediment-sourced problem, not an event-driven one, so the C-Q slope tells you
+    when it is worst, not when it is compliant. The criterion (13.0 ug/L) is the
+    hardness-100 chronic value for illustration; the real standard moves with each
+    sample's hardness, so compliance assessment needs paired hardness measurements.
+    [fig] figures/09_environmental/exceedances.png
+
+==============================================================================
+CUSUM of annual flow-adjusted medians, and a censored low-level analyte
+==============================================================================
+CUSUM of flow-adjusted annual medians peaks in 1996: regime shift from above-average to below-average residuals
+  cadmium 1969-90: n=87, non-detects=69%, KM median=0.00 ug/L, KM mean=0.58, naive mean (DL as value)=1.77
+  cadmium 1991-05: n=234, non-detects=61%, KM median=0.07 ug/L, KM mean=0.16, naive mean (DL as value)=0.45
+  cadmium 2006-23: n=316, non-detects=0%, KM median=0.10 ug/L, KM mean=0.18, naive mean (DL as value)=0.18
+  > The CUSUM turns in 1996: flow-adjusted copper ran above its long-term level before and
+    below it after. Upstream, the Warm Springs Ponds treatment system (which settles
+    metals out of Silver Bow Creek before it becomes the Clark Fork) was rebuilt and
+    expanded in the early- to-mid 1990s; the 2010s floodplain tailings removals are a
+    second candidate for the later decline. A change point found after the fact is a
+    hypothesis to test against the intervention record, not a proof. For cadmium the non-
+    detect fraction was 60-70% in the early eras with changing detection limits, so only
+    censored estimators (Kaplan-Meier) give comparable statistics across eras; the naive
+    'DL as value' means are 2-3x too high.
+    [fig] figures/09_environmental/cusum_changepoint.png

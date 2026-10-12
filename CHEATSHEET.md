@@ -6,30 +6,30 @@ Condensed from the nine scripts in `analyses/`. Section numbers match the script
 
 | Question | Method | Where |
 |---|---|---|
-| What do these assays look like? | log histogram, lognormal probability plot, CV, per-domain stats | 01 |
-| Is the drilling biased toward high grade? | cell declustering; declustered-mean vs cell-size curve | 01 |
-| Should I cap outliers? | probability-plot break, P97.5-P99 table of metal removed, per domain | 01 |
-| Samples have different lengths | composite to fixed length (length-weighted); check metal is conserved | 01 |
-| Elements are percentages / ppm | log-ratio transforms (clr for biplots, ilr for models), variation matrix | 02 |
-| Is the lab precise? | duplicate scatter, HARD (90% < 20%), Thompson-Howarth sd = s0 + k c | 03 |
-| Is the lab biased? | CRM control chart +-2SD/3SD, CUSUM for small sustained bias | 03 |
-| Contamination? | blanks vs DL and vs the preceding sample's grade | 03 |
-| Values below detection | Kaplan-Meier (default), ROS (lognormal), never substitution | 03, 09 |
-| How continuous is the grade? | omnidirectional then directional variograms; nugget/sill/range; anisotropy ellipse | 04 |
-| Estimate blocks | ordinary kriging with a moving neighbourhood; validate by leave-one-out | 04 |
-| Which estimator? | compare bias, RMSE, slope of truth-on-estimate, smoothing (sd of estimates) | 04 |
-| Tonnes and grade above cut-off | grade-tonnage curves at the SMU support; beware point-support curves | 04 |
-| How uncertain is the resource? | sequential Gaussian simulation; re-block; spread across realisations | 04 |
-| How big a sample? | Gy's FSE: c f g l d^3 / M; nomogram of the preparation protocol | 05 |
-| How much of the nugget is measurement? | duplicate variance vs variogram nugget | 05 |
-| Equipment lifetimes with units still running | Kaplan-Meier; Weibull MLE with censoring; beta tells the failure mode | 06 |
-| When to replace preventively? | age-replacement cost rate from Weibull; only if beta > 1 | 06 |
-| Has production / a KPI shifted? | I-MR for big shifts; CUSUM or EWMA for small sustained shifts; deseasonalise first | 06 |
-| Compare safety across mines/years | rates per 200,000 h; Poisson/NB GLM with log(hours) offset | 07 |
-| Rank mines by rate | empirical-Bayes shrinkage (Gamma-Poisson) before ranking | 07 |
-| Price risk | log returns, annualised vol, GBM vs mean-reversion fans | 08 |
-| Project value under uncertainty | Monte Carlo NPV with correlated inputs; tornado; P(NPV < 0) | 08 |
-| Is the river getting cleaner? | C-Q regression, flow-adjusted Kendall/Sen trend, exceedance fractions with CIs | 09 |
+| What do these assays look like? | log histogram, lognormal probability plot, CV, per-domain stats | [01](analyses/01_assay_eda.py) |
+| Is the drilling biased toward high grade? | cell declustering; declustered-mean vs cell-size curve | [01](analyses/01_assay_eda.py) |
+| Should I cap outliers? | probability-plot break, P97.5-P99 table of metal removed, per domain | [01](analyses/01_assay_eda.py) |
+| Samples have different lengths | composite to fixed length (length-weighted); check metal is conserved | [01](analyses/01_assay_eda.py) |
+| Elements are percentages / ppm | log-ratio transforms (clr for biplots, ilr for models), variation matrix | [02](analyses/02_compositional.py) |
+| Is the lab precise? | duplicate scatter, HARD (90% < 20%), Thompson-Howarth sd = s0 + k c | [03](analyses/03_qaqc.py) |
+| Is the lab biased? | CRM control chart +-2SD/3SD, CUSUM for small sustained bias | [03](analyses/03_qaqc.py) |
+| Contamination? | blanks vs DL and vs the preceding sample's grade | [03](analyses/03_qaqc.py) |
+| Values below detection | Kaplan-Meier (default), ROS (lognormal), never substitution | [03](analyses/03_qaqc.py), [09](analyses/09_environmental.py) |
+| How continuous is the grade? | omnidirectional then directional variograms; nugget/sill/range; anisotropy ellipse | [04](analyses/04_geostatistics.py) |
+| Estimate blocks | ordinary kriging with a moving neighbourhood; validate by leave-one-out | [04](analyses/04_geostatistics.py) |
+| Which estimator? | compare bias, RMSE, slope of truth-on-estimate, smoothing (sd of estimates) | [04](analyses/04_geostatistics.py) |
+| Tonnes and grade above cut-off | grade-tonnage curves at the SMU support; beware point-support curves | [04](analyses/04_geostatistics.py) |
+| How uncertain is the resource? | sequential Gaussian simulation; re-block; spread across realisations | [04](analyses/04_geostatistics.py) |
+| How big a sample? | Gy's FSE: c f g l d^3 / M; nomogram of the preparation protocol | [05](analyses/05_sampling_theory.py) |
+| How much of the nugget is measurement? | duplicate variance vs variogram nugget | [05](analyses/05_sampling_theory.py) |
+| Equipment lifetimes with units still running | Kaplan-Meier; Weibull MLE with censoring; beta tells the failure mode | [06](analyses/06_reliability.py) |
+| When to replace preventively? | age-replacement cost rate from Weibull; only if beta > 1 | [06](analyses/06_reliability.py) |
+| Has production / a KPI shifted? | I-MR for big shifts; CUSUM or EWMA for small sustained shifts; deseasonalise first | [06](analyses/06_reliability.py) |
+| Compare safety across mines/years | rates per 200,000 h; Poisson/NB GLM with log(hours) offset | [07](analyses/07_safety.py) |
+| Rank mines by rate | empirical-Bayes shrinkage (Gamma-Poisson) before ranking | [07](analyses/07_safety.py) |
+| Price risk | log returns, annualised vol, GBM vs mean-reversion fans | [08](analyses/08_economics.py) |
+| Project value under uncertainty | Monte Carlo NPV with correlated inputs; tornado; P(NPV < 0) | [08](analyses/08_economics.py) |
+| Is the river getting cleaner? | C-Q regression, flow-adjusted Kendall/Sen trend, exceedance fractions with CIs | [09](analyses/09_environmental.py) |
 
 ## 1. Assay EDA
 

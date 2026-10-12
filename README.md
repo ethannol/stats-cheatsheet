@@ -68,47 +68,26 @@ figures/<topic>/*.png        written by the scripts
 CHEATSHEET.md                the condensed reference
 ```
 
-## Headline results (as talking points)
+## Worked results and reproducibility
 
-From the script output; rerun to refresh.
+[Generated worked results](reports/worked-results.md) contain actual script output rather
+than manually refreshed headline numbers. The [run manifest](reports/results.json) records
+the source commit, source patch hash, Python/dependency versions, date cutoff, script and
+output hashes, and figure hashes. [Input provenance](reports/data-manifest.json) records
+request URLs/parameters, SHA-256, sizes and retrieval times. Existing unmanifested caches
+are explicitly labelled `legacy-cache`, with unknown retrieval time; metadata is never
+backdated. The small teaching inputs fetched from GitHub use a pinned upstream commit.
 
-- Walker Lake's 470 samples average 435 against an exhaustive truth of 278: preferential sampling.
-  Cell declustering at the 20-unit cell recovers 287 (94% of the bias removed); the GSLIB weights
-  cross-check correlates at r = 0.96 with ours.
-- Scored against the true 5x5 block grades, anisotropic ordinary kriging is unbiased with RMSE 115
-  and a conditional-bias slope of 0.92; IDW carries a +57 bias straight from the sampling; nearest
-  neighbour is unbiased but 30% less accurate. Every estimator is smoother than the truth.
-- Variance of block grades falls from 62,400 at point support to 52,300 at 5x5 and 20,100 at 50x50;
-  at a cut-off of 500 the point-support truth reports 13% more tonnes than the block truth and the
-  kriged model 16% fewer. Simulation reproduces the declustered histogram faithfully, which is still
-  richer than the deposit, so its uncertainty band sits above the truth: simulation cannot repair a
-  biased histogram.
-- Three independent quantities closed to 100% acquire pairwise correlations of about -0.5; in the
-  Jura data Co/Ni is the most proportional pair (log-ratio variance 0.08).
-- Synthetic QA/QC: Thompson-Howarth recovers the generating precision (sd = 0.01 + 0.10 c vs
-  0.02 floor and 12% slope); CUSUM flags the planted +8% lab bias within ~8 batches when 3SD limits
-  do not; all 7 carry-over blanks follow samples above 3 g/t; only half the planted sample swaps are
-  detectable from duplicate statistics.
-- Clark Fork dissolved lead has 36% non-detects with detection limits from 0.04 to 100 ug/L:
-  substituting 0, DL/2 or DL gives means of 0.23, 1.01 and 1.79 ug/L against a Kaplan-Meier 0.28.
-- Gy's theory: a 1.5 g/t gold sample needs ~57 kg at 1 cm top size for 10% fundamental error (11 t
-  under Gy's classic liberation factor) but 37 g at 75 um; splitting coarse gives an 89% protocol
-  error, crushing to 2 mm before the first split gives 24%.
-- Weibull MLE with right censoring recovers beta 2.27 / 0.91 / 3.08 for generating values 2.4 /
-  0.85 / 3.0; the naive MTBF under-states the Weibull MTBF because long lives get censored. A
-  1.15-sigma production drop is caught 8 days (EWMA) and 15 days (CUSUM) after the change vs 46
-  days for a Shewhart chart.
-- US mine injury rates fell from 8.2 (coal) and 5.1 (metal/nonmetal) per 200,000 h in 2000 to 3.4
-  and 2.0 in 2024. Across mines the negative-binomial standard error is 1.9x the Poisson one. The
-  raw worst-five list is all mines with one injury in ~2,000 hours; Gamma-Poisson shrinkage replaces
-  it with large mines at 11-16 injuries per 200,000 h.
-- Copper prices: 21% annualised volatility, fat tails (excess kurtosis 4.8), no rejection of a unit
-  root over 35 years (estimated half-life 17 years); a 10-year GBM fan is 9x wide vs 6x under the
-  fitted mean reversion. The synthetic copper project has a deterministic NPV of $0.9 bn and a 27%
-  Monte Carlo probability of negative NPV.
-- Clark Fork copper rises with flow (C-Q slope +0.90: tailings mobilisation, not dilution); the
-  flow-adjusted decline is 2.3%/yr (Kendall tau -0.51), with a CUSUM regime change in 1996 and
-  exceedance of a 13 ug/L benchmark falling from 97% to 85% of samples.
+```bash
+make results             # full analysis; run on a workstation/CI, not the laptop
+make reproduce           # requires the exact raw-byte hashes in the committed manifest
+```
+
+`make results` writes per-topic transcripts and selected portfolio preview figures under
+`reports/`. Dates are clipped to `END_DATE` even when an upstream file has newer rows.
+A fixed cutoff does not prevent providers revising historical values: retain the raw
+snapshot alongside its manifest for exact reproduction. Changed bytes are rejected until
+an explicit refresh. Derived caches are rebuilt after loader/cutoff changes.
 
 ## Left out and why
 

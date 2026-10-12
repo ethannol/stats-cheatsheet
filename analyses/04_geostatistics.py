@@ -114,7 +114,9 @@ disc = (bxy[:, None, :] + offs[None, :, :]).reshape(-1, 2)
 ok_pts, ok_var_pts = ordinary_kriging(xy, V, disc, spherical, aniso_params, n_max=24,
                                       anisotropy=(major, ratio))
 ok_block = ok_pts.reshape(-1, 4).mean(axis=1)
-ok_var = ok_var_pts.reshape(-1, 4).mean(axis=1)
+mean_point_var = ok_var_pts.reshape(-1, 4).mean(axis=1)
+# This is descriptive point uncertainty, NOT variance of the block mean.
+# That requires cross-point error covariances or a direct block-kriging solve.
 ok_point, _ = ordinary_kriging(xy, V, bxy, spherical, aniso_params, n_max=24, anisotropy=(major, ratio))
 idw2 = idw(xy, V, bxy, power=2)
 nn = nearest_neighbour(xy, V, bxy)
@@ -150,7 +152,7 @@ def as_grid(v):
 
 vmax = np.quantile(truth, .99)
 for ax, (name, v) in zip(axes.ravel(), [("truth (block means)", truth), ("OK block estimate", ok_block),
-                                         ("OK kriging sd", np.sqrt(np.maximum(ok_var, 0))),
+                                         ("RMS point kriging SD (not block SE)", np.sqrt(np.maximum(mean_point_var, 0))),
                                          ("IDW p=2", idw2), ("nearest neighbour", nn),
                                          ("OK error (estimate - truth)", ok_block - truth)]):
     if "sd" in name:

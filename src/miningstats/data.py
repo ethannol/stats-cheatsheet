@@ -38,16 +38,19 @@ import json
 import sys
 import zipfile
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import requests
 
 from . import DATA_DIR
+from .provenance import cached_bytes, cached_frame, sha256
 
 RAW = DATA_DIR / "raw"
 UA = {"User-Agent": "miningstats-cheatsheet/0.1 (educational)"}
-GSTAT = "https://raw.githubusercontent.com/r-spatial/gstat/master/"
+GSTAT_REVISION = "c4612f3abcdb58b79f5639c2562d8314ae657ce8"
+GSTAT = f"https://raw.githubusercontent.com/r-spatial/gstat/{GSTAT_REVISION}/"
 MSHA = "https://arlweb.msha.gov/OpenGovernmentData/DataSets/"
 WQP = "https://www.waterqualitydata.us/data/Result/search"
 CLARK_FORK = "12324200"
@@ -60,23 +63,15 @@ def _get(url, params=None, timeout=900) -> bytes:
     return r.content
 
 
-def _cached_bytes(name, url, params=None) -> bytes:
-    RAW.mkdir(parents=True, exist_ok=True)
-    path = RAW / name
-    if not path.exists():
-        print(f"  downloading {name} ...", file=sys.stderr)
-        path.write_bytes(_get(url, params))
-    return path.read_bytes()
+def _cached_bytes(name: str, url: str, params: dict | None = None) -> bytes:
+    return cached_bytes(RAW / name, url, params, _get, pinned="raw.githubusercontent.com" in url)
 
 
-def _parquet_cached(name, builder):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    path = DATA_DIR / f"{name}.parquet"
-    if path.exists():
-        return pd.read_parquet(path)
-    df = builder()
-    df.to_parquet(path)
-    return df
+def _parquet_cached(name: str, builder):
+    # A loader edit or a changed date cutoff always rebuilds old parsed caches.
+    return cached_frame(DATA_DIR / f"{name}.parquet", builder,
+                        identity={"loader_sha256": sha256(Path(__file__)),
+                                  "end_date": END_DATE}, data_dir=DATA_DIR, pd=pd)
 
 
 def _rda(name):
@@ -196,7 +191,7 @@ def msha_production() -> pd.DataFrame:
                   "avg_employee_hours"]:
             df[c] = pd.to_numeric(df[c], errors="coerce")
         df = df.rename(columns={"calendar_yr": "year", "c_m_ind": "coal_metal_ind"})
-        return df[["mine_id", "curr_mine_nm", "state_abbr", "subunit_cd", "subunit_desc", "year",
+        return df.loc[df.year <= int(END_DATE[:4]), ["mine_id", "curr_mine_nm", "state_abbr", "subunit_cd", "subunit_desc", "year",
                    "annual_hrs", "annual_coal_prod", "avg_annual_empl", "coal_metal_ind"]]
 
     return _parquet_cached("msha_production", build)
@@ -216,7 +211,7 @@ def msha_accidents() -> pd.DataFrame:
         for c in ["cal_yr", "degree_injury_cd", "no_injuries", "tot_exper", "mine_exper",
                   "job_exper", "days_restrict", "days_lost"]:
             df[c] = pd.to_numeric(df[c], errors="coerce")
-        return df.rename(columns={"cal_yr": "year"})
+        return df.loc[df.accident_dt <= END_DATE].rename(columns={"cal_yr": "year"})
 
     return _parquet_cached("msha_accidents", build)
 
@@ -250,7 +245,7 @@ def clark_fork_wq() -> pd.DataFrame:
         df["unit"] = df.unit.fillna(df.dl_unit).str.lower().str.replace("ug/l", "ug/l")
         df = df.drop(columns="dl_unit")
         df["fraction"] = df.fraction.fillna("Total")
-        return df.dropna(subset=["value"]).sort_values("date").reset_index(drop=True)
+        return df.loc[df.date <= END_DATE].dropna(subset=["value"]).sort_values("date").reset_index(drop=True)
 
     return _parquet_cached("clark_fork_wq", build)
 
@@ -266,7 +261,7 @@ def clark_fork_flow() -> pd.DataFrame:
         df = pd.DataFrame(ts["values"][0]["value"])
         df["date"] = pd.to_datetime(df.dateTime.str[:10])
         df["flow_cfs"] = pd.to_numeric(df["value"]).replace(-999999.0, np.nan)
-        return df.set_index("date")[["flow_cfs"]]
+        return df.set_index("date").loc[:END_DATE, ["flow_cfs"]]
 
     return _parquet_cached("clark_fork_flow", build)
 
@@ -302,7 +297,7 @@ def commodity_prices() -> pd.DataFrame:
             attrs[key] = units.iloc[1:][names.iloc[1:] == col].iloc[0]
         out.index.name = "date"
         out.attrs["units"] = attrs
-        return out
+        return out.loc[:END_DATE]
 
     return _parquet_cached("commodity_prices", build)
 

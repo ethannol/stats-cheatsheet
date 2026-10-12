@@ -7,7 +7,7 @@
   "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
   "aim": "Document the statistical methods used in mining, as runnable, annotated examples with assumptions, interpretation and failure modes stated for each.",
   "scope": "Assay exploratory analysis and capping, compositional data, QA/QC, geostatistics, sampling theory, equipment reliability, safety rates, project economics and environmental compliance trends.",
-  "conclusion": "Reference material. No empirical claim is made.",
+  "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
   "ledger": {
     "type": "none"
   },
@@ -20,14 +20,14 @@
       }
     },
     {
-      "label": "Figures",
+      "label": "Portfolio figure previews",
       "value": {
         "source": "count_files",
-        "glob": "figures/**/*.png"
+        "glob": "reports/figures/*.png"
       }
     },
     {
-      "label": "Tests",
+      "label": "Top-level test definitions",
       "value": {
         "source": "regex_count",
         "glob": "tests/test_*.py",
@@ -56,7 +56,16 @@
       "how": "Declustering corrects the preferential-sampling bias of drilling where the grade is high."
     }
   ],
-  "figures": [],
+  "figures": [
+    {
+      "path": "reports/figures/estimation_maps.png",
+      "caption": "Estimates compared with exhaustive block truth; the uncertainty panel shows mean point variance, not block-estimate uncertainty."
+    },
+    {
+      "path": "reports/figures/crm_control_charts.png",
+      "caption": "Seeded synthetic certified-reference-material controls and planted laboratory bias."
+    }
+  ],
   "not_claimed": [
     "A reference, not a study; no new empirical finding is claimed."
   ],
@@ -64,6 +73,10 @@
     {
       "title": "Cheat sheet",
       "path": "CHEATSHEET.md"
+    },
+    {
+      "title": "Generated worked results",
+      "path": "reports/worked-results.md"
     }
   ],
   "verification": {
@@ -71,7 +84,9 @@
       "source": "regex_count",
       "glob": "tests/test_*.py",
       "pattern": "^def test_"
-    }
+    },
+    "artifact": "reports/results.json",
+    "test_artifact": "reports/check-evidence.json"
   },
   "data": [
     "Public and synthetic assay, duplicate, variogram, reliability, safety, price and water-quality datasets"

@@ -1,0 +1,97 @@
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "CRS". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "GridTopology". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "SpatialGridDataFrame". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "CRS". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "SpatialPointsDataFrame". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "CRS". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "GridTopology". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "SpatialGridDataFrame". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "CRS". The underlying R object is returned instead.
+  warnings.warn(
+.venv/lib/python3.12/site-packages/rdata/conversion/_conversion.py:918: UserWarning: Missing constructor for R class "SpatialPointsDataFrame". The underlying R object is returned instead.
+  warnings.warn(
+
+==============================================================================
+Walker Lake V: distribution and skewness
+==============================================================================
+n             470.000
+mean          435.299
+median        424.000
+sd            299.882
+CV              0.689
+skew            0.459
+min             0.000
+P90           817.380
+P99          1207.589
+max          1528.100
+frac zero       0.047
+
+exhaustive truth: mean=278.0 median=221.2 CV=0.90
+lognormal fit to V>0: sigma_ln=1.09  Shapiro on ln(V>0) p=0.000
+
+by geological type T:
+   count    mean  median     std    CV
+T                                     
+1     45   39.54    18.3   51.73  1.31
+2    425  477.20   473.3  284.28  0.60
+  > The sample mean (435) sits well above the exhaustive truth (278): Walker Lake was
+    sampled preferentially in the high-grade zones, exactly as a drilling campaign would
+    be. CV of 0.69 is moderate for a base-metal style variable. The two T types have very
+    different grades and variability: estimate them separately.
+    [fig] figures/01_assay_eda/distribution.png
+
+==============================================================================
+Cell declustering
+==============================================================================
+naive mean=435.3  declustered mean (cell=20)=287.3  truth=278.0
+weights: min=0.29 max=2.41 (1 = average sample)
+bias removed: 94% of the naive bias
+
+GSLIB cluster.dat: naive mean=4.35, declustered (ours)=2.59, declustered (shipped weights)=2.53; weight correlation r=0.96
+  > The declustered-mean curve bottoms out near cell size 20 (the spacing of the regular
+    sampling pass); that minimum is the conventional pick when high grades were
+    oversampled. Declustering removes most of the bias but not all: the clusters sit on
+    the richest ground, where even the declustered samples are rich. Declustered weights
+    also feed the histogram used for simulation and the normal-score transform (section
+    04).
+    [fig] figures/01_assay_eda/declustering.png
+
+==============================================================================
+Top-cut (capping) analysis
+==============================================================================
+            cap  n_cut  frac_cut  mean_before  mean_after  metal_removed  cv_before  cv_after
+P95     916.920     24     0.051      435.299     426.516          0.020      0.689     0.656
+P97.5  1011.932     12     0.026      435.299     430.167          0.012      0.689     0.666
+P99    1207.589      5     0.011      435.299     433.427          0.004      0.689     0.679
+P99.5  1346.818      3     0.006      435.299     434.445          0.002      0.689     0.684
+
+Within T=2 only: P99=1213, max=1528, top 1% of samples hold 2.8% of the metal
+  > Capping at P99 touches 5 samples and removes 0.4% of the metal while lowering the CV
+    from 0.69 to 0.68. For this moderately skewed variable capping barely matters; for
+    nuggety gold the same table can remove 10-20% of the metal, and the choice becomes the
+    single most consequential assumption in the resource. Decide caps per domain, from the
+    probability plot, and report the metal removed.
+
+==============================================================================
+Compositing irregular samples to 2-unit lengths (drillhole built from Walker Lake column)
+==============================================================================
+raw samples: n=163, lengths 0.5-3.5, mean length=1.83, grade sd=177.8
+2-unit composites: n=149, grade sd=177.8;  4-unit composites: n=75, grade sd=174.6
+metal (grade x length) raw=58720 composited=58720 -> conserved
+naive mean of raw sample grades=197.2 vs length-weighted mean=196.7
+  > Compositing conserves metal and length-weights the samples. Here the raw mean and the
+    length-weighted mean agree because these synthetic interval lengths were drawn
+    independently of grade; in real holes short samples target the richest intervals and
+    the arithmetic mean of raw assays is biased high. The 2-unit composite sd (178) barely
+    differs from the raw sd (178) because the raw mean length is already ~2, but 4-unit
+    composites drop to 175: the volume-variance effect. Variograms and cut-off statistics
+    must be computed on the support that will be estimated, not on raw assays.
+    [fig] figures/01_assay_eda/compositing.png

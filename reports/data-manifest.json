@@ -1,0 +1,433 @@
+{
+  "files": {
+    "clark_fork_flow.parquet": {
+      "columns": [
+        "flow_cfs"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 17532,
+      "sha256": "58fd9f5b3fda38335c6b5ab7b284100b11b126a2c9c5eb519debcbf70a7c263e"
+    },
+    "clark_fork_wq.parquet": {
+      "columns": [
+        "date",
+        "characteristic",
+        "fraction",
+        "value",
+        "unit",
+        "detect_cond",
+        "dl",
+        "nondetect"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 3792,
+      "sha256": "8ab9a80c0a6c335fabb7bc76457dff83b59ed26f4b50baa74214453ac528e8f5"
+    },
+    "commodity_prices.parquet": {
+      "columns": [
+        "gold",
+        "silver",
+        "platinum",
+        "copper",
+        "aluminum",
+        "nickel",
+        "zinc",
+        "lead",
+        "tin",
+        "iron_ore",
+        "coal_aus",
+        "crude_oil"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 780,
+      "sha256": "b85b842f10b01d21cbb60e9daced2c5cc2d84887a210e4739180633be46509b2"
+    },
+    "gslib_cluster.parquet": {
+      "columns": [
+        "x",
+        "y",
+        "primary",
+        "secondary",
+        "declus_weight"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 140,
+      "sha256": "449dc4e611be36e4e301f89a9b1f2124692c24efd79da1be3033b51056345b48"
+    },
+    "jura.parquet": {
+      "columns": [
+        "x",
+        "y",
+        "long",
+        "lat",
+        "landuse",
+        "rock",
+        "cd",
+        "co",
+        "cr",
+        "cu",
+        "ni",
+        "pb",
+        "zn",
+        "set"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 359,
+      "sha256": "cfef8c5962e61462806154f0fa9feacfabbce6df15ca6628f24e9e7093a2e655"
+    },
+    "msha_accidents.parquet": {
+      "columns": [
+        "mine_id",
+        "subunit_cd",
+        "subunit",
+        "accident_dt",
+        "year",
+        "degree_injury_cd",
+        "degree_injury",
+        "mining_equip",
+        "classification",
+        "accident_type",
+        "no_injuries",
+        "tot_exper",
+        "mine_exper",
+        "job_exper",
+        "occupation",
+        "activity",
+        "injury_source",
+        "nature_injury",
+        "inj_body_part",
+        "days_restrict",
+        "days_lost",
+        "coal_metal_ind"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 275094,
+      "sha256": "319384159e313b640adcb526d29dc3143621d3e7a4a9ba79ccd1dd25a94caab8"
+    },
+    "msha_mines.parquet": {
+      "columns": [
+        "mine_id",
+        "current_mine_name",
+        "coal_metal_ind",
+        "current_mine_type",
+        "current_mine_status",
+        "current_status_dt",
+        "current_controller_name",
+        "state",
+        "primary_sic",
+        "primary_canvass",
+        "no_employees",
+        "longitude",
+        "latitude"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 92037,
+      "sha256": "65e29e897072e26e60e9fa1aacf04a51bf255c5e0ef407b06699478ad66e0825"
+    },
+    "msha_production.parquet": {
+      "columns": [
+        "mine_id",
+        "curr_mine_nm",
+        "state_abbr",
+        "subunit_cd",
+        "subunit_desc",
+        "year",
+        "annual_hrs",
+        "annual_coal_prod",
+        "avg_annual_empl",
+        "coal_metal_ind"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 658920,
+      "sha256": "361a774dfa79b58c23efdf2ce4a7ce77409cb0367c7bcc5b7716f702e84a9f5e"
+    },
+    "raw/Accidents.zip": {
+      "bytes": 52245523,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:17.093200+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {},
+        "url": "https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip"
+      },
+      "retrieved_at": null,
+      "sha256": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f"
+    },
+    "raw/Mines.zip": {
+      "bytes": 7306254,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:20.102373+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {},
+        "url": "https://arlweb.msha.gov/OpenGovernmentData/DataSets/Mines.zip"
+      },
+      "retrieved_at": null,
+      "sha256": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09"
+    },
+    "raw/MinesProdYearly.zip": {
+      "bytes": 7072776,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:19.069366+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {},
+        "url": "https://arlweb.msha.gov/OpenGovernmentData/DataSets/MinesProdYearly.zip"
+      },
+      "retrieved_at": null,
+      "sha256": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb"
+    },
+    "raw/cluster.txt": {
+      "bytes": 3962,
+      "observed_at": "2026-10-12T20:15:57.123928+00:00",
+      "origin": "downloaded",
+      "request": {
+        "params": {},
+        "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/inst/external/cluster.txt"
+      },
+      "retrieved_at": "2026-10-12T20:15:57.123928+00:00",
+      "sha256": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1"
+    },
+    "raw/cmo_monthly.xlsx": {
+      "bytes": 765246,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:23.010975+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {},
+        "url": "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Monthly.xlsx"
+      },
+      "retrieved_at": null,
+      "sha256": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11"
+    },
+    "raw/jura.rda": {
+      "bytes": 73588,
+      "observed_at": "2026-10-12T20:15:59.562772+00:00",
+      "origin": "downloaded",
+      "request": {
+        "params": {},
+        "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/data/jura.rda"
+      },
+      "retrieved_at": "2026-10-12T20:15:59.562772+00:00",
+      "sha256": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845"
+    },
+    "raw/nwis_clark_fork.json": {
+      "bytes": 1274522,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:25.384858+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {
+          "endDT": "2026-09-30",
+          "format": "json",
+          "parameterCd": "00060",
+          "sites": "12324200",
+          "startDT": "1969-01-01",
+          "statCd": "00003"
+        },
+        "url": "https://waterservices.usgs.gov/nwis/dv/"
+      },
+      "retrieved_at": null,
+      "sha256": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f"
+    },
+    "raw/walker.rda": {
+      "bytes": 392148,
+      "observed_at": "2026-10-12T20:15:55.422696+00:00",
+      "origin": "downloaded",
+      "request": {
+        "params": {},
+        "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/data/walker.rda"
+      },
+      "retrieved_at": "2026-10-12T20:15:55.422696+00:00",
+      "sha256": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255"
+    },
+    "raw/wqp_clark_fork.csv": {
+      "bytes": 1946685,
+      "note": "Request describes the loader; original retrieval history is unavailable.",
+      "observed_at": "2026-10-12T20:16:01.269576+00:00",
+      "origin": "legacy-cache",
+      "request": {
+        "params": {
+          "characteristicName": [
+            "Copper",
+            "Zinc",
+            "Arsenic",
+            "Cadmium",
+            "Lead",
+            "pH"
+          ],
+          "mimeType": "csv",
+          "siteid": "USGS-12324200",
+          "zip": "no"
+        },
+        "url": "https://www.waterqualitydata.us/data/Result/search"
+      },
+      "retrieved_at": null,
+      "sha256": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+    },
+    "walker.parquet": {
+      "columns": [
+        "x",
+        "y",
+        "V",
+        "U",
+        "T"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 470,
+      "sha256": "d8ae3616491e2bc4ea9e5f4b3a3005652a0f2f704850f19c7b663ae926b3b987"
+    },
+    "walker_exhaustive.parquet": {
+      "columns": [
+        "x",
+        "y",
+        "U",
+        "V"
+      ],
+      "identity": {
+        "end_date": "2026-09-30",
+        "loader_sha256": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53"
+      },
+      "raw_inputs": {
+        "Accidents.zip": "b8929b560caaaacf7518f7f887243864c347fec22b13f8e993ddd83e9f686c6f",
+        "Mines.zip": "c74533dd6aa42bf385e725af4a92501eb622a236f6819eaaea80a70417deae09",
+        "MinesProdYearly.zip": "7ae45520a417a4144f1479b6c2fa074ce6204af8e19c3c2b20ef7f14cc18a7fb",
+        "cluster.txt": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1",
+        "cmo_monthly.xlsx": "bd89b83eeceadaecb803018c104f76b316d2df3fae28ef7afde48021100c7e11",
+        "jura.rda": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845",
+        "nwis_clark_fork.json": "0b8b0c6f270f248f6f5736d651772d8be84c4f0fc0ca9ea9627df5ec684eea4f",
+        "walker.rda": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255",
+        "wqp_clark_fork.csv": "b50d4d5384ba0bb2f98395eb0e62f4f750395b9cebb2a30ea6d0518cd23142a4"
+      },
+      "rows": 78000,
+      "sha256": "bd5f09505e39b1745d6194b8ac04fad3b47debd92a94761ab4b4c88cbe3d2f55"
+    }
+  },
+  "schema_version": 1
+}

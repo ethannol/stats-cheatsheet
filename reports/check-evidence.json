@@ -1,0 +1,55 @@
+{
+  "kind": "checks",
+  "source_commit": "4ef9b1ded95351d45bcb2998049b3847c8ddcd4c",
+  "source_files": {
+    ".github/workflows/tests.yml": "d1ce29719d00be3ba40751a206f12d5102de8d69095cd8776555e14d80abda33",
+    "analyses/01_assay_eda.py": "69c55fd6ab6db3a21e4d25118ac386a66ae88eaac09f4ee510962e2bae10eb61",
+    "analyses/02_compositional.py": "b131138caad035d64bd6ea8227c2d921d9b6e00a58350918c0844d9c1a30a5d2",
+    "analyses/03_qaqc.py": "8c7faed51daecdb90f22f344710a011e5a51413b93b29db88224f08be953bdf6",
+    "analyses/04_geostatistics.py": "f8c9cd3bd9298c66f17ffb84fa7f20c3af4247a2416fbb2f88cb88a1422cfa0b",
+    "analyses/05_sampling_theory.py": "f98789354916df7512af9e33497daaf684cc4c2f8100fb5a6fffa320c359d5fd",
+    "analyses/06_reliability.py": "b0e9de4ad8095850f464422c8e82861baad7e247e52b9b844338b86565ae5f32",
+    "analyses/07_safety.py": "f7a632d92bedd5a0155fc8c63d1acfba37f3cc9a8c87df97193a3328724f0cc7",
+    "analyses/08_economics.py": "7e21b440c9992822fc0871f3a2702cb8162ea7eb629dd20f5651aa83db2f90fa",
+    "analyses/09_environmental.py": "c32dca3b3a3ce26e1da6056f0a2077f1f794ef9b141cd6dff343cb3c57753084",
+    "pyproject.toml": "f0c1d6a3d7cec4cae44b1aa00bea896df81936938bf3bbb21996d19a404610da",
+    "scripts/format_results.py": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
+    "scripts/run_results.py": "360ba6c84666d74a346e8b7f9f2e88aee70b5f492da856dc9bea0095079e4cc6",
+    "src/miningstats/__init__.py": "f75087e5ae51d888e2d5099b164aaf49431b4fef117427f71d7e78d5ac0905de",
+    "src/miningstats/data.py": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53",
+    "src/miningstats/plotting.py": "f8639d94ced8fdd63590fd7f61907b4bbcc702128b7d85ca8ad5286978a0d0fb",
+    "src/miningstats/provenance.py": "72cd40324930c4e9ba05febdd9d76adf4d546a0352ab1f234f34a4c240d7eb91",
+    "src/miningstats/stats.py": "2db45a62f281c4d5f084b372b4fd45d4e12eb329c01049a44831987ad5f15497",
+    "tests/test_data.py": "a4da207facc0fc591cc893ad748ae88a8d250ffff45588eb8a641c627f91b325",
+    "tests/test_provenance.py": "f6881c98711224a596383abf7aab7b0da9bc25305fb1208e5fe791d9be03e844",
+    "tests/test_stats.py": "665ff12aa482dd857ac61f0b276f655ccaade20d6f06fc640be5c1ebfe2626ef",
+    "uv.lock": "f503f7940e0830505691a7892881a88a764c41d654ac6694414463e7e0777ffd"
+  },
+  "checked_at": "2026-10-12T20:35:42.794023+00:00",
+  "started_at": "2026-10-12T20:35:19.893589+00:00",
+  "ok": true,
+  "source_unchanged_during_check": true,
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "pytest",
+    "-q"
+  ],
+  "exit_code": 0,
+  "stdout": "........................                                                 [100%]\n24 passed in 22.16s\n",
+  "stderr": "",
+  "tests": {
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "pytest",
+      "-q"
+    ]
+  }
+}

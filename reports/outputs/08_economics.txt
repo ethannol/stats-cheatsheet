@@ -1,0 +1,82 @@
+
+==============================================================================
+Log returns, volatility, correlation (monthly, 1990-2024)
+==============================================================================
+annualised volatility:
+copper      20.8%
+gold        11.9%
+iron_ore    27.8%
+nickel      27.9%
+zinc        21.7%
+
+return correlation:
+          copper  gold  iron_ore  nickel  zinc
+copper      1.00  0.27      0.33    0.55  0.63
+gold        0.27  1.00      0.16    0.27  0.21
+iron_ore    0.33  0.16      1.00    0.30  0.27
+nickel      0.55  0.27      0.30    1.00  0.51
+zinc        0.63  0.21      0.27    0.51  1.00
+
+copper monthly return skew=-0.61, excess kurtosis=4.83 (normal = 0; fat tails)
+  > Base metals run at 21-28% annualised volatility, gold at 12%. Returns are fat-tailed,
+    so a normal model understates the frequency of crashes; copper and zinc move together
+    (macro demand) while gold is nearly uncorrelated with the industrial metals, which is
+    why a diversified miner's cash-flow volatility is lower than any single commodity's.
+    [fig] figures/08_economics/prices_volatility.png
+
+==============================================================================
+Random walk or mean reversion? Copper and gold
+==============================================================================
+copper   ADF p (unit root)=0.630  AR(1) b=0.9965  half-life=16.6 yr  long-run mean=10,054
+gold     ADF p (unit root)=0.991  AR(1) b=1.0022 >= 1: no mean reversion estimable (pure random walk or trending)
+  > Neither series rejects a unit root at conventional levels over 35 years of monthly
+    data: the power to distinguish slow mean reversion (half-life of several years) from a
+    random walk is low. Yet the two assumptions give very different 10-year price fans and
+    NPV distributions, so state the assumption, show both, and justify reversion with the
+    cost curve (incentive price) rather than with a statistical test that cannot settle
+    it.
+    [fig] figures/08_economics/price_fans.png
+10-year 90% band width: GBM 9.2x, mean reversion 6.2x
+
+==============================================================================
+SYNTHETIC copper project: deterministic vs Monte Carlo NPV
+==============================================================================
+base case NPV = $0.91 billion at copper 8,916 $/t
+
+tornado (+-10% one at a time, $bn):
+                  low  high  swing
+input                             
+discount         1.03  0.79   0.25
+capex            1.07  0.75   0.32
+tonnes_per_year  0.65  1.16   0.50
+opex_per_t       1.19  0.62   0.57
+grade_pct        0.37  1.44   1.07
+recovery         0.37  1.44   1.07
+price            0.37  1.44   1.07
+
+Monte Carlo (20,000 runs): mean NPV=$0.91bn, median=$0.73bn, P10=$-0.72bn, P90=$2.75bn, P(NPV<0)=26.9%
+  > The tornado says price and grade dominate; costs and capex matter less because they
+    are spread over the life or discounted. The Monte Carlo adds what the tornado cannot:
+    joint uncertainty and correlation (high prices come with high costs, so the upside is
+    clipped), and asymmetric inputs (capex overruns). The result is a mean NPV of $0.91bn
+    against a deterministic $0.91bn and a 27% chance of destroying value, which is the
+    number the board needs.
+    [fig] figures/08_economics/npv.png
+
+==============================================================================
+Break-even cut-off grade
+==============================================================================
+g_c = opex / (price x recovery x payability) = 0.292% Cu at 8,916 $/t; at -30% price: 0.417%
+  > The cut-off grade converts the grade-tonnage curve (section 04) into ore tonnes and
+    metal, and it moves with price: a price fall raises the cut-off, shrinks the ore
+    inventory and lowers the mine life, which is why resource statements quote the price
+    assumption.
+
+==============================================================================
+Real-option flavour: value of waiting two years for price information
+==============================================================================
+commit now: expected NPV $0.91bn (P(<0)=32%); wait 2 years and build only if positive: $0.98bn -> option value $+0.06bn
+  > Waiting trades two years of discounting against the right not to build into a price
+    collapse. When volatility is high and the project is marginal the option is worth a
+    lot; for a deeply profitable project it is worth little and delay is pure cost. This
+    is the intuition behind why miners sequence projects and hold undeveloped resources.

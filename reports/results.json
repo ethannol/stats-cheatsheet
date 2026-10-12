@@ -1,0 +1,154 @@
+{
+  "analyses": {
+    "01_assay_eda.py": {
+      "exit_code": 0,
+      "output": "outputs/01_assay_eda.txt",
+      "output_sha256": "38aba009fd9f28bc31c1f1771c95512246cbc7b3cda59a1252130aefe254879b",
+      "script_sha256": "69c55fd6ab6db3a21e4d25118ac386a66ae88eaac09f4ee510962e2bae10eb61"
+    },
+    "02_compositional.py": {
+      "exit_code": 0,
+      "output": "outputs/02_compositional.txt",
+      "output_sha256": "c377a2f8b16fc1392552cf2a62b0b2c0a1315f1d5f36141347af004606ec83f7",
+      "script_sha256": "b131138caad035d64bd6ea8227c2d921d9b6e00a58350918c0844d9c1a30a5d2"
+    },
+    "03_qaqc.py": {
+      "exit_code": 0,
+      "output": "outputs/03_qaqc.txt",
+      "output_sha256": "53570009ccbfd1b15d8171f9cc2ded2270de0f267054a2dfbd79a5ea760312ab",
+      "script_sha256": "8c7faed51daecdb90f22f344710a011e5a51413b93b29db88224f08be953bdf6"
+    },
+    "04_geostatistics.py": {
+      "exit_code": 0,
+      "output": "outputs/04_geostatistics.txt",
+      "output_sha256": "f0984f7cb36116a86b9f2d4ed8efbbda306e00cce91284515d96b4caee0f3fd4",
+      "script_sha256": "f8c9cd3bd9298c66f17ffb84fa7f20c3af4247a2416fbb2f88cb88a1422cfa0b"
+    },
+    "05_sampling_theory.py": {
+      "exit_code": 0,
+      "output": "outputs/05_sampling_theory.txt",
+      "output_sha256": "8979d34755a53f660c55d2fea6b1fd64e1ccfd320b74135c6bcf2ca42ccd809b",
+      "script_sha256": "f98789354916df7512af9e33497daaf684cc4c2f8100fb5a6fffa320c359d5fd"
+    },
+    "06_reliability.py": {
+      "exit_code": 0,
+      "output": "outputs/06_reliability.txt",
+      "output_sha256": "f25c1f24f16d7d59b88d6b781062c05f2b5a1759bbb22108f7464990e0b6fde6",
+      "script_sha256": "b0e9de4ad8095850f464422c8e82861baad7e247e52b9b844338b86565ae5f32"
+    },
+    "07_safety.py": {
+      "exit_code": 0,
+      "output": "outputs/07_safety.txt",
+      "output_sha256": "95843d29823365cbe0132a249d5107a85547fe25ef30ef666e0c0621dab17580",
+      "script_sha256": "f7a632d92bedd5a0155fc8c63d1acfba37f3cc9a8c87df97193a3328724f0cc7"
+    },
+    "08_economics.py": {
+      "exit_code": 0,
+      "output": "outputs/08_economics.txt",
+      "output_sha256": "cf02bf586a1254c7226c2182e5ad00cd6e68776acb06bd1b19d248528a4a4b75",
+      "script_sha256": "7e21b440c9992822fc0871f3a2702cb8162ea7eb629dd20f5651aa83db2f90fa"
+    },
+    "09_environmental.py": {
+      "exit_code": 0,
+      "output": "outputs/09_environmental.txt",
+      "output_sha256": "c91b83a71ae4e5740fe7c1c752a17779286903c83ce3d96c444d60c02178447f",
+      "script_sha256": "c32dca3b3a3ce26e1da6056f0a2077f1f794ef9b141cd6dff343cb3c57753084"
+    }
+  },
+  "end_date": "2026-09-30",
+  "figures": {
+    "crm_control_charts.png": "84656dd949bdd9574cbbead19d42c2819f188be50bc4cabaabad9d0922a66770",
+    "estimation_maps.png": "2ef197e37ef8d7ea440c8d2bcc872a76b46ff86415b8533d8bbafbd830382ca1"
+  },
+  "finished_at": "2026-10-12T20:16:25.972489+00:00",
+  "packages": {
+    "PyYAML": "6.0.3",
+    "Pygments": "2.21.0",
+    "attrs": "26.1.0",
+    "certifi": "2026.7.22",
+    "charset-normalizer": "3.5.2",
+    "contourpy": "1.4.0",
+    "cycler": "0.12.1",
+    "et_xmlfile": "2.0.0",
+    "fastjsonschema": "2.22.2",
+    "fonttools": "4.66.1",
+    "formulaic": "1.2.2",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "interface_meta": "2.0.1",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "jupyter_core": "5.9.1",
+    "jupytext": "1.19.6",
+    "kiwisolver": "1.5.1",
+    "markdown-it-py": "4.2.0",
+    "matplotlib": "3.11.2",
+    "mdit-py-plugins": "0.6.1",
+    "mdurl": "0.1.2",
+    "miningstats": "0.1.0",
+    "narwhals": "2.26.0",
+    "nbformat": "5.11.1",
+    "numpy": "2.5.3",
+    "openpyxl": "3.1.5",
+    "packaging": "26.3",
+    "pandas": "3.0.6",
+    "patsy": "1.0.3",
+    "pillow": "12.3.0",
+    "platformdirs": "4.12.4",
+    "pluggy": "1.6.0",
+    "pyarrow": "25.0.1",
+    "pyparsing": "3.3.3",
+    "pytest": "9.1.1",
+    "python-dateutil": "2.9.0.post0",
+    "rdata": "1.1.0",
+    "referencing": "0.37.0",
+    "requests": "2.34.2",
+    "rpds-py": "2026.9.1",
+    "ruff": "0.16.10",
+    "scipy": "1.18.1",
+    "six": "1.17.0",
+    "statsmodels": "0.15.0",
+    "traitlets": "5.16.1",
+    "typing_extensions": "4.16.0",
+    "urllib3": "2.8.0",
+    "wrapt": "2.5.0",
+    "xarray": "2026.9.0"
+  },
+  "presentation": {
+    "formatted_at": "2026-10-12T20:22:15.802180+00:00",
+    "formatter": "scripts/format_results.py",
+    "formatter_sha256": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
+    "note": "Text-only formatting of the original hash-checked numerical transcripts.",
+    "output": "worked-results.md",
+    "output_sha256": "ca7c85a2ebe005d818ef457f01b6d458d760afbd54d8df71751ab9a09192e0dc"
+  },
+  "python": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]",
+  "schema_version": 1,
+  "source_commit": "caf1d153b4a2469bdda5136e3c07f06e9f806bd2",
+  "source_files": {
+    "analyses/01_assay_eda.py": "69c55fd6ab6db3a21e4d25118ac386a66ae88eaac09f4ee510962e2bae10eb61",
+    "analyses/02_compositional.py": "b131138caad035d64bd6ea8227c2d921d9b6e00a58350918c0844d9c1a30a5d2",
+    "analyses/03_qaqc.py": "8c7faed51daecdb90f22f344710a011e5a51413b93b29db88224f08be953bdf6",
+    "analyses/04_geostatistics.py": "f8c9cd3bd9298c66f17ffb84fa7f20c3af4247a2416fbb2f88cb88a1422cfa0b",
+    "analyses/05_sampling_theory.py": "f98789354916df7512af9e33497daaf684cc4c2f8100fb5a6fffa320c359d5fd",
+    "analyses/06_reliability.py": "b0e9de4ad8095850f464422c8e82861baad7e247e52b9b844338b86565ae5f32",
+    "analyses/07_safety.py": "f7a632d92bedd5a0155fc8c63d1acfba37f3cc9a8c87df97193a3328724f0cc7",
+    "analyses/08_economics.py": "7e21b440c9992822fc0871f3a2702cb8162ea7eb629dd20f5651aa83db2f90fa",
+    "analyses/09_environmental.py": "c32dca3b3a3ce26e1da6056f0a2077f1f794ef9b141cd6dff343cb3c57753084",
+    "scripts/run_results.py": "360ba6c84666d74a346e8b7f9f2e88aee70b5f492da856dc9bea0095079e4cc6",
+    "src/miningstats/__init__.py": "f75087e5ae51d888e2d5099b164aaf49431b4fef117427f71d7e78d5ac0905de",
+    "src/miningstats/data.py": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53",
+    "src/miningstats/plotting.py": "f8639d94ced8fdd63590fd7f61907b4bbcc702128b7d85ca8ad5286978a0d0fb",
+    "src/miningstats/provenance.py": "72cd40324930c4e9ba05febdd9d76adf4d546a0352ab1f234f34a4c240d7eb91",
+    "src/miningstats/stats.py": "2db45a62f281c4d5f084b372b4fd45d4e12eb329c01049a44831987ad5f15497",
+    "uv.lock": "f503f7940e0830505691a7892881a88a764c41d654ac6694414463e7e0777ffd"
+  },
+  "source_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "started_at": "2026-10-12T20:15:42.588510+00:00",
+  "threads": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "upstream_gstat_commit": "c4612f3abcdb58b79f5639c2562d8314ae657ce8"
+}
