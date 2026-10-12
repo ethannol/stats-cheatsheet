@@ -1,0 +1,25 @@
+{
+  "slug": "mining-stats-cheatsheet",
+  "title": "Mining Statistics Cheat Sheet",
+  "kind": "reference",
+  "status": "complete",
+  "question": "What are the statistical methods mining companies actually use, from assay QA/QC and geostatistics to sampling theory, reliability and project economics, each applied and interpreted on data?",
+  "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
+  "ledger": {"type": "none"},
+  "headline": [
+    {"label": "Analysis scripts", "value": {"source": "count_files", "glob": "analyses/*.py"}},
+    {"label": "Figures", "value": {"source": "count_files", "glob": "figures/**/*.png"}},
+    {"label": "Tests", "value": {"source": "regex_count", "glob": "tests/test_*.py", "pattern": "^def test_"}}
+  ],
+  "finding": [
+    "Each script applies one family of methods to real or clearly labelled synthetic data and prints an interpretation, so the output reads like a worked example. The cheat sheet is the index: a table from question to method to script section, with the assumptions and the failure modes beside each."
+  ],
+  "traps": [{"id": "censoring", "how": "Values below detection are handled by Kaplan-Meier and ROS, never substitution, in the QA/QC and environmental sections."}, {"id": "units-definitions", "how": "Compositional data: percentages and ppm are closed, so log-ratio transforms precede biplots and models."}, {"id": "batch-effects", "how": "Lab bias and precision are measured with CRM control charts, CUSUM and duplicate analysis before assays are trusted."}, {"id": "composition", "how": "Declustering corrects the preferential-sampling bias of drilling where the grade is high."}],
+  "figures": [],
+  "not_claimed": ["A reference, not a study; no new empirical finding is claimed."],
+  "documents": [{"title": "Cheat sheet", "path": "CHEATSHEET.md"}],
+  "verification": {"tests": {"source": "regex_count", "glob": "tests/test_*.py", "pattern": "^def test_"}},
+  "data": ["Public and synthetic assay, duplicate, variogram, reliability, safety, price and water-quality datasets"],
+  "stack": ["assay EDA and capping", "compositional data", "QA/QC", "geostatistics", "sampling theory", "reliability", "safety rates", "economics", "environmental trends"],
+  "links": {"Repository": "https://github.com/ethannol/mining-stats-cheatsheet"}
+}
