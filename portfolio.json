@@ -8,6 +8,21 @@
   "aim": "Document the statistical methods used in mining, as runnable, annotated examples with assumptions, interpretation and failure modes stated for each.",
   "scope": "Assay exploratory analysis and capping, compositional data, QA/QC, geostatistics, sampling theory, equipment reliability, safety rates, project economics and environmental compliance trends.",
   "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
+  "summary": {
+    "question": "Worked examples of the statistics used in mining, from assay QA/QC and geostatistics to reliability and project economics.",
+    "techniques": [
+      "Assay EDA and capping",
+      "Compositional data",
+      "QA/QC",
+      "Geostatistics",
+      "Sampling theory",
+      "Reliability",
+      "Safety rates",
+      "Economics",
+      "Environmental trends"
+    ],
+    "result": ""
+  },
   "ledger": {
     "type": "none"
   },
