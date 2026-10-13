@@ -53,14 +53,21 @@
       "output": "outputs/09_environmental.txt",
       "output_sha256": "c91b83a71ae4e5740fe7c1c752a17779286903c83ce3d96c444d60c02178447f",
       "script_sha256": "c32dca3b3a3ce26e1da6056f0a2077f1f794ef9b141cd6dff343cb3c57753084"
+    },
+    "10_censored_inference.py": {
+      "exit_code": 0,
+      "output": "outputs/10_censored_inference.txt",
+      "output_sha256": "333c0857a18f0bb35fab87e02fa3ca0efd7c64069993a10c500b8b9d1ef72af3",
+      "script_sha256": "1c9c7f941ac5aac041170915dc68e2a3d5715402a0cc8aecdd60b86037d0cf85"
     }
   },
   "end_date": "2026-09-30",
   "figures": {
     "crm_control_charts.png": "84656dd949bdd9574cbbead19d42c2819f188be50bc4cabaabad9d0922a66770",
-    "estimation_maps.png": "2ef197e37ef8d7ea440c8d2bcc872a76b46ff86415b8533d8bbafbd830382ca1"
+    "estimation_maps.png": "2ef197e37ef8d7ea440c8d2bcc872a76b46ff86415b8533d8bbafbd830382ca1",
+    "seasonal_kendall.png": "a7ca64a0a78afa6652fb5f19c11b04fc28c13a0f420e9612cf309af2b2d882de"
   },
-  "finished_at": "2026-10-12T20:16:25.972489+00:00",
+  "finished_at": "2026-10-13T19:04:09.034822+00:00",
   "packages": {
     "PyYAML": "6.0.3",
     "Pygments": "2.21.0",
@@ -115,16 +122,16 @@
     "xarray": "2026.9.0"
   },
   "presentation": {
-    "formatted_at": "2026-10-12T20:22:15.802180+00:00",
+    "formatted_at": "2026-10-13T19:04:09.197086+00:00",
     "formatter": "scripts/format_results.py",
     "formatter_sha256": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
     "note": "Text-only formatting of the original hash-checked numerical transcripts.",
     "output": "worked-results.md",
-    "output_sha256": "ca7c85a2ebe005d818ef457f01b6d458d760afbd54d8df71751ab9a09192e0dc"
+    "output_sha256": "ab0bbaa2a1a372354353e4211efa484cb30a7a59b6f2b2b9641cdb3da67a5b10"
   },
-  "python": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]",
+  "python": "3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56) [Clang 13.0.0 (clang-1300.0.29.30)]",
   "schema_version": 1,
-  "source_commit": "caf1d153b4a2469bdda5136e3c07f06e9f806bd2",
+  "source_commit": "515607f9b2b954e517d839c0886811f1db3f962a",
   "source_files": {
     "analyses/01_assay_eda.py": "69c55fd6ab6db3a21e4d25118ac386a66ae88eaac09f4ee510962e2bae10eb61",
     "analyses/02_compositional.py": "b131138caad035d64bd6ea8227c2d921d9b6e00a58350918c0844d9c1a30a5d2",
@@ -135,16 +142,18 @@
     "analyses/07_safety.py": "f7a632d92bedd5a0155fc8c63d1acfba37f3cc9a8c87df97193a3328724f0cc7",
     "analyses/08_economics.py": "7e21b440c9992822fc0871f3a2702cb8162ea7eb629dd20f5651aa83db2f90fa",
     "analyses/09_environmental.py": "c32dca3b3a3ce26e1da6056f0a2077f1f794ef9b141cd6dff343cb3c57753084",
-    "scripts/run_results.py": "360ba6c84666d74a346e8b7f9f2e88aee70b5f492da856dc9bea0095079e4cc6",
+    "analyses/10_censored_inference.py": "1c9c7f941ac5aac041170915dc68e2a3d5715402a0cc8aecdd60b86037d0cf85",
+    "scripts/format_results.py": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
+    "scripts/run_results.py": "db9415cd1d5185c9f5b77061f1cb74849856f5e026ec02759d707c5c46392ba1",
     "src/miningstats/__init__.py": "f75087e5ae51d888e2d5099b164aaf49431b4fef117427f71d7e78d5ac0905de",
     "src/miningstats/data.py": "4c2bc3879dd90ac7319c19578da473878c0980fb3ed11ec2c2600f7f138a2a53",
     "src/miningstats/plotting.py": "f8639d94ced8fdd63590fd7f61907b4bbcc702128b7d85ca8ad5286978a0d0fb",
     "src/miningstats/provenance.py": "72cd40324930c4e9ba05febdd9d76adf4d546a0352ab1f234f34a4c240d7eb91",
-    "src/miningstats/stats.py": "2db45a62f281c4d5f084b372b4fd45d4e12eb329c01049a44831987ad5f15497",
+    "src/miningstats/stats.py": "a5210833debaf5ff97915282920d45502c637e705e48aaecf91cd5c10e30b591",
     "uv.lock": "f503f7940e0830505691a7892881a88a764c41d654ac6694414463e7e0777ffd"
   },
   "source_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "started_at": "2026-10-12T20:15:42.588510+00:00",
+  "started_at": "2026-10-13T19:03:30.245406+00:00",
   "threads": {
     "MKL_NUM_THREADS": "1",
     "OMP_NUM_THREADS": "1",

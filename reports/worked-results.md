@@ -1,7 +1,7 @@
 # Generated worked-example results
 
 These are executed educational examples, not a new scientific study.
-Data cutoff: `2026-09-30`. Source: `caf1d153b4a2469bdda5136e3c07f06e9f806bd2`.
+Data cutoff: `2026-09-30`. Source: `515607f9b2b954e517d839c0886811f1db3f962a`.
 The run manifest records the exact executed source, dependencies and hashes.
 Full transcripts retain diagnostic warnings, assumptions and interpretation.
 The excerpts below omit diagnostic warnings and read numerical output directly
@@ -346,4 +346,46 @@ CUSUM of flow-adjusted annual medians peaks in 1996: regime shift from above-ave
     expanded in the early- to-mid 1990s; the 2010s floodplain tailings removals are a
     detect fraction was 60-70% in the early eras with changing detection limits, so only
     'DL as value' means are 2-3x too high.
+```
+
+## 10 censored inference
+
+[Source](../analyses/10_censored_inference.py) · [Full output](outputs/10_censored_inference.txt)
+
+```text
+recoverable copper 309 samples (0 non-detects), dissolved lead 311 (117 non-detects), total arsenic 310 (0 non-detects)
+years sampled per calendar month: 1:2, 2:7, 3:35, 4:34, 5:39, 6:34, 7:30, 8:30, 9:6, 10:16, 11:15, 12:3
+raw log10 Cu    seasonal Kendall tau=-0.122 z=-2.60 p=9.19e-03 Sen=-1.04%/yr   |   annual-median Mann-Kendall tau=-0.236 p=3.43e-02 Sen=-1.76%/yr
+flow-adjusted   seasonal Kendall tau=-0.350 z=-7.49 p=7.14e-14 Sen=-1.98%/yr   |   annual-median Mann-Kendall tau=-0.555 p=6.63e-07 Sen=-2.23%/yr
+did the sampled flows drift? Kendall tau of log10 Q on time = +0.089 (p=0.019)
+1             2   -1.0 -1.000 -0.022   -5.043
+2             7   -9.0 -0.429 -0.035   -7.734
+3            35 -169.0 -0.284 -0.008   -1.798
+4            34 -201.0 -0.358 -0.008   -1.834
+5            39 -285.0 -0.385 -0.008   -1.821
+6            34 -129.0 -0.230 -0.007   -1.505
+7            30 -207.0 -0.476 -0.015   -3.343
+8            30 -191.0 -0.439 -0.010   -2.213
+9             6   -3.0 -0.200 -0.007   -1.680
+10           16  -46.0 -0.383 -0.010   -2.231
+11           15  -15.0 -0.143 -0.006   -1.290
+12            3   -1.0 -0.333 -0.008   -1.751
+    0.009 to p = 7e-14: copper rides on discharge (section 09), so the flow the sampler
+    test. The sampled flows themselves drifted over the record (tau +0.09), so part of the
+    raw trend is a flow artefact. Report the flow-adjusted slope (-1.98%/yr) with the raw
+    slope (-1.04%/yr) beside it. Modern USGS practice (WRTDS, Hirsch et al. 2010) fits the
+  1969-90: n=35, non-detects=69%, detection limits [np.float64(1.0), np.float64(5.0)]
+  1991-05: n=117, non-detects=74%, detection limits [np.float64(0.08), np.float64(0.5), np.float64(0.6), np.float64(1.0)]
+  2006-15: n=84, non-detects=7%, detection limits [np.float64(0.04), np.float64(0.08), np.float64(0.12)]
+  2016-23: n=75, non-detects=1%, detection limits [np.float64(0.06)]
+                Gehan (censored)  3.13  0.00177
+     Mann-Whitney, substitute DL   NaN 1.48e-15
+  Welch t on logs, substitute DL  15.9 1.25e-26
+   Mann-Whitney, substitute DL/2   NaN 5.96e-15
+Welch t on logs, substitute DL/2  12.4 7.71e-20
+      Mann-Whitney, substitute 0   NaN  0.00132
+   Welch t on logs, substitute 0 -2.21    0.033
+Gehan: 1969-90 is the higher group (positive scores favour the first label)
+KM medians by era: 1969-90: 1.00 ug/L, 1991-05: 0.07 ug/L, 2006-15: 0.11 ug/L, 2016-23: 0.14 ug/L
+    detects almost everything, with a median of 0.14 ug/L. Substituting the detection
 ```

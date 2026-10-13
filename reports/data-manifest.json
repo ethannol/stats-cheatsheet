@@ -256,7 +256,7 @@
     "raw/Accidents.zip": {
       "bytes": 52245523,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:17.093200+00:00",
+      "observed_at": "2026-10-13T19:03:53.071810+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {},
@@ -268,7 +268,7 @@
     "raw/Mines.zip": {
       "bytes": 7306254,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:20.102373+00:00",
+      "observed_at": "2026-10-13T19:03:57.376908+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {},
@@ -280,7 +280,7 @@
     "raw/MinesProdYearly.zip": {
       "bytes": 7072776,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:19.069366+00:00",
+      "observed_at": "2026-10-13T19:03:55.813830+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {},
@@ -291,19 +291,19 @@
     },
     "raw/cluster.txt": {
       "bytes": 3962,
-      "observed_at": "2026-10-12T20:15:57.123928+00:00",
+      "observed_at": "2026-10-13T19:03:33.444986+00:00",
       "origin": "downloaded",
       "request": {
         "params": {},
         "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/inst/external/cluster.txt"
       },
-      "retrieved_at": "2026-10-12T20:15:57.123928+00:00",
+      "retrieved_at": "2026-10-13T19:03:33.444986+00:00",
       "sha256": "21a638efacfdd101b5797a78899a0e206ddc30914556d427eae35b19358d18e1"
     },
     "raw/cmo_monthly.xlsx": {
       "bytes": 765246,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:23.010975+00:00",
+      "observed_at": "2026-10-13T19:04:01.170999+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {},
@@ -314,19 +314,19 @@
     },
     "raw/jura.rda": {
       "bytes": 73588,
-      "observed_at": "2026-10-12T20:15:59.562772+00:00",
+      "observed_at": "2026-10-13T19:03:35.555223+00:00",
       "origin": "downloaded",
       "request": {
         "params": {},
         "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/data/jura.rda"
       },
-      "retrieved_at": "2026-10-12T20:15:59.562772+00:00",
+      "retrieved_at": "2026-10-13T19:03:35.555223+00:00",
       "sha256": "f1d9e8a7e6686aa7473a1ce452fffe74f0c45a3e2ba464e35a9163c0d447d845"
     },
     "raw/nwis_clark_fork.json": {
       "bytes": 1274522,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:25.384858+00:00",
+      "observed_at": "2026-10-13T18:56:24.194585+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {
@@ -344,19 +344,19 @@
     },
     "raw/walker.rda": {
       "bytes": 392148,
-      "observed_at": "2026-10-12T20:15:55.422696+00:00",
+      "observed_at": "2026-10-13T19:03:32.484096+00:00",
       "origin": "downloaded",
       "request": {
         "params": {},
         "url": "https://raw.githubusercontent.com/r-spatial/gstat/c4612f3abcdb58b79f5639c2562d8314ae657ce8/data/walker.rda"
       },
-      "retrieved_at": "2026-10-12T20:15:55.422696+00:00",
+      "retrieved_at": "2026-10-13T19:03:32.484096+00:00",
       "sha256": "3ef7b3bc1bdb911f341e740bcdd56fca57ce855c2001cd2e27d653a83e7fd255"
     },
     "raw/wqp_clark_fork.csv": {
       "bytes": 1946685,
       "note": "Request describes the loader; original retrieval history is unavailable.",
-      "observed_at": "2026-10-12T20:16:01.269576+00:00",
+      "observed_at": "2026-10-13T18:56:24.012840+00:00",
       "origin": "legacy-cache",
       "request": {
         "params": {
