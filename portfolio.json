@@ -8,6 +8,23 @@
   "aim": "Document the statistical toolkit for environmental data as runnable, annotated examples on real observations, with assumptions, interpretation and failure modes stated for each method.",
   "scope": "Exploratory analysis, hypothesis tests, regression, time series, trend and change-point detection, extremes, resampling, multivariate and spatial methods, Bayesian estimation and machine learning, on NOAA, NASA GISTEMP, GHCN-Daily and USGS streamflow data.",
   "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
+  "summary": {
+    "question": "Worked examples of the statistics used on environmental data, each run on real observations with its assumptions and pitfalls written out.",
+    "techniques": [
+      "Exploratory analysis",
+      "Hypothesis tests",
+      "Regression",
+      "Time series",
+      "Trends and change-points",
+      "Extremes",
+      "Resampling",
+      "Multivariate",
+      "Spatial",
+      "Bayesian",
+      "Machine learning"
+    ],
+    "result": ""
+  },
   "ledger": {
     "type": "none"
   },
