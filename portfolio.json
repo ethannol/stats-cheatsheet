@@ -3,10 +3,10 @@
   "title": "Mining Statistics Cheat Sheet",
   "kind": "reference",
   "status": "complete",
-  "question": "What are the statistical methods mining companies actually use, from assay QA/QC and geostatistics to sampling theory, reliability and project economics, each applied and interpreted on data?",
+  "question": "What are the statistical methods mining companies and their regulators actually use, from assay QA/QC and geostatistics to sampling theory, reliability, project economics and censored water-quality inference, each applied and interpreted on data?",
   "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
   "aim": "Document the statistical methods used in mining, as runnable, annotated examples with assumptions, interpretation and failure modes stated for each.",
-  "scope": "Assay exploratory analysis and capping, compositional data, QA/QC, geostatistics, sampling theory, equipment reliability, safety rates, project economics and environmental compliance trends.",
+  "scope": "Assay exploratory analysis and capping, compositional data, QA/QC, geostatistics, sampling theory, equipment reliability, safety rates, project economics, environmental compliance trends, and inference with non-detects: seasonal Kendall, Gehan, censored regression, ProUCL-style upper confidence limits, prediction and tolerance limits.",
   "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
   "summary": {
     "question": "Worked examples of the statistics used in mining, from assay QA/QC and geostatistics to reliability and project economics.",
@@ -19,7 +19,8 @@
       "Reliability",
       "Safety rates",
       "Economics",
-      "Environmental trends"
+      "Environmental trends",
+      "Censored inference and compliance limits"
     ],
     "result": ""
   },
@@ -56,7 +57,7 @@
   "traps": [
     {
       "id": "censoring",
-      "how": "Values below detection are handled by Kaplan-Meier and ROS, never substitution, in the QA/QC and environmental sections."
+      "how": "Values below detection are handled by Kaplan-Meier and ROS for summaries and by Gehan, censored MLE and Akritas-Theil-Sen for tests and trends, never by substitution."
     },
     {
       "id": "units-definitions",
@@ -79,6 +80,10 @@
     {
       "path": "reports/figures/crm_control_charts.png",
       "caption": "Seeded synthetic certified-reference-material controls and planted laboratory bias."
+    },
+    {
+      "path": "reports/figures/seasonal_kendall.png",
+      "caption": "Seasonal Kendall on flow-adjusted copper: the within-month series the test compares, and the per-month Sen slopes agreeing in sign."
     }
   ],
   "not_claimed": [
@@ -88,6 +93,10 @@
     {
       "title": "Cheat sheet",
       "path": "CHEATSHEET.md"
+    },
+    {
+      "title": "Method chooser flowchart",
+      "path": "FLOWCHART.md"
     },
     {
       "title": "Generated worked results",
@@ -115,7 +124,8 @@
     "reliability",
     "safety rates",
     "economics",
-    "environmental trends"
+    "environmental trends",
+    "censored inference and compliance limits"
   ],
   "links": {
     "Repository": "https://github.com/ethannol/mining-stats-cheatsheet"

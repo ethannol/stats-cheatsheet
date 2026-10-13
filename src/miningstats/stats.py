@@ -10,6 +10,9 @@ Compositional data
     closure, alr, alr_inv, clr, clr_inv, ilr, ilr_inv, variation_matrix
 QA/QC and censored data
     hard, thompson_howarth, km_left_censored, ros_lognormal
+Censored inference, trend and compliance limits
+    km_mean_se, gehan_test, censored_kendall_S, akritas_theil_sen, censored_regression_mle,
+    seasonal_kendall, dunn_test, ucl_table, ucl_recommend, prediction_limit, tolerance_limit
 Reliability / SPC
     kaplan_meier, weibull_mle, shewhart_limits, cusum, ewma, u_chart_limits
 Sampling theory
@@ -417,6 +420,9 @@ def km_left_censored(values, censored):
     F_minus = Ss[::-1]                                   # P(X < x_k)
     F = np.concatenate([F_minus[1:], [1.0]])             # P(X <= x_k)
     pmf = F - F_minus                                    # P(X = x_k)
+    # the mass below the lowest censoring limit has no estimable location; place it at that
+    # limit (Helsel 2012 section 6.4), which makes the KM mean a slight upper bound there
+    pmf[0] += F_minus[0]
     mean = float(np.sum(pmf * x_back))
 
     def quant(p):
@@ -442,6 +448,338 @@ def ros_lognormal(values, censored):
     imputed[c] = np.exp(intercept + slope * sps.norm.ppf(pp[c]))
     return dict(mean=float(imputed.mean()), median=float(np.median(imputed)),
                 imputed_values=imputed, sigma=slope, mu=intercept)
+
+
+# ==================================================== censored inference and trend
+def km_mean_se(values, censored):
+    """Standard error of the Kaplan-Meier mean for left-censored data (Greenwood-type
+    formula applied to the flipped, right-censored sample; Helsel 2012 section 6.4):
+    Var(mean) = sum over event times of A_i^2 d_i / (n_i (n_i - d_i)), where A_i is the area
+    under S(t) to the right of t_i. Returns (mean, se)."""
+    v, c = np.asarray(values, float), np.asarray(censored, bool)
+    M = v.max() + 1.0
+    t, event = M - v, ~c
+    order = np.argsort(t)
+    t, event = t[order], event[order]
+    times, S, n_risk, d_at = [0.0], [1.0], [], []
+    s = 1.0
+    for ti in np.unique(t[event]):
+        n_i = (t >= ti).sum()
+        d_i = (event & (t == ti)).sum()
+        s *= 1 - d_i / n_i
+        times.append(ti)
+        S.append(s)
+        n_risk.append(n_i)
+        d_at.append(d_i)
+    times, S = np.array(times), np.array(S)
+    # S is defined up to the largest observation; a censored tail is set to the last S
+    t_end = t.max()
+    knots = np.append(times, t_end)
+    areas = np.diff(knots) * S              # area of each step
+    mean_t = areas.sum()
+    var = 0.0
+    for i, (n_i, d_i) in enumerate(zip(n_risk, d_at)):
+        A_i = areas[i + 1:].sum()
+        if n_i > d_i:
+            var += A_i ** 2 * d_i / (n_i * (n_i - d_i))
+    return float(M - mean_t), float(np.sqrt(var))
+
+
+def _censored_pair_sign(x_i, c_i, x_j, c_j):
+    """Vectorised 'definitely less / greater' sign for left-censored pairs. An observation
+    (x, c=True) means 'below x'. Returns +1 if i > j for sure, -1 if i < j for sure, else 0."""
+    both_det = ~c_i & ~c_j
+    i_cens_only = c_i & ~c_j
+    j_cens_only = ~c_i & c_j
+    less = (both_det & (x_i < x_j)) | (i_cens_only & (x_i <= x_j))
+    greater = (both_det & (x_i > x_j)) | (j_cens_only & (x_i >= x_j))
+    return greater.astype(int) - less.astype(int)
+
+
+def gehan_test(values, censored, group):
+    """Gehan's generalised Wilcoxon test for two groups of left-censored data (Gehan 1965;
+    Helsel 2012 chapter 9). Each observation scores +1 against every observation it is
+    definitely larger than and -1 against every one it is definitely smaller than; pairs
+    involving a non-detect that cannot be ordered score 0. W = sum of scores in group 1;
+    under H0 the permutation variance is n1 n2 / (n (n-1)) * sum(score^2).
+    Without censoring this is the Mann-Whitney test. Returns dict(W, z, p, scores)."""
+    v, c, g = np.asarray(values, float), np.asarray(censored, bool), np.asarray(group)
+    n = len(v)
+    s = _censored_pair_sign(v[:, None], c[:, None], v[None, :], c[None, :])
+    scores = s.sum(axis=1)
+    labels = np.unique(g)
+    if len(labels) != 2:
+        raise ValueError("gehan_test needs exactly two groups")
+    g1 = g == labels[0]
+    n1, n2 = g1.sum(), n - g1.sum()
+    W = scores[g1].sum()
+    var = n1 * n2 / (n * (n - 1)) * np.sum(scores ** 2)
+    z = W / np.sqrt(var)
+    return dict(W=float(W), z=float(z), p=float(2 * sps.norm.sf(abs(z))), scores=scores,
+                groups=labels)
+
+
+def censored_kendall_S(x, y, y_censored):
+    """Kendall's S between an uncensored x and a left-censored y, counting only pairs whose
+    order in y is certain (Helsel 2012 section 10.2)."""
+    x, y, c = np.asarray(x, float), np.asarray(y, float), np.asarray(y_censored, bool)
+    sy = _censored_pair_sign(y[:, None], c[:, None], y[None, :], c[None, :])
+    sx = np.sign(x[:, None] - x[None, :])
+    iu = np.triu_indices(len(x), 1)
+    return int(np.sum(sx[iu] * sy[iu]))
+
+
+def akritas_theil_sen(x, y, y_censored, n_perm: int = 2000, rng=None):
+    """Akritas-Theil-Sen line for a left-censored response (Akritas, Murphy & LaValley 1995;
+    Helsel 2012 section 10.3): the slope b at which censored Kendall's S between x and the
+    residuals y - b x is zero, found by root search over the range of detected pairwise slopes.
+    The intercept is the median of y - b x treating non-detects at their limit (an upper bound).
+    The p-value for the trend is a permutation p-value of S (x shuffled), which sidesteps the
+    tie-and-censoring variance formula. Returns dict(slope, intercept, S, tau, p)."""
+    x, y, c = np.asarray(x, float), np.asarray(y, float), np.asarray(y_censored, bool)
+    rng = np.random.default_rng(rng)
+    S0 = censored_kendall_S(x, y, c)
+    n_pairs = len(x) * (len(x) - 1) / 2
+    perm = np.array([censored_kendall_S(rng.permutation(x), y, c) for _ in range(n_perm)])
+    p = (np.sum(np.abs(perm) >= abs(S0)) + 1) / (n_perm + 1)
+    det = ~c
+    xd, yd = x[det], y[det]
+    dx = xd[:, None] - xd[None, :]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        slopes = (yd[:, None] - yd[None, :]) / dx
+    slopes = slopes[np.isfinite(slopes)]
+    lo, hi = slopes.min() - 1e-9, slopes.max() + 1e-9
+
+    def S_of(b):
+        return censored_kendall_S(x, y - b * x, c)
+
+    # S(b) is a non-increasing step function of b; bisection to the sign change
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if S_of(mid) > 0:
+            lo = mid
+        else:
+            hi = mid
+    slope = 0.5 * (lo + hi)
+    intercept = float(np.median(y - slope * x))
+    return dict(slope=float(slope), intercept=intercept, S=S0, tau=S0 / n_pairs, p=float(p))
+
+
+def censored_regression_mle(X, y, censored, add_constant: bool = True):
+    """Maximum-likelihood linear regression with a left-censored response (Tobit-type; Helsel
+    2012 chapter 12; ProUCL calls it 'MLE regression'). Each detected y contributes the normal
+    density of its residual; each non-detect 'below y' contributes the normal CDF of (y - Xb)/s.
+    Standard errors come from the inverse of a finite-difference Hessian.
+    Returns dict(beta, se, sigma, loglik, aic, names)."""
+    X = np.asarray(X, float)
+    X = X[:, None] if X.ndim == 1 else X
+    if add_constant:
+        X = np.column_stack([np.ones(len(X)), X])
+    y, c = np.asarray(y, float), np.asarray(censored, bool)
+    k = X.shape[1]
+    beta0 = np.linalg.lstsq(X, y, rcond=None)[0]
+    s0 = np.std(y - X @ beta0) + 1e-6
+    theta0 = np.append(beta0, np.log(s0))
+
+    def nll(theta):
+        b, s = theta[:k], np.exp(theta[k])
+        z = (y - X @ b) / s
+        ll_det = sps.norm.logpdf(z[~c]) - np.log(s)
+        ll_cen = sps.norm.logcdf(z[c])
+        return -(ll_det.sum() + ll_cen.sum())
+
+    res = minimize(nll, theta0, method="BFGS")
+    res = minimize(nll, res.x, method="Nelder-Mead", options={"xatol": 1e-8, "fatol": 1e-10})
+    theta = res.x
+    # central-difference Hessian of the negative log-likelihood
+    h = 1e-4 * np.maximum(1.0, np.abs(theta))
+    H = np.zeros((k + 1, k + 1))
+    f0 = nll(theta)
+    for i in range(k + 1):
+        for j in range(i, k + 1):
+            ei, ej = np.zeros(k + 1), np.zeros(k + 1)
+            ei[i], ej[j] = h[i], h[j]
+            if i == j:
+                H[i, i] = (nll(theta + ei) - 2 * f0 + nll(theta - ei)) / h[i] ** 2
+            else:
+                mixed = (nll(theta + ei + ej) - nll(theta + ei - ej)
+                         - nll(theta - ei + ej) + nll(theta - ei - ej))
+                H[i, j] = H[j, i] = mixed / (4 * h[i] * h[j])
+    cov = np.linalg.pinv(H)
+    se = np.sqrt(np.clip(np.diag(cov), 0, None))
+    loglik = -f0
+    return dict(beta=theta[:k], se=se[:k], sigma=float(np.exp(theta[k])), loglik=float(loglik),
+                aic=float(2 * (k + 1) - 2 * loglik), converged=bool(res.success))
+
+
+def seasonal_kendall(values, years, seasons):
+    """Seasonal Kendall test (Hirsch, Slack & Smith 1982; Helsel et al. 2020 section 12.4).
+    Within each season compare values across years (Kendall's S with tie correction), sum the
+    S and the variances over seasons, apply the continuity correction. Multiple observations in
+    the same season-year are reduced to their median first. Sen slope = median of the
+    within-season pairwise slopes (units per year). Returns dict(S, var, z, p, tau, sen,
+    per_season DataFrame)."""
+    import pandas as pd
+    df = (pd.DataFrame(dict(v=np.asarray(values, float), y=np.asarray(years),
+                            s=np.asarray(seasons)))
+          .groupby(["s", "y"], as_index=False).v.median())
+    S_tot, var_tot, n_pairs, rows, slopes = 0.0, 0.0, 0, [], []
+    for s, g in df.groupby("s"):
+        g = g.sort_values("y")
+        yv, vv = g.y.values.astype(float), g.v.values
+        n = len(vv)
+        if n < 2:
+            continue
+        dv = vv[None, :] - vv[:, None]      # v_j - v_i for i < j
+        dy = yv[None, :] - yv[:, None]
+        iu = np.triu_indices(n, 1)
+        S = float(np.sum(np.sign(dv[iu])))
+        _, counts = np.unique(vv, return_counts=True)
+        var = (n * (n - 1) * (2 * n + 5) - np.sum(counts * (counts - 1) * (2 * counts + 5))) / 18
+        with np.errstate(divide="ignore", invalid="ignore"):
+            sl = (dv / dy)[iu]
+        slopes.extend(sl[np.isfinite(sl)].tolist())
+        S_tot += S
+        var_tot += var
+        n_pairs += n * (n - 1) / 2
+        ok = np.isfinite(sl)
+        rows.append(dict(season=s, n_years=n, S=S, tau=S / (n * (n - 1) / 2),
+                         sen=float(np.median(sl[ok])) if ok.any() else np.nan))
+    z = (S_tot - np.sign(S_tot)) / np.sqrt(var_tot) if var_tot > 0 else 0.0
+    return dict(S=S_tot, var=var_tot, z=float(z), p=float(2 * sps.norm.sf(abs(z))),
+                tau=S_tot / n_pairs if n_pairs else np.nan, sen=float(np.median(slopes)),
+                per_season=pd.DataFrame(rows))
+
+
+def dunn_test(groups, labels=None, adjust: str = "holm"):
+    """Dunn's (1964) pairwise rank-sum comparisons after Kruskal-Wallis, with the tie
+    correction and Holm or Benjamini-Hochberg adjustment. Returns a DataFrame of pairs."""
+    import pandas as pd
+    groups = [np.asarray(g, float) for g in groups]
+    labels = list(labels) if labels is not None else list(range(len(groups)))
+    allv = np.concatenate(groups)
+    N = len(allv)
+    ranks = sps.rankdata(allv)
+    _, counts = np.unique(allv, return_counts=True)
+    tie_term = np.sum(counts ** 3 - counts) / (12 * (N - 1))
+    idx = np.cumsum([0] + [len(g) for g in groups])
+    rbar = [ranks[idx[i]:idx[i + 1]].mean() for i in range(len(groups))]
+    rows = []
+    for i in range(len(groups)):
+        for j in range(i + 1, len(groups)):
+            se = np.sqrt((N * (N + 1) / 12 - tie_term) * (1 / len(groups[i]) + 1 / len(groups[j])))
+            z = (rbar[i] - rbar[j]) / se
+            rows.append(dict(a=labels[i], b=labels[j], z=z, p=2 * sps.norm.sf(abs(z))))
+    out = pd.DataFrame(rows)
+    if adjust == "bh":
+        out["p_adj"] = sps.false_discovery_control(out.p, method="bh")
+    else:  # Holm step-down
+        order = np.argsort(out.p.values)
+        stepped = np.minimum(1, np.maximum.accumulate(
+            out.p.values[order] * np.arange(len(out), 0, -1)))
+        out["p_adj"] = stepped[np.argsort(order)]
+    return out
+
+
+def ucl_table(values, censored=None, alpha: float = 0.05, n_boot: int = 2000, rng=None):
+    """Upper confidence limits for the mean (the ProUCL menu; EPA 2022 chapter 2).
+    Uncensored: Student-t, approximate gamma (Grice & Bain adjusted shape), Chebyshev at 95 /
+    97.5 / 99 %, bootstrap-t, BCa bootstrap. Censored: Kaplan-Meier mean and SE, then
+    KM-t and KM-Chebyshev. Land's H-UCL is deliberately omitted (ProUCL stopped recommending
+    it in 2009). Returns a dict name -> UCL."""
+    v = np.asarray(values, float)
+    c = np.zeros(len(v), bool) if censored is None else np.asarray(censored, bool)
+    rng = np.random.default_rng(rng)
+    n = len(v)
+    out = {}
+    if c.any():
+        mean, se = km_mean_se(v, c)
+        out["KM mean"] = mean
+        out["KM (t) UCL95"] = mean + sps.t.ppf(1 - alpha, n - 1) * se
+        for q in (0.95, 0.975, 0.99):
+            out[f"KM Chebyshev UCL{q * 100:g}"] = mean + np.sqrt(1 / (1 - q) - 1) * se
+        return out
+    xbar, s = v.mean(), v.std(ddof=1)
+    se = s / np.sqrt(n)
+    out["mean"] = xbar
+    out["Student-t UCL95"] = xbar + sps.t.ppf(1 - alpha, n - 1) * se
+    # gamma: MLE shape with the Grice-Bain small-sample correction (ProUCL 'adjusted gamma')
+    k_hat, _, scale_hat = sps.gamma.fit(v, floc=0)
+    k_adj = (n - 3) * k_hat / n + 2 / (3 * n)
+    out["Gamma UCL95 (adjusted)"] = 2 * n * xbar * k_adj / sps.chi2.ppf(alpha, 2 * n * k_adj)
+    for q in (0.95, 0.975, 0.99):
+        out[f"Chebyshev UCL{q * 100:g}"] = xbar + np.sqrt(1 / (1 - q) - 1) * se
+    boots = rng.choice(v, (n_boot, n), replace=True)
+    bm = boots.mean(axis=1)
+    bs = boots.std(axis=1, ddof=1) / np.sqrt(n)
+    t_star = (bm - xbar) / np.where(bs > 0, bs, np.nan)
+    out["Bootstrap-t UCL95"] = xbar - np.nanquantile(t_star, alpha) * se
+    bca = sps.bootstrap((v,), np.mean, confidence_level=1 - 2 * alpha, method="BCa",
+                        n_resamples=n_boot, random_state=rng)
+    out["BCa bootstrap UCL95"] = float(bca.confidence_interval.high)
+    return out
+
+
+def ucl_recommend(values, censored=None):
+    """A condensed version of the ProUCL decision tables (EPA 2022, chapter 2): which UCL to
+    report, by distribution fit and the skewness of the logs. ProUCL's full tables also move
+    the thresholds with n; this keeps the ranking and the rationale, not every cell.
+    Returns dict(choice, rationale, sd_log, fits)."""
+    v = np.asarray(values, float)
+    c = np.zeros(len(v), bool) if censored is None else np.asarray(censored, bool)
+    det = v[~c & (v > 0)]
+    sd_log = float(np.std(np.log(det), ddof=1)) if len(det) > 2 else np.nan
+    fits = {}
+    if c.any():
+        if sd_log < 0.5:
+            return dict(choice="KM (t) UCL95", sd_log=sd_log, fits=fits,
+                        rationale="non-detects present, mild skew: KM mean with a t-interval")
+        q = {True: "95", False: "97.5"}[sd_log < 1.0] if sd_log < 1.5 else "99"
+        return dict(choice=f"KM Chebyshev UCL{q}", sd_log=sd_log, fits=fits,
+                    rationale=f"non-detects present, sd of log detects {sd_log:.2f}: KM mean "
+                              "with a Chebyshev interval, widened as skew grows")
+    fits["normal p"] = float(sps.shapiro(v).pvalue) if len(v) <= 5000 else np.nan
+    k_hat, _, scale_hat = sps.gamma.fit(v, floc=0)
+    fits["gamma p (KS)"] = float(sps.kstest(v, "gamma", args=(k_hat, 0, scale_hat)).pvalue)
+    fits["lognormal p"] = float(sps.shapiro(np.log(v)).pvalue)
+    if fits["normal p"] > 0.05:
+        return dict(choice="Student-t UCL95", sd_log=sd_log, fits=fits,
+                    rationale="normality not rejected: the t-interval is exact")
+    if fits["gamma p (KS)"] > 0.05:
+        return dict(choice="Gamma UCL95 (adjusted)", sd_log=sd_log, fits=fits,
+                    rationale="gamma fit not rejected: the gamma UCL is stable where "
+                              "lognormal-based limits explode")
+    if sd_log < 0.5:
+        choice, why = "Student-t UCL95", "skew is mild (sd of logs < 0.5): t-interval, or BCa"
+    elif sd_log < 1.0:
+        choice, why = "Chebyshev UCL95", "moderate skew: nonparametric Chebyshev"
+    elif sd_log < 1.5:
+        choice, why = "Chebyshev UCL97.5", "strong skew: Chebyshev at 97.5 % for nominal coverage"
+    else:
+        choice, why = "Chebyshev UCL99", "extreme skew: Chebyshev at 99 %; consider bootstrap-t"
+    return dict(choice=choice, sd_log=sd_log, fits=fits, rationale=why)
+
+
+def prediction_limit(background, k_future: int = 1, alpha: float = 0.05):
+    """Upper prediction limits for the next k_future samples (EPA Unified Guidance 2009,
+    chapters 18-19). Parametric: xbar + t s sqrt(1 + 1/n) (Bonferroni over k). Nonparametric:
+    the background maximum, whose confidence for k future values is n / (n + k) per sample
+    set. Returns dict(normal, nonparametric, nonparametric_confidence)."""
+    x = np.asarray(background, float)
+    n = len(x)
+    t = sps.t.ppf(1 - alpha / k_future, n - 1)
+    normal = x.mean() + t * x.std(ddof=1) * np.sqrt(1 + 1 / n)
+    return dict(normal=float(normal), nonparametric=float(x.max()),
+                nonparametric_confidence=n / (n + k_future))
+
+
+def tolerance_limit(background, coverage: float = 0.95, confidence: float = 0.95):
+    """One-sided upper normal tolerance limit covering `coverage` of the population with
+    `confidence` (noncentral-t factor; Unified Guidance chapter 17)."""
+    x = np.asarray(background, float)
+    n = len(x)
+    k = sps.nct.ppf(confidence, n - 1, sps.norm.ppf(coverage) * np.sqrt(n)) / np.sqrt(n)
+    return float(x.mean() + k * x.std(ddof=1))
 
 
 # ================================================================= reliability

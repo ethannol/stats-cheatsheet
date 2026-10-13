@@ -198,3 +198,132 @@ def test_correlated_normals_hits_target_correlation():
     corr = np.array([[1, 0.6], [0.6, 1.0]])
     z = ms.correlated_normals(50000, corr, rng=0)
     assert np.corrcoef(z.T)[0, 1] == pytest.approx(0.6, abs=0.02)
+
+
+# ------------------------------------------------ censored inference, trend and limits
+def test_km_mean_places_mass_below_lowest_limit_at_that_limit():
+    # one non-detect '< 1' and detects 2, 3: the only defensible mean is 2 (Helsel 2012)
+    km = ms.km_left_censored(np.array([1.0, 2.0, 3.0]), np.array([True, False, False]))
+    assert km["mean"] == pytest.approx(2.0)
+    mean, se = ms.km_mean_se(np.array([1.0, 2.0, 3.0]), np.array([True, False, False]))
+    assert mean == pytest.approx(2.0)
+
+
+def test_km_mean_tracks_truth_with_several_detection_limits():
+    rng = np.random.default_rng(21)
+    x = rng.lognormal(1, 0.5, 400)
+    dls = rng.choice([1.5, 2.5, 4.0], 400)
+    c = x < dls
+    xc = np.where(c, dls, x)
+    km = ms.km_left_censored(xc, c)
+    mean, se = ms.km_mean_se(xc, c)
+    assert km["mean"] == pytest.approx(mean)
+    assert abs(km["mean"] - x.mean()) < 3 * se
+    assert abs(km["mean"] - x.mean()) < abs(xc.mean() - x.mean())  # beats DL substitution
+    m0, se0 = ms.km_mean_se(x, np.zeros(400, bool))
+    assert m0 == pytest.approx(x.mean())
+    assert se0 == pytest.approx(x.std(ddof=1) / np.sqrt(400), rel=0.02)
+
+
+def test_gehan_equals_mann_whitney_without_censoring():
+    rng = np.random.default_rng(22)
+    a, b = rng.normal(0, 1, 30), rng.normal(0.6, 1, 25)
+    v = np.concatenate([a, b])
+    g = np.r_[np.zeros(30), np.ones(25)]
+    gh = ms.gehan_test(v, np.zeros(55, bool), g)
+    mw = sps.mannwhitneyu(a, b, method="asymptotic", use_continuity=False)
+    assert gh["p"] == pytest.approx(mw.pvalue, rel=1e-6)
+
+
+def test_gehan_ignores_uninformative_censored_pairs():
+    # group A: all '< 10'; group B: detects between 1 and 5. No pair is ordered: W must be 0.
+    v = np.r_[np.full(10, 10.0), np.linspace(1, 5, 10)]
+    c = np.r_[np.ones(10, bool), np.zeros(10, bool)]
+    g = np.r_[np.zeros(10), np.ones(10)]
+    gh = ms.gehan_test(v, c, g)
+    assert gh["W"] == 0
+
+
+def test_akritas_theil_sen_reduces_to_theil_sen_without_censoring():
+    rng = np.random.default_rng(23)
+    x = np.arange(40.0)
+    y = 0.3 * x + rng.normal(0, 1, 40)
+    ats = ms.akritas_theil_sen(x, y, np.zeros(40, bool), n_perm=200, rng=0)
+    assert ats["slope"] == pytest.approx(sps.theilslopes(y, x).slope, abs=0.01)
+    assert ats["tau"] == pytest.approx(sps.kendalltau(x, y).statistic, abs=1e-9)
+
+
+def test_censored_regression_matches_ols_and_recovers_truth():
+    import statsmodels.api as sm
+    rng = np.random.default_rng(24)
+    X = rng.normal(0, 1, (300, 2))
+    beta = np.array([1.0, 0.8, -0.5])
+    y = beta[0] + X @ beta[1:] + rng.normal(0, 0.7, 300)
+    full = ms.censored_regression_mle(X, y, np.zeros(300, bool))
+    ols = sm.OLS(y, sm.add_constant(X)).fit()
+    assert np.allclose(full["beta"], ols.params, atol=1e-4)
+    assert np.allclose(full["se"], ols.bse, rtol=0.03)
+    dl = np.quantile(y, 0.4)
+    c = y < dl
+    cens = ms.censored_regression_mle(X, np.where(c, dl, y), c)
+    sub = sm.OLS(np.where(c, dl / 2, y), sm.add_constant(X)).fit()
+    assert np.all(np.abs(cens["beta"] - beta) < 2.5 * cens["se"])
+    assert np.abs(cens["beta"] - beta).sum() < np.abs(sub.params - beta).sum()
+
+
+def test_seasonal_kendall_single_season_is_mann_kendall_and_blocks_seasonality():
+    rng = np.random.default_rng(25)
+    years = np.arange(1980, 2020)
+    v = 0.05 * (years - 1980) + rng.normal(0, 1, 40)
+    sk = ms.seasonal_kendall(v, years, np.ones(40))
+    kt = sps.kendalltau(years, v)
+    assert sk["tau"] == pytest.approx(kt.statistic)
+    assert sk["p"] == pytest.approx(kt.pvalue, rel=0.05)
+    assert sk["sen"] == pytest.approx(sps.theilslopes(v, years).slope)
+    # strong seasonality, no trend: the seasonal test must not reject at the median seed
+    months = np.tile(np.arange(12), 40)
+    yrs = np.repeat(years, 12)
+    ps = []
+    for seed in range(20):
+        r = np.random.default_rng(seed)
+        vals = 3 * np.sin(months / 12 * 2 * np.pi) + r.normal(0, 1, 480)
+        ps.append(ms.seasonal_kendall(vals, yrs, months)["p"])
+    assert 0.2 < np.median(ps) < 0.8
+
+
+def test_dunn_two_groups_matches_mann_whitney():
+    rng = np.random.default_rng(26)
+    a, b = rng.normal(0, 1, 30), rng.normal(0.6, 1, 25)
+    d = ms.dunn_test([a, b])
+    mw = sps.mannwhitneyu(a, b, method="asymptotic", use_continuity=False)
+    assert d.p.iloc[0] == pytest.approx(mw.pvalue, rel=1e-6)
+    d3 = ms.dunn_test([a, b, rng.normal(0, 1, 20)], labels=list("ABC"), adjust="holm")
+    assert len(d3) == 3 and (d3.p_adj >= d3.p).all()
+
+
+def test_ucl_student_t_and_recommendation():
+    rng = np.random.default_rng(27)
+    v = rng.normal(10, 1, 60)
+    tab = ms.ucl_table(v, rng=0)
+    assert tab["Student-t UCL95"] == pytest.approx(
+        v.mean() + sps.t.ppf(0.95, 59) * v.std(ddof=1) / np.sqrt(60))
+    assert tab["Chebyshev UCL95"] > tab["Student-t UCL95"]
+    assert ms.ucl_recommend(v)["choice"] == "Student-t UCL95"
+    skewed = rng.lognormal(0, 1.2, 60)
+    assert ms.ucl_recommend(skewed)["choice"] != "Student-t UCL95"
+    c = skewed < np.quantile(skewed, 0.3)
+    censored = np.where(c, np.quantile(skewed, 0.3), skewed)
+    assert ms.ucl_recommend(censored, c)["choice"].startswith("KM")
+
+
+def test_prediction_and_tolerance_limits_cover_at_nominal_rate():
+    rng = np.random.default_rng(28)
+    hits_pl, hits_tl = 0, 0
+    for _ in range(400):
+        bg = rng.normal(0, 1, 20)
+        pl = ms.prediction_limit(bg, k_future=1)
+        hits_pl += rng.normal() > pl["normal"]
+        tl = ms.tolerance_limit(bg, coverage=0.95, confidence=0.95)
+        hits_tl += sps.norm.sf(tl) > 0.05   # the limit fails to cover 95 % of the population
+    assert 0.02 < hits_pl / 400 < 0.09      # nominal 5 %
+    assert hits_tl / 400 < 0.10             # nominal 5 % confidence failure

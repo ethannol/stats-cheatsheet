@@ -17,7 +17,8 @@ from miningstats import data
 from miningstats.provenance import data_manifest, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-PREVIEWS = ['04_geostatistics/estimation_maps.png', '03_qaqc/crm_control_charts.png']
+PREVIEWS = ['04_geostatistics/estimation_maps.png', '03_qaqc/crm_control_charts.png',
+            '10_censored_inference/seasonal_kendall.png']
 
 
 def verify_raw_snapshot(manifest_path: Path) -> None:

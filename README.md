@@ -6,7 +6,8 @@ project economics and environmental compliance. Every script prints an interpret
 computed, so the output reads like a worked example, and the narrative follows the numbers.
 
 Companion to `../earth-stats-cheatsheet` (same layout and conventions). Start with
-[CHEATSHEET.md](CHEATSHEET.md) for the condensed reference, then run the scripts.
+[CHEATSHEET.md](CHEATSHEET.md) for the condensed reference, or with [FLOWCHART.md](FLOWCHART.md)
+to go from a question to the script that answers it, then run the scripts.
 
 ## Data
 
@@ -16,7 +17,7 @@ Companion to `../earth-stats-cheatsheet` (same layout and conventions). Start wi
 | Jura soil metals (359 samples, 7 metals, rock type) | Goovaerts 1997, via R `gstat` | real | compositional data analysis |
 | GSLIB `cluster.dat` (140 samples with declustering weights) | Deutsch & Journel, via R `gstat` | real teaching data | declustering cross-check |
 | MSHA Mines, MinesProdYearly, Accidents | [MSHA open data](https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp) | real (every US mine, hours and injuries 2000-2025) | safety rates, overdispersion, shrinkage, control charts |
-| Clark Fork River at Deer Lodge MT (USGS 12324200) | [Water Quality Portal](https://www.waterqualitydata.us), [USGS NWIS](https://waterservices.usgs.gov) | real (1969-2023 metals and pH with non-detects, daily flow) | censored data, C-Q relationships, trends, compliance |
+| Clark Fork River at Deer Lodge MT (USGS 12324200) | [Water Quality Portal](https://www.waterqualitydata.us), [USGS NWIS](https://waterservices.usgs.gov) | real (1969-2023 metals and pH with non-detects, daily flow) | censored data, C-Q relationships, trends, compliance, seasonal Kendall, censored inference, UCLs and prediction limits |
 | World Bank Pink Sheet monthly commodity prices | [World Bank CMO](https://www.worldbank.org/en/research/commodity-markets) | real (1960-2024) | returns, volatility, random walk vs mean reversion |
 | Gold assay QA/QC (duplicates, CRMs, blanks) | `miningstats.data.assay_qaqc` | **synthetic**, seeded, with planted problems | precision, bias, carry-over detection |
 | Haul-truck component failures and daily production | `miningstats.data.equipment_failures` | **synthetic**, seeded, generating parameters stated | Weibull, Kaplan-Meier, availability, SPC |
@@ -56,16 +57,21 @@ analyses/
   07_safety.py               injuries per 200,000 h, Poisson vs negative binomial, empirical-Bayes shrinkage, u-chart, severity
   08_economics.py            log returns and volatility, GBM vs mean reversion fans, Monte Carlo NPV, tornado, cut-off, deferral option
   09_environmental.py        concentration-discharge, flow-adjusted trends, exceedance fractions with CIs, CUSUM change point
+  10_censored_inference.py   seasonal Kendall (flow-adjusted), Gehan test, censored MLE and Akritas-Theil-Sen regression,
+                             ProUCL-style UCL95 selection, prediction and tolerance limits, Kruskal-Wallis + Dunn
 src/miningstats/
   data.py                    loaders with caching; synthetic generators with stated parameters
   stats.py                   hand-rolled: cell declustering, compositing, directional variograms + models, ordinary kriging
                              (moving neighbourhood, anisotropy), IDW, normal scores, sequential Gaussian simulation,
                              grade-tonnage, alr/clr/ilr, variation matrix, HARD, Thompson-Howarth, Kaplan-Meier (left and
-                             right censoring), ROS, Weibull MLE, Shewhart/CUSUM/EWMA/u-chart, Gy's FSE, GBM, OU fit
+                             right censoring) with SE, ROS, Gehan test, censored Kendall / Akritas-Theil-Sen, censored MLE
+                             regression, seasonal Kendall, Dunn, UCL table and ProUCL-style choice, prediction and
+                             tolerance limits, Weibull MLE, Shewhart/CUSUM/EWMA/u-chart, Gy's FSE, GBM, OU fit
   plotting.py                shared style and helpers
-tests/test_stats.py          20 cross-checks against scipy / closed forms / known answers
+tests/test_stats.py          30 cross-checks against scipy / statsmodels / closed forms / known answers
 figures/<topic>/*.png        written by the scripts
 CHEATSHEET.md                the condensed reference
+FLOWCHART.md                 question-first decision charts (Mermaid) spanning both cheat sheets, with sources
 ```
 
 ## Worked results and reproducibility

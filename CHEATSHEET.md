@@ -1,6 +1,8 @@
 # Statistics for mining data: the cheat sheet
 
-Condensed from the nine scripts in `analyses/`. Section numbers match the scripts.
+Condensed from the ten scripts in `analyses/`. Section numbers match the scripts. For the
+question-first decision chart that spans this sheet and the earth-science one, see
+[FLOWCHART.md](FLOWCHART.md).
 
 ## 0. Which method?
 
@@ -30,6 +32,12 @@ Condensed from the nine scripts in `analyses/`. Section numbers match the script
 | Price risk | log returns, annualised vol, GBM vs mean-reversion fans | [08](analyses/08_economics.py) |
 | Project value under uncertainty | Monte Carlo NPV with correlated inputs; tornado; P(NPV < 0) | [08](analyses/08_economics.py) |
 | Is the river getting cleaner? | C-Q regression, flow-adjusted Kendall/Sen trend, exceedance fractions with CIs | [09](analyses/09_environmental.py) |
+| Trend in monthly or seasonal sampling | Seasonal Kendall + Sen slope on flow-adjusted residuals | [10](analyses/10_censored_inference.py) |
+| Compare two groups that contain non-detects | Gehan or Peto-Prentice score test, never substitute then t-test | [10](analyses/10_censored_inference.py) |
+| Regression or trend with a censored response | MLE (Tobit) regression; Akritas-Theil-Sen for a distribution-free line | [10](analyses/10_censored_inference.py) |
+| Upper confidence limit on a mean (exposure point) | ProUCL logic: t if normal, gamma if gamma fits, Chebyshev by skew, KM with non-detects | [10](analyses/10_censored_inference.py) |
+| Is a new sample consistent with background? | Prediction limit for k future samples; tolerance limit for a population fraction | [10](analyses/10_censored_inference.py) |
+| More than two groups | Kruskal-Wallis then Dunn with Holm/BH; Welch ANOVA + Tukey on logs | [10](analyses/10_censored_inference.py) |
 
 ## 1. Assay EDA
 
@@ -168,13 +176,52 @@ Condensed from the nine scripts in `analyses/`. Section numbers match the script
   intervention record (hypothesis, not proof).
 - Censored low-level analytes: Kaplan-Meier per era; naive means with DL-as-value run 2-3x high.
 
+## 10. Censored inference, seasonal trends and compliance limits
+
+- Seasonal Kendall: Mann-Kendall within each season (month), S and variances summed across
+  seasons, continuity-corrected z. Multiple values in a season-year reduce to their median.
+  Seasonality never enters the comparisons, so power is higher than on annual medians and the
+  variance is not inflated as in a whole-series test. Flow-adjust first (LOWESS of log C on
+  log Q); a C-Q slope and drifting sampled flows otherwise leak hydrology into the trend.
+  WRTDS (Hirsch 2010) is the estimation successor: time, discharge and season in one weighted
+  regression, reporting flow-normalised concentration.
+- Two groups with non-detects: Gehan's generalised Wilcoxon scores each observation +1 against
+  every value it is certainly above and -1 against every value it is certainly below; a
+  '< 1' against a detected 0.3 scores 0. W = sum of scores in group 1; permutation variance
+  n1 n2 / (n (n-1)) sum(score^2). Without censoring it is Mann-Whitney. Substituting the DL
+  turned a p = 2e-3 decrease into p = 1e-15; substituting zero reversed the sign.
+  Peto-Prentice weights pairs more evenly when censoring fractions differ between groups.
+- Censored regression: each non-detect contributes log Phi((DL - Xb)/sigma) to the
+  likelihood; detects contribute the normal density. SEs from the Hessian. Detects-only OLS
+  keeps the early samples that were high enough to measure and exaggerates the decline;
+  DL/2 substitution injects the laboratory's detection-limit history into the response.
+  Akritas-Theil-Sen: the slope at which censored Kendall's S of the residuals is zero;
+  permutation p-value. When MLE and ATS disagree, the residual distribution, a missing
+  covariate (flow) or a step rather than a monotone trend is the reason.
+- UCL95 on the mean (ProUCL): Student-t if normality is not rejected; adjusted gamma UCL
+  2 n xbar k / chi2_alpha(2 n k) if a gamma fits; otherwise Chebyshev xbar + sqrt(1/alpha - 1) SE
+  at 95 / 97.5 / 99 % as the SD of the logs passes 0.5 / 1 / 1.5; bootstrap-t for large n.
+  Land's lognormal H-UCL is unstable and no longer recommended. With non-detects: KM mean
+  and Greenwood-type SE, then the same t-or-Chebyshev choice. A UCL assumes independent
+  samples; seasonal, autocorrelated monitoring data have a smaller effective n.
+- Prediction limit for the next k samples: xbar + t_{1-alpha/k, n-1} s sqrt(1 + 1/n)
+  (Bonferroni; the Unified Guidance uses exact kappa tables and retest rules).
+  Nonparametric: the background maximum, confidence n / (n + k). Tolerance limit covering
+  fraction p with confidence 1-a: xbar + k s with k from the noncentral t. These are the
+  compliance-monitoring questions; they need independent background, which a river
+  record is not.
+- k groups: Kruskal-Wallis omnibus, then Dunn's z on pooled mean ranks with the tie term and
+  Holm (FWER) or BH (FDR). Tukey HSD on logs when groups are roughly lognormal. Eras are an
+  observational grouping; method, detection limit and flow regime changed with them.
+
 ## Mining data gotchas, in one list
 
 1. Preferential sampling: decluster before any global statistic or histogram.
 2. Support: assays, composites, blocks and SMUs have different variances; grade-tonnage depends on it.
 3. Skewness: medians, logs, CV; capping is a documented judgement.
 4. Closure: ratios, not percentages, for multi-element work.
-5. Censoring: non-detects (left) and running equipment (right) need censored estimators.
+5. Censoring: non-detects (left) and running equipment (right) need censored estimators, for
+   inference (Gehan, censored MLE, Akritas-Theil-Sen) as well as for means.
 6. QA/QC before geostatistics: precision and bias propagate into every block.
 7. Smoothing and conditional bias at the cut-off: validate with slope and CV, not R^2.
 8. Overdispersion everywhere counts appear: injuries, failures, exceedances.
@@ -199,3 +246,8 @@ Condensed from the nine scripts in `analyses/`. Section numbers match the script
 - GBM: S_{t+dt} = S_t exp((mu - sigma^2/2)dt + sigma sqrt(dt) Z); OU half-life = ln 2 / kappa, kappa = -ln(b)/dt
 - Cut-off grade: g_c = opex / (price x recovery x payability)
 - Wilson interval for a proportion; C-Q: log C = a + b log Q, b < 0 dilution, b > 0 mobilisation
+- Seasonal Kendall: S = sum_seasons S_k; Var = sum_seasons Var(S_k); z = (S - sign S) / sqrt(Var)
+- Gehan: W = sum_{i in group 1} u_i, u_i = #(certainly above) - #(certainly below); Var = n1 n2 sum u^2 / (n (n-1))
+- Censored likelihood: sum_det log phi((y - Xb)/s)/s + sum_nd log Phi((DL - Xb)/s)
+- Chebyshev UCL: xbar + sqrt(1/alpha - 1) s/sqrt(n); gamma UCL: 2 n xbar k / chi2_alpha(2 n k)
+- Prediction limit (k future): xbar + t_{1-alpha/k, n-1} s sqrt(1 + 1/n); nonparametric max has confidence n/(n+k)
