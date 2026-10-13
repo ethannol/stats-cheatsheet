@@ -9,6 +9,8 @@ are its assumptions, how do you read the output, what goes wrong) and a demonstr
 earth-science data skills (hydrology, climatology, spatial analysis).
 
 Start with [CHEATSHEET.md](CHEATSHEET.md) for the condensed reference, then run the scripts.
+A question-first decision chart that spans this sheet and its mining companion lives in
+[`../mining-stats-cheatsheet/FLOWCHART.md`](../mining-stats-cheatsheet/FLOWCHART.md).
 
 ## Data
 
