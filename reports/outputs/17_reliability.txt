@@ -1,0 +1,49 @@
+
+==============================================================================
+Component lifetimes: Kaplan-Meier and Weibull MLE with right censoring
+==============================================================================
+            n_fail  n_censored   beta       eta  true_beta  true_eta  MTBF_weibull  MTBF_naive  MTBF_if_censored_as_failed  MTTR_h  availability
+component                                                                                                                                       
+engine         151          12  2.266  2266.936       2.40    2400.0      2008.008    1977.521                    1912.483  20.095         0.990
+hydraulics     324          11  0.907   925.575       0.85     900.0       969.618     931.200                     934.069   6.843         0.993
+tyres          204          12  3.077  1681.091       3.00    1800.0      1502.881    1491.547                    1454.827   4.215         0.997
+  > Shape parameters recover the generating values (hydraulics beta<1: early-life/random
+    failures where scheduled replacement would waste parts; tyres beta=3: wear-out where
+    preventive replacement at a fraction of eta pays). The naive MTBF (mean of observed
+    TBFs) and 'censored as failed' both run below the Weibull MTBF because long lives are
+    the ones that get censored. Inherent availability ranges from 0.990 to 0.997; at fleet
+    level the components combine in series so unavailabilities roughly add.
+    [fig] figures/06_reliability/weibull.png
+
+==============================================================================
+Preventive replacement interval for the wear-out component (tyres)
+==============================================================================
+optimal age-replacement interval ~790 h (0.47 eta) at failure/PM cost ratio 6; run-to-failure cost rate=0.00399 vs optimum 0.00190 per h
+  > Age replacement only makes sense when beta > 1 and failures cost more than planned
+    swaps; the optimum sits well before the characteristic life. For the hydraulics (beta
+    < 1) the same curve is monotone decreasing: replace only on failure.
+
+==============================================================================
+Is any truck a 'bad actor'? Poisson homogeneity of failure counts
+==============================================================================
+failures per truck: {1: 60, 2: 48, 3: 65, 4: 60, 5: 55, 6: 58, 7: 53, 8: 52, 9: 54, 10: 59, 11: 56, 12: 59}
+chi-square homogeneity: chi2=4.0 df=11 p=0.971  (dispersion var/mean=0.36)
+  > Before blaming a truck or an operator, test whether the spread in counts exceeds what
+    a common Poisson rate would produce. Here the fleet is homogeneous by construction; a
+    real fleet with p < 0.05 and var/mean >> 1 has a bad actor or a maintenance-history
+    effect worth a negative-binomial model with truck-level covariates.
+
+==============================================================================
+Production SPC: detecting a sustained 7% drop in daily tonnes
+==============================================================================
+planted shift at day 601: -7% = 1.15 sigma of daily noise
+Shewhart I-chart: false alarms before shift=4, first signal after shift: day 647
+CUSUM (k=0.5, h=5): false alarms before shift=1, first signal after shift: day 616
+EWMA (lambda=0.2): false alarms before shift=4, first signal after shift: day 609
+  > A 7% production drop is only ~1.2 sigma of day-to-day noise. Detection delays after
+    day 601: Shewhart 46 days, CUSUM 15 days, EWMA 8 days. The accumulating charts win on
+    delay but pay in false alarms over a 600-day in-control run (ARL0 ~ 465 for these
+    CUSUM settings): the design trade-off is choosing h or lambda for the false-alarm rate
+    the operation can live with. Charting raw tonnes without removing the seasonal cycle
+    would alarm every winter and go blind every summer.
+    [fig] figures/06_reliability/production_spc.png

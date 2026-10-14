@@ -1,15 +1,15 @@
 {
-  "slug": "earth-stats-cheatsheet",
-  "title": "Earth-Science Statistics Cheat Sheet",
+  "slug": "stats-cheatsheet",
+  "title": "Statistics Cheat Sheet",
   "kind": "reference",
   "status": "complete",
-  "question": "What is the statistical toolkit for environmental data, applied to real observations, with the assumptions, the reading of the output and the pitfalls written down?",
+  "question": "What is the statistical toolkit for environmental and mining data, from exploratory analysis, trends, extremes and spatial statistics to assay QA/QC, geostatistics, sampling theory, reliability, project economics and censored water-quality inference, applied to real observations with the assumptions, the reading of the output and the pitfalls written down?",
   "one_liner": "Runnable, annotated analysis scripts, each printing an interpretation of what it computed, condensed into a one-page method chooser.",
-  "aim": "Document the statistical toolkit for environmental data as runnable, annotated examples on real observations, with assumptions, interpretation and failure modes stated for each method.",
-  "scope": "Exploratory analysis, hypothesis tests, regression, time series, trend and change-point detection, extremes, resampling, multivariate and spatial methods, Bayesian estimation and machine learning, on NOAA, NASA GISTEMP, GHCN-Daily and USGS streamflow data.",
+  "aim": "Document the statistical toolkit for environmental and mining data as runnable, annotated examples on real or clearly labelled synthetic data, with assumptions, interpretation and failure modes stated for each method.",
+  "scope": "General methods on climate, river and station data: exploratory analysis, hypothesis tests, regression, time series, trend and change-point detection, extremes, resampling, multivariate and spatial methods, Bayesian estimation and machine learning. Methods specific to mining practice: assay exploratory analysis and capping, compositional data, QA/QC, geostatistics, sampling theory, equipment reliability, safety rates, project economics, environmental monitoring, and inference with non-detects: seasonal Kendall, Gehan, censored regression, ProUCL-style upper confidence limits, prediction and tolerance limits.",
   "conclusion": "Runnable reference with generated worked-example results; no new scientific study is claimed.",
   "summary": {
-    "question": "Worked examples of the statistics used on environmental data, each run on real observations with its assumptions and pitfalls written out.",
+    "question": "Worked examples of the statistics used on environmental and mining data, each run on real observations or clearly labelled synthetic data with its assumptions and pitfalls written out.",
     "techniques": [
       "Exploratory analysis",
       "Hypothesis tests",
@@ -21,7 +21,17 @@
       "Multivariate",
       "Spatial",
       "Bayesian",
-      "Machine learning"
+      "Machine learning",
+      "Assay EDA and capping",
+      "Compositional data",
+      "QA/QC",
+      "Geostatistics",
+      "Sampling theory",
+      "Reliability",
+      "Safety rates",
+      "Economics",
+      "Environmental monitoring",
+      "Censored inference and compliance limits"
     ],
     "result": ""
   },
@@ -62,7 +72,23 @@
     },
     {
       "id": "multiplicity",
-      "how": "The hypothesis-test section covers multiple comparisons and false-discovery control."
+      "how": "The hypothesis-test section covers multiple comparisons and false-discovery control; the censored-inference section applies Holm and Benjamini-Hochberg to pairwise era comparisons."
+    },
+    {
+      "id": "censoring",
+      "how": "Values below detection are handled by Kaplan-Meier and ROS for summaries and by Gehan, censored MLE and Akritas-Theil-Sen for tests and trends, never by substitution."
+    },
+    {
+      "id": "units-definitions",
+      "how": "Compositional data: percentages and ppm are closed, so log-ratio transforms precede biplots and models."
+    },
+    {
+      "id": "batch-effects",
+      "how": "Lab bias and precision are measured with CRM control charts, CUSUM and duplicate analysis before assays are trusted."
+    },
+    {
+      "id": "composition",
+      "how": "Declustering corrects the preferential-sampling bias of drilling where the grade is high."
     }
   ],
   "figures": [
@@ -73,6 +99,18 @@
     {
       "path": "reports/figures/variogram.png",
       "caption": "Residual variogram fitted to station climatologies."
+    },
+    {
+      "path": "reports/figures/estimation_maps.png",
+      "caption": "Estimates compared with exhaustive block truth; the uncertainty panel shows mean point variance, not block-estimate uncertainty."
+    },
+    {
+      "path": "reports/figures/crm_control_charts.png",
+      "caption": "Seeded synthetic certified-reference-material controls and planted laboratory bias."
+    },
+    {
+      "path": "reports/figures/seasonal_kendall.png",
+      "caption": "Seasonal Kendall on flow-adjusted copper: the within-month series the test compares, and the per-month Sen slopes agreeing in sign."
     }
   ],
   "not_claimed": [
@@ -82,6 +120,10 @@
     {
       "title": "Cheat sheet",
       "path": "CHEATSHEET.md"
+    },
+    {
+      "title": "Method chooser flowchart",
+      "path": "FLOWCHART.md"
     },
     {
       "title": "Generated worked results",
@@ -98,7 +140,8 @@
     "test_artifact": "reports/check-evidence.json"
   },
   "data": [
-    "NOAA CO2, GISTEMP, GHCN-Daily, USGS streamflow and station climatologies"
+    "NOAA CO2, GISTEMP, GHCN-Daily, USGS streamflow and station climatologies",
+    "Public and synthetic assay, duplicate, variogram, reliability, safety, price and water-quality datasets"
   ],
   "stack": [
     "EDA",
@@ -111,9 +154,20 @@
     "multivariate",
     "spatial",
     "Bayesian",
-    "ML"
+    "ML",
+    "assay EDA and capping",
+    "compositional data",
+    "QA/QC",
+    "geostatistics",
+    "sampling theory",
+    "reliability",
+    "safety rates",
+    "economics",
+    "environmental monitoring",
+    "censored inference and compliance limits"
   ],
   "links": {
-    "Repository": "https://github.com/ethannol/earth-stats-cheatsheet"
-  }
+    "Repository": "https://github.com/ethannol/stats-cheatsheet"
+  },
+  "strict_numbers": true
 }

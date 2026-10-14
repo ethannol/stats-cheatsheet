@@ -1,0 +1,175 @@
+recoverable copper 309 samples (0 non-detects), dissolved lead 311 (117 non-detects), total arsenic 310 (0 non-detects)
+
+==============================================================================
+Seasonal Kendall on recoverable copper: raw and flow-adjusted
+==============================================================================
+years sampled per calendar month: 1:2, 2:7, 3:35, 4:34, 5:39, 6:34, 7:30, 8:30, 9:6, 10:16, 11:15, 12:3
+raw log10 Cu    seasonal Kendall tau=-0.122 z=-2.60 p=9.19e-03 Sen=-1.04%/yr   |   annual-median Mann-Kendall tau=-0.236 p=3.43e-02 Sen=-1.76%/yr
+flow-adjusted   seasonal Kendall tau=-0.350 z=-7.49 p=7.14e-14 Sen=-1.98%/yr   |   annual-median Mann-Kendall tau=-0.555 p=6.63e-07 Sen=-2.23%/yr
+
+did the sampled flows drift? Kendall tau of log10 Q on time = +0.089 (p=0.019)
+
+flow-adjusted, by season (month):
+        n_years      S    tau    sen  sen_pct
+season                                       
+1             2   -1.0 -1.000 -0.022   -5.043
+2             7   -9.0 -0.429 -0.035   -7.734
+3            35 -169.0 -0.284 -0.008   -1.798
+4            34 -201.0 -0.358 -0.008   -1.834
+5            39 -285.0 -0.385 -0.008   -1.821
+6            34 -129.0 -0.230 -0.007   -1.505
+7            30 -207.0 -0.476 -0.015   -3.343
+8            30 -191.0 -0.439 -0.010   -2.213
+9             6   -3.0 -0.200 -0.007   -1.680
+10           16  -46.0 -0.383 -0.010   -2.231
+11           15  -15.0 -0.143 -0.006   -1.290
+12            3   -1.0 -0.333 -0.008   -1.751
+  > Seasonal Kendall compares March with March and June with June, so the runoff cycle
+    never enters the pairwise comparisons; the annual-median test throws away within-year
+    information and the whole-series Kendall would let seasonality inflate the variance.
+    Here every month with enough years agrees on the sign, which is the pattern of a real
+    trend rather than a seasonal artefact. Flow adjustment moves the evidence from p =
+    0.009 to p = 7e-14: copper rides on discharge (section 09), so the flow the sampler
+    happened to catch is noise around the trend, and removing it is what sharpens the
+    test. The sampled flows themselves drifted over the record (tau +0.09), so part of the
+    raw trend is a flow artefact. Report the flow-adjusted slope (-1.98%/yr) with the raw
+    slope (-1.04%/yr) beside it. Modern USGS practice (WRTDS, Hirsch et al. 2010) fits the
+    same three effects, time, discharge and season, as a weighted regression and reports
+    flow-normalised concentration; the seasonal Kendall is the hypothesis test it replaced
+    for estimation.
+    [fig] figures/10_censored_inference/seasonal_kendall.png
+
+==============================================================================
+Two groups with non-detects: dissolved lead, first era vs most recent
+==============================================================================
+  1969-90: n=35, non-detects=69%, detection limits [np.float64(1.0), np.float64(5.0)]
+  1991-05: n=117, non-detects=74%, detection limits [np.float64(0.08), np.float64(0.5), np.float64(0.6), np.float64(1.0)]
+  2006-15: n=84, non-detects=7%, detection limits [np.float64(0.04), np.float64(0.08), np.float64(0.12)]
+  2016-23: n=75, non-detects=1%, detection limits [np.float64(0.06)]
+                            test     z        p
+                Gehan (censored)  3.13  0.00177
+     Mann-Whitney, substitute DL   NaN 1.48e-15
+  Welch t on logs, substitute DL  15.9 1.25e-26
+   Mann-Whitney, substitute DL/2   NaN 5.96e-15
+Welch t on logs, substitute DL/2  12.4 7.71e-20
+      Mann-Whitney, substitute 0   NaN  0.00132
+   Welch t on logs, substitute 0 -2.21    0.033
+Gehan: 1969-90 is the higher group (positive scores favour the first label)
+
+KM medians by era: 1969-90: 1.00 ug/L, 1991-05: 0.07 ug/L, 2006-15: 0.11 ug/L, 2016-23: 0.14 ug/L
+  > The first era reported 69% of lead results as below 1 or 5 ug/L; the latest era
+    detects almost everything, with a median of 0.14 ug/L. Substituting the detection
+    limit turns the early era into a column of 1s and 5s and makes the decrease look
+    overwhelming (p ~ 1e-15); substituting zero turns the same results into a column of
+    zeros and reverses the sign. Gehan's test only uses pairs whose order is certain: an
+    early '< 1' against a recent 0.3 is not evidence either way, because the early value
+    could have been 0.1, while an early detected 3 against a recent 0.3 is. What survives
+    is a decrease with p = 0.0018: real, but with far less evidence than substitution
+    claims. When censoring fractions differ between groups, as here, the Peto-Prentice
+    score test weights the pairs more evenly than Gehan; both are in Helsel (2012) chapter
+    9 and the NADA package.
+    [fig] figures/10_censored_inference/censored_groups.png
+
+==============================================================================
+Regression and trend with a censored response: dissolved lead
+==============================================================================
+Tobit / MLE regression of log10 Pb on log10 flow and year (non-detects as 'below DL'):
+  intercept    -2.0460  (SE 0.1864)
+  log10 flow   +0.5441  (SE 0.0749)
+  year - 2000  -0.0145  (SE 0.0026)
+  residual sigma 0.381; converged True
+
+coefficients by method:
+             MLE (censored)  OLS detects only  OLS substitute DL/2
+intercept           -2.0460           -1.9024              -1.4705
+log10 flow           0.5441            0.5581               0.3874
+year - 2000         -0.0145           -0.0239              -0.0262
+
+time trend, holding flow constant: MLE -3.28%/yr, detects-only -5.36%/yr, DL/2 substitution -5.85%/yr
+
+trend without the flow term: Akritas-Theil-Sen slope -0.29%/yr (censored tau -0.009, permutation p=0.684); MLE slope -2.49%/yr (SE 0.67)
+KM median by era: 1969-90: 1.00, 1991-05: 0.07, 2006-15: 0.11, 2016-23: 0.14
+  > Dropping the non-detects keeps only the early samples that happened to be high enough
+    to measure, so the early years look high and the decline is exaggerated (-5.36%/yr
+    against the MLE's -3.28%/yr); substituting half the limit injects the laboratory's
+    history into the response. The MLE treats each non-detect as the probability that a
+    normal residual falls below the limit, and with log flow in the model it gives a flow-
+    adjusted decline of -3.28%/yr. Without the flow term both the MLE (-2.49%/yr) and the
+    distribution-free Akritas-Theil-Sen line (-0.29%/yr) see much less: the record is a
+    drop between the first two eras and a flat or slightly rising tail as detection limits
+    fell, which no single straight line fits well. The disagreement is the finding: the
+    trend depends on the flow term, and a monotone trend is the wrong model for a step.
+    Section 09's change-point tools are the follow-up.
+    [fig] figures/10_censored_inference/censored_regression.png
+
+==============================================================================
+Upper confidence limit on the mean (ProUCL logic): total arsenic, recent era
+==============================================================================
+total arsenic 2016-23: n=75, mean=20.19, median=16.70, sd=12.51, skew=2.88, sd of logs=0.49
+goodness of fit: normal p=0.000, gamma p (KS)=0.397, lognormal p=0.040
+mean                      20.19
+Student-t UCL95           22.60
+Gamma UCL95 (adjusted)    22.32
+Chebyshev UCL95           26.49
+Chebyshev UCL97.5         29.21
+Chebyshev UCL99           34.57
+Bootstrap-t UCL95         23.29
+BCa bootstrap UCL95       23.11
+
+recommended: Gamma UCL95 (adjusted)  (gamma fit not rejected: the gamma UCL is stable where lognormal-based limits explode)
+
+dissolved cadmium 1991-05: n=117, non-detects=64%
+KM mean                 0.062
+KM (t) UCL95            0.068
+KM Chebyshev UCL95      0.078
+KM Chebyshev UCL97.5    0.085
+KM Chebyshev UCL99      0.098
+recommended: KM (t) UCL95  (non-detects present, mild skew: KM mean with a t-interval)
+  > The UCL95 is the exposure-point concentration in a risk assessment: a one-sided limit
+    that the true mean exceeds with 5% probability if the sampling is representative. The
+    spread between the Student-t (22.60) and the Chebyshev 99% (34.57) is the cost of not
+    knowing the distribution. ProUCL's decision table picks by fit and skew because the
+    t-interval under-covers for skewed data and Land's lognormal H-UCL can exceed the
+    maximum observation. With non-detects the mean and its standard error come from
+    Kaplan-Meier and the same choice between t and Chebyshev follows. One caveat the
+    software does not print: a UCL assumes independent samples, and 75 river samples over
+    eight years are seasonal and serially correlated, so the effective n is smaller than
+    it looks.
+    [fig] figures/10_censored_inference/ucl_comparison.png
+
+==============================================================================
+Prediction and tolerance limits (Unified Guidance mechanics): is a new sample unusual?
+==============================================================================
+background = 2006-15 total arsenic, n=83 (log scale; Shapiro p on logs = 0.032)
+  upper prediction limit, 1 future sample:    39.93 ug/L   (nonparametric: background max 73.20, confidence 99%)
+  upper prediction limit, 75 future samples (Bonferroni): 85.39 ug/L
+  upper tolerance limit, 95% coverage / 95% confidence: 45.45 ug/L
+  2016-23 samples (n=75): 4 exceed the one-sample limit, 1 exceed the 75-sample limit, 4 exceed the tolerance limit
+  > A prediction limit bounds the next sample(s); a tolerance limit bounds a stated
+    fraction of the population. Compliance monitoring under the Unified Guidance tests
+    each new downgradient sample against a prediction limit built from independent
+    background, with the number of future comparisons folded into the limit (Bonferroni
+    here; the guidance uses exact kappa tables) and usually a retest rule. Testing 75 new
+    samples one at a time against a one-sample limit would expect about 3.8 false
+    exceedances; the k-sample limit is wider for that reason. River samples are not
+    independent background, so 4 exceedances of the one-sample limit are a demonstration
+    of the mechanics, not a finding.
+
+==============================================================================
+More than two groups: recoverable copper across four eras
+==============================================================================
+Kruskal-Wallis H=10.6 p=1.40e-02;  Welch-type (Alexander-Govern) ANOVA on logs p=1.93e-02
+      a       b       z       p  p_adj  tukey_p (logs)  median ratio
+1969-90 1991-05    2.87 0.00405 0.0203         0.00693         0.594
+1969-90 2006-15    3.11 0.00189 0.0113         0.00199         0.554
+1969-90 2016-23    2.71 0.00664 0.0266          0.0162         0.548
+1991-05 2006-15   0.501   0.616      1           0.896         0.933
+1991-05 2016-23 0.00938   0.993      1           0.999         0.924
+2006-15 2016-23  -0.444   0.657      1           0.881          0.99
+  > Kruskal-Wallis says at least one era differs; Dunn's pairwise z-tests on the pooled
+    ranks say which, with Holm keeping the family-wise error at 5% across six comparisons.
+    Tukey on the logs agrees here because log copper is close to normal within eras. The
+    usual mistakes are running six Mann-Whitney tests with no correction, or reading a
+    significant omnibus test as 'every era differs'. Eras are an observational grouping:
+    flow regime, laboratory method and detection limits also changed between them, which
+    is why section 09 flow-adjusts first.

@@ -1,0 +1,78 @@
+
+==============================================================================
+Mineralogical constant: why gold is hard
+==============================================================================
+                                                       c_g_cm3  mass_10pct_FSE_1cm_g  mass_10pct_FSE_2mm_g  mass_10pct_FSE_75um_g
+case                                                                                                                             
+gold 1.5 g/t (native Au, 50 um liberation, alpha 1.5) 1.29e+07              5.69e+04              5.09e+03                   36.9
+gold 1.5 g/t (classic Gy alpha 2.5)                   1.29e+07              1.14e+07              2.03e+05                   55.4
+copper 1% as chalcopyrite (100 um)                         140                   175                  3.12               0.000737
+iron ore 60% Fe as hematite (500 um)                     0.512                  1.43                0.0256                2.7e-06
+  > The mineralogical constant scales as 1/grade: five orders of magnitude separate gold
+    from iron ore. At 1 cm top size a representative gold sample weighs many kilograms to
+    tonnes; only after pulverising to 75 microns does a sub-sample of tens of grams carry
+    a 10% fundamental error. The liberation factor is the least knowable input: Gy's
+    classic sqrt(d_l/d) (alpha 2.5) is far more pessimistic than the Francois-Bongarcon
+    alpha 1.5 calibration that practitioners fit to gold duplicate data. Protocols are
+    calibrated against duplicates, not derived from theory alone.
+
+==============================================================================
+A sample preparation protocol on the Gy nomogram (gold, 1.5 g/t)
+==============================================================================
+
+A: split coarse (common shortcut)
+                    top_size_cm  mass_g  FSE_rsd_pct        counted
+stage                                                              
+core as received           2.50    3000        86.56  crush/receive
+crush to 1 cm              1.00    3000        43.54  crush/receive
+split to 1 kg              1.00    1000        75.41          split
+crush to 2 mm              0.20    1000        22.55  crush/receive
+split to 250 g             0.20     250        45.10          split
+pulverise to 75 um         0.01     250         3.84  crush/receive
+30 g fire assay            0.01      30        11.10          split
+total FSE of protocol (splits add in variance): 88.6% relative
+
+B: crush fine before splitting
+                    top_size_cm  mass_g  FSE_rsd_pct        counted
+stage                                                              
+core as received           2.50    3000        86.56  crush/receive
+crush to 2 mm              0.20    3000        13.02  crush/receive
+split to 1 kg              0.20    1000        22.55          split
+pulverise to 75 um         0.01    1000         1.92  crush/receive
+50 g fire assay            0.01      50         8.59          split
+total FSE of protocol (splits add in variance): 24.1% relative
+  > On the nomogram each split is a vertical drop in mass at fixed top size (error grows)
+    and each crush a horizontal move to a finer top size (error shrinks). Protocol A's
+    error (89%) is dominated by the 'split to 1 kg' stage: splitting while the gold is
+    still locked in centimetre particles. Protocol B crushes everything to 2 mm before the
+    first split and pulverises the whole kilogram, cutting the total to 24%. Changing the
+    final aliquot from 30 to 50 g is nearly irrelevant. Match the top size to the mass you
+    are about to take.
+    [fig] figures/05_sampling_theory/nomogram.png
+
+==============================================================================
+Decomposing the variogram nugget (Walker Lake V + the synthetic duplicate precision)
+==============================================================================
+variogram nugget=29165, sill=92634 -> relative nugget 31%
+duplicate relative sd of a single assay=0.161; at the mean grade 435 that is a measurement variance of 4910
+measurement error explains 17% of the nugget; the rest (83%) is geological variability at distances shorter than the closest sample pairs
+  > (The duplicate precision here is the synthetic gold programme's, applied to Walker
+    Lake for illustration.) The decomposition tells management what a better protocol can
+    buy: if measurement error is a minor part of the nugget, spending on assay precision
+    will not sharpen the resource model, but closer-spaced drilling might. Reported
+    precision from duplicates must be of the same sample type as the variogram data (field
+    vs pulp duplicates capture different error stages).
+
+==============================================================================
+How many samples to estimate the domain mean to +-10%?
+==============================================================================
+CV=0.69 -> n=182 independent samples for +-10% at 95%; we have 470 samples but an effective n of 289 after declustering weights (Kish), and spatial correlation lowers it further
+  CV=0.5: n=96
+  CV=1.0: n=384
+  CV=2.0: n=1537
+  CV=3.0: n=3457
+  > Nuggety gold with CV 2-3 needs thousands of independent samples for a +-10% domain
+    mean; no drilling programme delivers that, which is why gold resources carry wide
+    classification bands and why grade control relies on dense blast-hole sampling.
+    Clustering and spatial correlation reduce the effective sample size below the row
+    count.

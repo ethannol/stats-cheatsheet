@@ -1,12 +1,14 @@
-"""Cross-check the hand-rolled algorithms against scipy / known results."""
+"""Cross-check the hand-rolled algorithms against scipy / statsmodels / closed forms / known
+answers."""
 
 import numpy as np
 import pytest
 from scipy import stats as sps
 
-from statsheet import stats as es
+from statsheet import stats as st
 
 
+# ------------------------------------------------ trend, resampling, spatial, extremes
 @pytest.fixture
 def trending():
     rng = np.random.default_rng(0)
@@ -16,7 +18,7 @@ def trending():
 
 def test_mann_kendall_matches_kendalltau(trending):
     t, x = trending
-    mk = es.mann_kendall(x)
+    mk = st.mann_kendall(x)
     tau, p = sps.kendalltau(t, x)
     assert mk.tau == pytest.approx(tau, abs=1e-9)
     assert mk.p == pytest.approx(p, rel=0.05)  # scipy uses exact/other variance for ties
@@ -25,14 +27,14 @@ def test_mann_kendall_matches_kendalltau(trending):
 
 def test_mann_kendall_null():
     rng = np.random.default_rng(1)
-    ps = [es.mann_kendall(rng.normal(size=40)).p for _ in range(300)]
+    ps = [st.mann_kendall(rng.normal(size=40)).p for _ in range(300)]
     # under H0, ~5% of p-values should be below 0.05
     assert 0.01 < np.mean(np.array(ps) < 0.05) < 0.10
 
 
 def test_sens_slope_matches_theilslopes(trending):
     t, x = trending
-    slope, intercept, lo, hi = es.sens_slope(x, t)
+    slope, intercept, lo, hi = st.sens_slope(x, t)
     ref = sps.theilslopes(x, t)
     assert slope == pytest.approx(ref.slope)
     assert intercept == pytest.approx(ref.intercept)
@@ -43,7 +45,7 @@ def test_sens_slope_matches_theilslopes(trending):
 def test_pettitt_finds_shift():
     rng = np.random.default_rng(2)
     x = np.concatenate([rng.normal(0, 1, 50), rng.normal(2, 1, 50)])
-    k, _, p = es.pettitt(x)
+    k, _, p = st.pettitt(x)
     assert 44 <= k <= 54
     assert p < 0.001
 
@@ -53,7 +55,7 @@ def test_ar1_effective_n():
     x = np.zeros(2000)
     for i in range(1, 2000):
         x[i] = 0.6 * x[i - 1] + rng.normal()
-    n_eff, r1 = es.ar1_effective_n(x)
+    n_eff, r1 = st.ar1_effective_n(x)
     assert r1 == pytest.approx(0.6, abs=0.05)
     assert n_eff == pytest.approx(2000 * 0.4 / 1.6, rel=0.15)
 
@@ -61,7 +63,7 @@ def test_ar1_effective_n():
 def test_bootstrap_ci_covers_mean():
     rng = np.random.default_rng(4)
     x = rng.normal(10, 2, 200)
-    _, lo, hi, _ = es.bootstrap_ci(x, np.mean, n_boot=2000, rng=0)
+    _, lo, hi, _ = st.bootstrap_ci(x, np.mean, n_boot=2000, rng=0)
     assert lo < 10 < hi
     assert hi - lo == pytest.approx(2 * 1.96 * 2 / np.sqrt(200), rel=0.2)
 
@@ -69,7 +71,7 @@ def test_bootstrap_ci_covers_mean():
 def test_permutation_test_detects_difference():
     rng = np.random.default_rng(5)
     a, b = rng.normal(0, 1, 40), rng.normal(1, 1, 40)
-    obs, p, _ = es.permutation_test(a, b, n_perm=2000, rng=0)
+    obs, p, _ = st.permutation_test(a, b, n_perm=2000, rng=0)
     assert obs < 0 and p < 0.01
 
 
@@ -77,29 +79,29 @@ def test_morans_i_clustered_vs_random():
     # 10x10 grid; clustered field = x coordinate -> strong positive I
     gx, gy = np.meshgrid(np.arange(10), np.arange(10))
     lat, lon = gy.ravel() * 0.1 + 40, gx.ravel() * 0.1 - 100
-    D = es.distance_matrix_km(lat, lon)
-    W = es.knn_weights(D, k=4)
-    clustered = es.morans_i(gx.ravel().astype(float), W, n_perm=200, rng=0)
-    random = es.morans_i(np.random.default_rng(6).normal(size=100), W, n_perm=200, rng=0)
+    D = st.distance_matrix_km(lat, lon)
+    W = st.knn_weights(D, k=4)
+    clustered = st.morans_i(gx.ravel().astype(float), W, n_perm=200, rng=0)
+    random = st.morans_i(np.random.default_rng(6).normal(size=100), W, n_perm=200, rng=0)
     assert clustered["I"] > 0.8 and clustered["p_perm"] < 0.01
     assert abs(random["I"]) < 0.25
 
 
-def test_kriging_is_exact_at_data_points():
+def test_kriging_from_distances_is_exact_at_data_points():
     rng = np.random.default_rng(7)
     lat, lon = rng.uniform(35, 45, 30), rng.uniform(-100, -90, 30)
     z = lat * 0.5 + rng.normal(0, 0.2, 30)
-    D = es.distance_matrix_km(lat, lon)
+    D = st.distance_matrix_km(lat, lon)
     params = (0.0, z.var(), 500.0)
-    pred, var = es.ordinary_kriging(D, D, z, es.spherical, params)
+    pred, var = st.ordinary_kriging_from_distances(D, D, z, st.spherical, params)
     assert np.allclose(pred, z, atol=1e-6)
     assert np.all(var < 1e-6 + 1e-9)
 
 
-def test_idw_exact_and_bounded():
+def test_idw_from_distances_exact_and_bounded():
     z = np.array([1.0, 3.0, 5.0])
     D = np.array([[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]])
-    out = es.idw(D, z)
+    out = st.idw_from_distances(D, z)
     assert out[0] == pytest.approx(1.0)
     assert out[1] == pytest.approx(3.0)
 
@@ -107,7 +109,7 @@ def test_idw_exact_and_bounded():
 def test_return_level_gumbel_limit():
     # GEV with shape 0 (Gumbel): z_T = loc - scale * ln(-ln(1-1/T))
     T = np.array([2, 10, 100])
-    z = es.return_level_gev(0.0, 100.0, 10.0, T)
+    z = st.return_level_gev(0.0, 100.0, 10.0, T)
     expected = 100 - 10 * np.log(-np.log(1 - 1 / T))
     assert np.allclose(z, expected)
 
@@ -125,21 +127,344 @@ def test_hamed_rao_controls_size_under_ar1():
     raw = hr = 0
     for _ in range(300):
         x = _ar1(rng, 60, 0.6)
-        raw += es.mann_kendall(x).p < 0.05
-        hr += es.mann_kendall_hamed_rao(x).p < 0.05
+        raw += st.mann_kendall(x).p < 0.05
+        hr += st.mann_kendall_hamed_rao(x).p < 0.05
     assert raw / 300 > 0.15           # raw MK badly over-rejects
     assert hr / 300 < 0.12            # corrected test is near nominal
 
 
 def test_hamed_rao_equals_mk_for_white_noise():
     x = np.random.default_rng(9).normal(size=50)
-    assert es.mann_kendall_hamed_rao(x).p == pytest.approx(es.mann_kendall(x).p, abs=0.05)
+    assert st.mann_kendall_hamed_rao(x).p == pytest.approx(st.mann_kendall(x).p, abs=0.05)
 
 
 def test_fit_gev_recovers_parameters():
     rng = np.random.default_rng(10)
     x = sps.genextreme.rvs(-0.2, loc=100, scale=20, size=2000, random_state=rng)
-    c, loc, scale = es.fit_gev(x)
+    c, loc, scale = st.fit_gev(x)
     assert c == pytest.approx(-0.2, abs=0.06)
     assert loc == pytest.approx(100, abs=2)
     assert scale == pytest.approx(20, abs=2)
+
+
+# ------------------------------------------------ resource estimation, compositional, QA/QC
+def test_cell_declustering_downweights_clusters():
+    rng = np.random.default_rng(0)
+    # 50 spread out, 50 clustered
+    x = np.concatenate([rng.uniform(0, 100, 50), rng.uniform(40, 45, 50)])
+    y = np.concatenate([rng.uniform(0, 100, 50), rng.uniform(40, 45, 50)])
+    w = st.cell_declustering(x, y, cell_size=10)
+    assert w.sum() == pytest.approx(100)
+    assert w[:50].mean() > 3 * w[50:].mean()
+
+
+def test_composite_intervals_conserves_metal():
+    frm = np.array([0, 0.5, 1.5, 3.5, 4.0])
+    to = np.array([0.5, 1.5, 3.5, 4.0, 6.0])
+    g = np.array([1.0, 2.0, 4.0, 8.0, 1.0])
+    c = st.composite_intervals(frm, to, g, length=2.0)
+    assert np.allclose(c["to"] - c["from"], 2.0)
+    assert np.sum(c["grade"] * 2.0) == pytest.approx(np.sum(g * (to - frm)))
+
+
+def test_experimental_variogram_white_noise_equals_variance():
+    rng = np.random.default_rng(1)
+    x, y = rng.uniform(0, 100, 600), rng.uniform(0, 100, 600)
+    z = rng.normal(0, 2, 600)
+    h, g, n = st.experimental_variogram(x, y, z, lag=5, n_lags=10)
+    assert np.all(np.abs(g - 4.0) < 0.6)
+
+
+def test_variogram_fit_recovers_model():
+    h = np.linspace(2, 60, 30)
+    g = st.spherical(h, 1.0, 5.0, 40.0)
+    p = st.fit_variogram(h, g, st.spherical)
+    assert np.allclose(p, [1.0, 5.0, 40.0], rtol=0.02)
+
+
+def test_directional_variogram_sees_anisotropy():
+    rng = np.random.default_rng(2)
+    x, y = rng.uniform(0, 100, 800), rng.uniform(0, 100, 800)
+    z = np.sin(y / 8) + 0.1 * rng.normal(size=800)  # varies only along y: continuous E-W
+    _, g_ns, _ = st.experimental_variogram(x, y, z, lag=4, n_lags=5, azimuth=0)
+    _, g_ew, _ = st.experimental_variogram(x, y, z, lag=4, n_lags=5, azimuth=90)
+    assert g_ns[-1] > 3 * g_ew[-1]
+
+
+def test_kriging_exact_and_variance_zero_at_data():
+    rng = np.random.default_rng(3)
+    xy = rng.uniform(0, 100, (40, 2))
+    z = rng.normal(5, 1, 40)
+    est, var = st.ordinary_kriging(xy, z, xy, st.spherical, (0.0, 1.0, 30.0), n_max=12)
+    assert np.allclose(est, z, atol=1e-6)
+    assert np.all(var < 1e-6)
+
+
+def test_kriging_matches_global_solution():
+    """Moving-neighbourhood OK with all points == closed-form global OK."""
+    rng = np.random.default_rng(4)
+    xy = rng.uniform(0, 50, (15, 2))
+    z = rng.normal(size=15)
+    q = np.array([[25.0, 25.0]])
+    params = (0.2, 1.0, 20.0)
+    est, _ = st.ordinary_kriging(xy, z, q, st.spherical, params, n_max=15)
+    D = np.hypot(xy[:, None, 0] - xy[None, :, 0], xy[:, None, 1] - xy[None, :, 1])
+    C = params[1] - st.spherical(D, *params)
+    c0 = params[1] - st.spherical(np.hypot(xy[:, 0] - 25, xy[:, 1] - 25), *params)
+    A = np.ones((16, 16))
+    A[:15, :15] = C
+    A[15, 15] = 0
+    w = np.linalg.solve(A, np.append(c0, 1))[:15]
+    assert est[0] == pytest.approx(w @ z)
+
+
+def test_nscore_roundtrip_and_normality():
+    rng = np.random.default_rng(5)
+    z = rng.lognormal(0, 1, 500)
+    y, table = st.nscore(z)
+    assert abs(y.mean()) < 0.05 and abs(y.std() - 1) < 0.05
+    assert np.allclose(st.nscore_back(y, table), z)
+
+
+def test_sgs_honours_data_and_variance():
+    rng = np.random.default_rng(6)
+    xy = rng.uniform(0, 40, (30, 2))
+    y = rng.normal(size=30)
+    grid = np.array([[i, j] for i in range(0, 41, 4) for j in range(0, 41, 4)], float)
+    grid = np.vstack([grid, xy[:5]])  # include 5 data locations as nodes
+    sims = st.sequential_gaussian_simulation(xy, y, grid, st.spherical, (0.0, 1.0, 15.0),
+                                             n_real=3, seed=1)
+    assert np.allclose(sims[:, -5:], y[:5], atol=1e-3)
+    assert 0.6 < sims.std() < 1.4
+
+
+def test_clr_ilr_inverses():
+    rng = np.random.default_rng(7)
+    X = st.closure(rng.lognormal(0, 1, (20, 5)))
+    assert np.allclose(st.clr(X).sum(axis=1), 0)
+    assert np.allclose(st.clr_inv(st.clr(X)), X)
+    assert np.allclose(st.ilr_inv(st.ilr(X)), X)
+    assert np.allclose(st.alr_inv(st.alr(X)), X)
+    assert st.ilr(X).shape == (20, 4)
+
+
+def test_thompson_howarth_recovers_precision():
+    rng = np.random.default_rng(8)
+    c = rng.lognormal(0, 0.8, 3000)
+    sd = 0.05 + 0.1 * c                       # per-measurement sd grows with concentration
+    a = c + rng.normal(0, 1, 3000) * sd
+    b = c + rng.normal(0, 1, 3000) * sd       # both members carry the error
+    bm, bsd, s0, k = st.thompson_howarth(a, b, n_bins=15)
+    assert k == pytest.approx(0.1, abs=0.03)
+    assert s0 == pytest.approx(0.05, abs=0.04)
+
+
+def test_km_left_censored_no_censoring_equals_sample_mean():
+    rng = np.random.default_rng(9)
+    v = rng.lognormal(1, 0.5, 200)
+    km = st.km_left_censored(v, np.zeros(200, bool))
+    assert km["mean"] == pytest.approx(v.mean(), rel=1e-9)
+    assert km["median"] == pytest.approx(np.median(v), rel=0.02)
+
+
+def test_ros_recovers_lognormal_mean():
+    rng = np.random.default_rng(10)
+    v = rng.lognormal(0, 1, 2000)
+    dl = np.quantile(v, 0.4)
+    cens = v < dl
+    v_rep = np.where(cens, dl, v)
+    ros = st.ros_lognormal(v_rep, cens)
+    assert ros["mean"] == pytest.approx(v.mean(), rel=0.08)
+
+
+def test_kaplan_meier_matches_empirical_without_censoring():
+    t = np.array([1, 2, 3, 4, 5.0])
+    times, S, _ = st.kaplan_meier(t, np.ones(5, bool))
+    assert np.allclose(S, [1, .8, .6, .4, .2, 0])
+
+
+def test_weibull_mle_recovers_parameters_with_censoring():
+    rng = np.random.default_rng(11)
+    t = 500 * rng.weibull(2.0, 3000)
+    c = 700.0
+    event = t < c
+    t_obs = np.minimum(t, c)
+    fit = st.weibull_mle(t_obs, event)
+    assert fit.shape == pytest.approx(2.0, abs=0.1)
+    assert fit.scale == pytest.approx(500, rel=0.04)
+    ref = sps.weibull_min.fit(t, floc=0)  # uncensored reference on the full data
+    assert fit.shape == pytest.approx(ref[0], abs=0.15)
+
+
+def test_shewhart_false_alarm_rate():
+    rng = np.random.default_rng(12)
+    x = rng.normal(10, 1, 20000)
+    _, sigma, lo, hi = st.shewhart_limits(x)
+    assert sigma == pytest.approx(1.0, abs=0.03)
+    assert 0.001 < np.mean((x < lo) | (x > hi)) < 0.005  # nominal 0.0027
+
+
+def test_cusum_detects_one_sigma_shift_fast():
+    rng = np.random.default_rng(13)
+    x = np.concatenate([rng.normal(0, 1, 60), rng.normal(1, 1, 100)])
+    _, _, sig = st.cusum(x, 0, 1)
+    after = sig[sig >= 60]
+    assert len(after) and after[0] <= 90   # ARL1 for a 1-sigma shift is ~10 samples
+
+
+def test_gy_mass_and_variance_are_consistent():
+    m = st.gy_min_mass(1.0, 0.05, 1000.0)
+    assert st.gy_fse_variance(1.0, m, 1000.0) == pytest.approx(0.05)
+    m2 = st.gy_min_mass(0.2, 0.1, 1e7, liberation_size_cm=0.005, alpha=1.5)
+    v2 = st.gy_fse_variance(0.2, m2, 1e7, liberation_size_cm=0.005, alpha=1.5)
+    assert v2 == pytest.approx(0.1)
+    # liberation factor is capped at 1 once the top size reaches the liberation size
+    assert st.gy_fse_variance(0.001, 10, 1e7, liberation_size_cm=0.005, alpha=1.5) == pytest.approx(
+        st.gy_fse_variance(0.001, 10, 1e7))
+
+
+def test_fit_ou_recovers_mean_reversion():
+    rng = np.random.default_rng(14)
+    n, b, mean = 5000, 0.95, 2.0
+    x = np.empty(n)
+    x[0] = mean
+    for i in range(1, n):
+        x[i] = mean * (1 - b) + b * x[i - 1] + rng.normal(0, 0.1)
+    f = st.fit_ou(x)
+    assert f["b"] == pytest.approx(b, abs=0.01)
+    assert f["mean"] == pytest.approx(mean, abs=0.05)
+
+
+def test_correlated_normals_hits_target_correlation():
+    corr = np.array([[1, 0.6], [0.6, 1.0]])
+    z = st.correlated_normals(50000, corr, rng=0)
+    assert np.corrcoef(z.T)[0, 1] == pytest.approx(0.6, abs=0.02)
+
+
+# ------------------------------------------------ censored inference, trend and limits
+def test_km_mean_places_mass_below_lowest_limit_at_that_limit():
+    # one non-detect '< 1' and detects 2, 3: the only defensible mean is 2 (Helsel 2012)
+    km = st.km_left_censored(np.array([1.0, 2.0, 3.0]), np.array([True, False, False]))
+    assert km["mean"] == pytest.approx(2.0)
+    mean, se = st.km_mean_se(np.array([1.0, 2.0, 3.0]), np.array([True, False, False]))
+    assert mean == pytest.approx(2.0)
+
+
+def test_km_mean_tracks_truth_with_several_detection_limits():
+    rng = np.random.default_rng(21)
+    x = rng.lognormal(1, 0.5, 400)
+    dls = rng.choice([1.5, 2.5, 4.0], 400)
+    c = x < dls
+    xc = np.where(c, dls, x)
+    km = st.km_left_censored(xc, c)
+    mean, se = st.km_mean_se(xc, c)
+    assert km["mean"] == pytest.approx(mean)
+    assert abs(km["mean"] - x.mean()) < 3 * se
+    assert abs(km["mean"] - x.mean()) < abs(xc.mean() - x.mean())  # beats DL substitution
+    m0, se0 = st.km_mean_se(x, np.zeros(400, bool))
+    assert m0 == pytest.approx(x.mean())
+    assert se0 == pytest.approx(x.std(ddof=1) / np.sqrt(400), rel=0.02)
+
+
+def test_gehan_equals_mann_whitney_without_censoring():
+    rng = np.random.default_rng(22)
+    a, b = rng.normal(0, 1, 30), rng.normal(0.6, 1, 25)
+    v = np.concatenate([a, b])
+    g = np.r_[np.zeros(30), np.ones(25)]
+    gh = st.gehan_test(v, np.zeros(55, bool), g)
+    mw = sps.mannwhitneyu(a, b, method="asymptotic", use_continuity=False)
+    assert gh["p"] == pytest.approx(mw.pvalue, rel=1e-6)
+
+
+def test_gehan_ignores_uninformative_censored_pairs():
+    # group A: all '< 10'; group B: detects between 1 and 5. No pair is ordered: W must be 0.
+    v = np.r_[np.full(10, 10.0), np.linspace(1, 5, 10)]
+    c = np.r_[np.ones(10, bool), np.zeros(10, bool)]
+    g = np.r_[np.zeros(10), np.ones(10)]
+    gh = st.gehan_test(v, c, g)
+    assert gh["W"] == 0
+
+
+def test_akritas_theil_sen_reduces_to_theil_sen_without_censoring():
+    rng = np.random.default_rng(23)
+    x = np.arange(40.0)
+    y = 0.3 * x + rng.normal(0, 1, 40)
+    ats = st.akritas_theil_sen(x, y, np.zeros(40, bool), n_perm=200, rng=0)
+    assert ats["slope"] == pytest.approx(sps.theilslopes(y, x).slope, abs=0.01)
+    assert ats["tau"] == pytest.approx(sps.kendalltau(x, y).statistic, abs=1e-9)
+
+
+def test_censored_regression_matches_ols_and_recovers_truth():
+    import statsmodels.api as sm
+    rng = np.random.default_rng(24)
+    X = rng.normal(0, 1, (300, 2))
+    beta = np.array([1.0, 0.8, -0.5])
+    y = beta[0] + X @ beta[1:] + rng.normal(0, 0.7, 300)
+    full = st.censored_regression_mle(X, y, np.zeros(300, bool))
+    ols = sm.OLS(y, sm.add_constant(X)).fit()
+    assert np.allclose(full["beta"], ols.params, atol=1e-4)
+    assert np.allclose(full["se"], ols.bse, rtol=0.03)
+    dl = np.quantile(y, 0.4)
+    c = y < dl
+    cens = st.censored_regression_mle(X, np.where(c, dl, y), c)
+    sub = sm.OLS(np.where(c, dl / 2, y), sm.add_constant(X)).fit()
+    assert np.all(np.abs(cens["beta"] - beta) < 2.5 * cens["se"])
+    assert np.abs(cens["beta"] - beta).sum() < np.abs(sub.params - beta).sum()
+
+
+def test_seasonal_kendall_single_season_is_mann_kendall_and_blocks_seasonality():
+    rng = np.random.default_rng(25)
+    years = np.arange(1980, 2020)
+    v = 0.05 * (years - 1980) + rng.normal(0, 1, 40)
+    sk = st.seasonal_kendall(v, years, np.ones(40))
+    kt = sps.kendalltau(years, v)
+    assert sk["tau"] == pytest.approx(kt.statistic)
+    assert sk["p"] == pytest.approx(kt.pvalue, rel=0.05)
+    assert sk["sen"] == pytest.approx(sps.theilslopes(v, years).slope)
+    # strong seasonality, no trend: the seasonal test must not reject at the median seed
+    months = np.tile(np.arange(12), 40)
+    yrs = np.repeat(years, 12)
+    ps = []
+    for seed in range(20):
+        r = np.random.default_rng(seed)
+        vals = 3 * np.sin(months / 12 * 2 * np.pi) + r.normal(0, 1, 480)
+        ps.append(st.seasonal_kendall(vals, yrs, months)["p"])
+    assert 0.2 < np.median(ps) < 0.8
+
+
+def test_dunn_two_groups_matches_mann_whitney():
+    rng = np.random.default_rng(26)
+    a, b = rng.normal(0, 1, 30), rng.normal(0.6, 1, 25)
+    d = st.dunn_test([a, b])
+    mw = sps.mannwhitneyu(a, b, method="asymptotic", use_continuity=False)
+    assert d.p.iloc[0] == pytest.approx(mw.pvalue, rel=1e-6)
+    d3 = st.dunn_test([a, b, rng.normal(0, 1, 20)], labels=list("ABC"), adjust="holm")
+    assert len(d3) == 3 and (d3.p_adj >= d3.p).all()
+
+
+def test_ucl_student_t_and_recommendation():
+    rng = np.random.default_rng(27)
+    v = rng.normal(10, 1, 60)
+    tab = st.ucl_table(v, rng=0)
+    assert tab["Student-t UCL95"] == pytest.approx(
+        v.mean() + sps.t.ppf(0.95, 59) * v.std(ddof=1) / np.sqrt(60))
+    assert tab["Chebyshev UCL95"] > tab["Student-t UCL95"]
+    assert st.ucl_recommend(v)["choice"] == "Student-t UCL95"
+    skewed = rng.lognormal(0, 1.2, 60)
+    assert st.ucl_recommend(skewed)["choice"] != "Student-t UCL95"
+    c = skewed < np.quantile(skewed, 0.3)
+    censored = np.where(c, np.quantile(skewed, 0.3), skewed)
+    assert st.ucl_recommend(censored, c)["choice"].startswith("KM")
+
+
+def test_prediction_and_tolerance_limits_cover_at_nominal_rate():
+    rng = np.random.default_rng(28)
+    hits_pl, hits_tl = 0, 0
+    for _ in range(400):
+        bg = rng.normal(0, 1, 20)
+        pl = st.prediction_limit(bg, k_future=1)
+        hits_pl += rng.normal() > pl["normal"]
+        tl = st.tolerance_limit(bg, coverage=0.95, confidence=0.95)
+        hits_tl += sps.norm.sf(tl) > 0.05   # the limit fails to cover 95 % of the population
+    assert 0.02 < hits_pl / 400 < 0.09      # nominal 5 %
+    assert hits_tl / 400 < 0.10             # nominal 5 % confidence failure

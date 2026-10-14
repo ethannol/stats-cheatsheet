@@ -2,7 +2,7 @@
 import numpy as np
 import statsmodels.formula.api as smf
 
-from .stats import empirical_variogram, fit_variogram, spherical
+from .stats import fit_variogram, spherical, variogram_from_distances
 
 
 def fit_interpolation_fold(stations, distances, keep, bins):
@@ -14,10 +14,8 @@ def fit_interpolation_fold(stations, distances, keep, bins):
     training = stations.loc[keep]
     known_distances = distances[np.ix_(keep, keep)]
     trend = smf.ols("tavg ~ lat + elev_km + lon", data=training).fit()
-    raw_params = fit_variogram(
-        *empirical_variogram(known_distances, training.tavg.values, bins)[:2], spherical
-    )
-    residual_params = fit_variogram(
-        *empirical_variogram(known_distances, trend.resid.values, bins)[:2], spherical
-    )
+    h, gamma, counts = variogram_from_distances(known_distances, training.tavg.values, bins)
+    raw_params = fit_variogram(h, gamma, spherical, counts=counts)
+    h, gamma, counts = variogram_from_distances(known_distances, trend.resid.values, bins)
+    residual_params = fit_variogram(h, gamma, spherical, counts=counts)
     return trend, raw_params, residual_params

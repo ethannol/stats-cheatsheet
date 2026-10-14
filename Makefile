@@ -1,10 +1,10 @@
 # Run everything:        make all
-# Run one topic:         make 04   (any two-digit prefix)
+# Run one topic:         make 04   (any two-digit prefix, 01-21)
 # Re-download data:      make refresh
 PY := uv run python
 SCRIPTS := $(sort $(wildcard analyses/*.py))
 
-.PHONY: all data test refresh clean $(SCRIPTS)
+.PHONY: all data test notebooks refresh clean results reproduce $(SCRIPTS)
 
 all: data $(SCRIPTS)
 

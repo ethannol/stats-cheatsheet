@@ -1,0 +1,73 @@
+359 samples, 7 metals; rock types: {'Kimmeridgian': 124, 'Sequanian': 89, 'Argovian': 76, 'Quaternary': 64, 'Portlandian': 6}
+
+==============================================================================
+Closure manufactures correlation: a simulation
+==============================================================================
+independent amounts: pairwise r = [-0.03  0.02 -0.04]
+after closing to 100%: pairwise r = [-0.5  -0.48 -0.52]
+clr of closed data:     r = [-0.51 -0.49 -0.51] (clr correlations are not interpretable as independence either: rows sum to zero)
+  > Three unrelated quantities become strongly negatively correlated the moment they are
+    expressed as percentages of a total. Any correlation matrix of raw assay percentages
+    contains this artefact. The fix is not a different correlation coefficient: it is to
+    analyse ratios.
+
+==============================================================================
+Jura metals: raw correlation vs variation matrix
+==============================================================================
+Pearson r on raw ppm:
+      cd    co    cr    cu    ni    pb    zn
+cd  1.00  0.26  0.58  0.15  0.49  0.22  0.62
+co  0.26  1.00  0.48  0.19  0.74  0.16  0.44
+cr  0.58  0.48  1.00  0.21  0.71  0.26  0.61
+cu  0.15  0.19  0.21  1.00  0.22  0.82  0.66
+ni  0.49  0.74  0.71  0.22  1.00  0.27  0.59
+pb  0.22  0.16  0.26  0.82  0.27  1.00  0.67
+zn  0.62  0.44  0.61  0.66  0.59  0.67  1.00
+
+Variation matrix var(ln(xi/xj)) (small = proportional):
+      cd    co    cr    cu    ni    pb    zn
+cd  0.00  0.40  0.29  0.76  0.26  0.45  0.25
+co  0.40  0.00  0.13  0.56  0.08  0.32  0.16
+cr  0.29  0.13  0.00  0.51  0.09  0.24  0.10
+cu  0.76  0.56  0.51  0.00  0.58  0.23  0.30
+ni  0.26  0.08  0.09  0.58  0.00  0.31  0.13
+pb  0.45  0.32  0.24  0.23  0.31  0.00  0.13
+zn  0.25  0.16  0.10  0.30  0.13  0.13  0.00
+
+most proportional pairs: co/ni (0.08), cr/ni (0.09), cr/zn (0.10)
+least proportional pairs: co/cu (0.56), cu/ni (0.58), cd/cu (0.76)
+  > In the Jura data the metals are trace elements (sum ~0.03% of the soil), so closure to
+    the whole is weak and raw correlations are not dominated by the artefact. The
+    variation matrix still adds information: co/ni is the most proportional pair (co-
+    located in the same minerals), while cd/cu vary most independently. Log-ratio thinking
+    is about geology (which elements travel together), not just about avoiding an
+    artefact.
+
+==============================================================================
+Compositional biplot (PCA of clr coordinates)
+==============================================================================
+explained variance PC1=0.54 PC2=0.24 (clr covariance has rank D-1=6)
+    [fig] figures/02_compositional/clr_biplot.png
+  > In a compositional biplot the *links* between ray tips matter, not the rays: a short
+    link between two elements means their log-ratio has low variance (they are
+    proportional). Rock types separate along the log-ratio axes, which is the geochemical
+    fingerprint a mining geologist uses for lithology classification from assays.
+
+==============================================================================
+ilr coordinates: do rock types differ? (MANOVA-style test via per-coordinate ANOVA)
+==============================================================================
+ ilr_coord       F      p
+         1  1.6680 0.1569
+         2 17.3443 0.0000
+         3  6.1649 0.0001
+         4 36.0841 0.0000
+         5  3.4529 0.0087
+         6  7.5543 0.0000
+
+Argovian vs Kimmeridgian: Euclidean distance between mean compositions=25.0 ppm (dominated by Zn), Aitchison distance=0.61 (scale-free)
+  > ilr coordinates are ordinary real numbers: feed them to ANOVA, regression, k-means,
+    random forests or kriging, then back-transform results to the simplex. The
+    compositional mean is the geometric mean (closed), and the right distance is
+    Aitchison's, which does not let the most abundant element (Zn here) dominate the way
+    Euclidean distance on ppm does.
+    [fig] figures/02_compositional/logratio_maps.png

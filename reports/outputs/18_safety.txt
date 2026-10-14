@@ -1,0 +1,93 @@
+345,316 mine-years with hours, 220,087 injuries, 1,152 fatalities, 6.12 million worker-years
+
+==============================================================================
+National injury and fatality rates per 200,000 hours
+==============================================================================
+sector  coal  metal/nonmetal
+year                        
+2000    8.15            5.09
+2005    5.70            4.07
+2010    4.33            2.87
+2015    3.66            2.50
+2020    3.36            1.92
+2024    3.37            1.95
+coal            injury rate ratio per year=0.961 (0.960-0.962); deviance/df=28.2 (Poisson, should be ~1)
+metal/nonmetal  injury rate ratio per year=0.959 (0.958-0.959); deviance/df=14.0 (Poisson, should be ~1)
+  > Injury rates fell by roughly 60% over the period in both sectors. The national Poisson
+    GLM reports a deviance/df far above 1: even aggregated to the national level the year-
+    to-year counts are more variable than Poisson, so the printed CI is too narrow. Use a
+    quasi-Poisson scale or negative binomial for any inference about trend.
+    [fig] figures/07_safety/national_rates.png
+
+==============================================================================
+Across mines: Poisson vs negative binomial
+==============================================================================
+2019, mines with >= 50,000 h: n=1674; Poisson deviance/df=2.24; NB alpha=0.46
+coal vs metal/nonmetal rate ratio: Poisson 1.66 (SE 0.029) | NB 1.57 (SE 0.054)
+  > The rate ratio is the same under both models but the negative-binomial standard error
+    is 1.9x the Poisson one. With alpha=0.46, a mine with an expected 10 injuries has a
+    variance of 10 + alpha x 100: mines differ in underlying risk (commodity, method,
+    management), and pretending they are identical Poisson draws produces spuriously
+    precise comparisons.
+
+==============================================================================
+Ranking mines by rate: the small-numbers problem and empirical-Bayes shrinkage
+==============================================================================
+Gamma-Poisson prior by maximum likelihood: mean rate 1.89, sd 1.57 per 200k h (a=1.45, b=0.77); a mine's rate is shrunk toward 1.89 with weight b/(b+E) = 0.81 at median exposure
+
+worst 5 by raw rate (2020-24):
+mine_id  injuries  hours  rate  rate_eb
+4201852       1.0   2186  91.5      3.2
+2200460       4.0   9059  88.3      6.7
+0503791       1.0   2266  88.3      3.2
+0505125       1.0   2286  87.5      3.2
+4608549       1.0   2324  86.1      3.2
+
+worst 5 by shrunken rate:
+mine_id  injuries   hours  rate  rate_eb
+2700083      45.0  411090  21.9     16.5
+1103182     118.0 1700575  13.9     12.9
+2302273      33.0  390836  16.9     12.7
+1103141     159.0 2547870  12.5     11.9
+4601437     540.0 9390674  11.5     11.3
+
+95% of mines with < 20,000 h over five years recorded zero injuries (rate 0.0)
+  > The raw league table is a list of tiny operations with one or two injuries over a few
+    thousand hours. Shrinkage pulls them toward the prior in proportion to how little
+    exposure they have, and the shrunken ranking surfaces large mines with persistently
+    high rates, which is what an inspector or an insurer actually wants. Zero-injury small
+    mines are not safe; they are uninformative.
+    [fig] figures/07_safety/shrinkage_funnel.png
+
+==============================================================================
+u-chart: one large mine's annual injury rate against Poisson limits
+==============================================================================
+mine 0200024 (Freeport-McMoRan Morenci Inc.): centre line 3.38 per 200k h; 11 of 25 years outside Poisson limits: [2001, 2006, 2007, 2008, 2010, 2011, 2012, 2016, 2017, 2022, 2023]
+Poisson sigma at median exposure=0.32; observed year-to-year sigma (I-chart)=0.73
+    [fig] figures/07_safety/u_chart.png
+  > With 11 of 25 years outside the limits, this chart is not flagging 11 special causes:
+    at tens of millions of hours per year the Poisson limits are so tight (sigma 0.32)
+    that ordinary year-to-year variation (0.73 by the moving range) breaches them. Rates
+    at a large mine are overdispersed relative to Poisson (changing workforce, reporting
+    practice, operations), so use I-chart limits from the observed variability or a
+    negative-binomial u-chart. The u-chart with Poisson limits is right for small counts,
+    wrong for huge ones.
+
+==============================================================================
+Severity: lost days are heavy-tailed; experience at injury
+==============================================================================
+days lost (where > 0): n=105,719  mean=56.9  median=24  P90=164  P99=350  max=3616
+share of all lost days from the worst 10% of cases: 45%
+
+injuries by years of experience in the job:
+job_exper
+[0, 1)      24.6
+[1, 2)      12.8
+[2, 5)      21.7
+[5, 10)     16.1
+[10, 20)    14.6
+[20, 60)    10.2
+  > The mean lost-days figure is dominated by a few catastrophic cases; report the median
+    and the tail. The experience table shows where injuries happen, but without hours
+    worked by experience band it is not a rate: new workers may be over-represented simply
+    because there are many of them. Always ask what the denominator is.

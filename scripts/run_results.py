@@ -17,7 +17,9 @@ from statsheet import data
 from statsheet.provenance import data_manifest, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-PREVIEWS = ['09_spatial/interpolation_maps.png', '09_spatial/variogram.png']
+PREVIEWS = ['09_spatial/interpolation_maps.png', '09_spatial/variogram.png',
+            '14_qaqc/crm_control_charts.png', '15_geostatistics/estimation_maps.png',
+            '21_censored_inference/seasonal_kendall.png']
 
 
 def verify_raw_snapshot(manifest_path: Path) -> None:

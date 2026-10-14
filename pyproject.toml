@@ -1,7 +1,7 @@
 [project]
 name = "stats-cheatsheet"
 version = "0.1.0"
-description = "Statistical analysis cheat sheet for earth-science data: runnable, annotated examples on real NOAA / NASA / USGS data"
+description = "Statistics cheat sheet: runnable, annotated examples of general statistical methods on environmental data (NOAA, NASA, USGS) and of the methods specific to mining practice (resource estimation, QA/QC, geochemistry, sampling theory, reliability, safety, economics, environmental compliance)"
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.0",
@@ -12,6 +12,8 @@ dependencies = [
     "matplotlib>=3.9",
     "requests>=2.32",
     "pyarrow>=17",
+    "rdata>=0.11",
+    "openpyxl>=3.1",
 ]
 
 [project.optional-dependencies]

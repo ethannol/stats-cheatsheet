@@ -1,0 +1,89 @@
+470 samples -> 3120 blocks of 5x5; true block mean=278.0, true block sd=228.7, point sd=249.8, sample sd=299.6
+
+==============================================================================
+Variography: omnidirectional and directional
+==============================================================================
+omnidirectional spherical: nugget=29165 sill=92634 range=38.2  (sample variance 89738); relative nugget=0.31
+  azimuth   0: range=61.7
+  azimuth  45: range=27.0
+  azimuth  90: range=30.5
+  azimuth 135: range=43.2
+anisotropy: major axis azimuth 0 (range 62), minor 45 (range 27), ratio=0.44
+  > The omnidirectional variogram has a relative nugget of 31% and a range of ~38 units.
+    Directionally, continuity is longest along azimuth 0 and shortest along 45 (ratio
+    0.44): the mineralisation is elongated, as the sample map suggests, and the kriging
+    search and model should follow that ellipse. Walker Lake is the textbook case of
+    geometric anisotropy.
+    [fig] figures/04_geostatistics/variograms.png
+
+==============================================================================
+Estimating 5x5 blocks: OK vs IDW vs nearest neighbour, scored against truth
+==============================================================================
+                         mean_est   bias    RMSE     r  sd_est  slope_truth_on_est
+estimator                                                                         
+OK (block, anisotropic)    275.03  -2.95  114.86  0.87  215.46                0.92
+OK (point)                 275.47  -2.51  116.11  0.87  218.07                0.91
+IDW p=2                    334.52  56.54  138.24  0.84  181.35                1.05
+nearest neighbour          275.82  -2.16  150.17  0.80  245.10                0.75
+
+truth: mean=278.0 sd=228.7;  declustered sample mean=287.3
+  > The samples average 435 against a truth of 278, yet OK and nearest neighbour are
+    essentially unbiased (-3 and -2): both decluster implicitly, kriging through the
+    redundancy term in its weights, NN through its polygons of influence. IDW does not,
+    and carries a +57 bias straight from the preferential sampling. OK has the lowest RMSE
+    and the truth-on-estimate slope closest to 1 (least conditional bias). Every estimator
+    is smoother than the truth (sd 229); NN is the least smooth and the least accurate.
+    Smoothness is the price of minimising squared error.
+    [fig] figures/04_geostatistics/estimation_maps.png
+
+==============================================================================
+Leave-one-out cross-validation of the kriging model (what you can do without a truth)
+==============================================================================
+LOO: mean error=+7.1  RMSE=183.2  r=0.79  slope(truth on est)=0.94
+standardised errors: mean=+0.03 variance=0.73 (want ~0 and ~1)
+  > Cross-validation is the only model check available on a real deposit. Standardised
+    error variance of 0.73 says the kriging variance is mis-scaled for the variogram sill
+    used; a value far from 1 means the nugget/sill is wrong. The slope below 1 is
+    conditional bias: high estimates are too high, low ones too low, which is the
+    smoothing/selection problem that becomes money at the cut-off grade.
+
+==============================================================================
+Change of support: variance vs block size, and grade-tonnage curves
+==============================================================================
+       n_blocks  variance     sd
+block                           
+1         78000   62423.2  249.8
+2         19500   57511.9  239.8
+5          3120   52304.1  228.7
+10          780   46753.8  216.2
+20          195   37810.4  194.4
+50           36   20074.3  141.7
+
+variance reduction factor point -> 5x5: 0.84  (Krige's relation: D2(point,domain) = D2(point,block) + D2(block,domain))
+
+at cut-off 500: tonnes above (blocks) truth=521  OK=437  IDW=474  point-support truth=587
+  > Variance falls as block size grows (point sd 250 -> 5x5 block sd 229): the volume-
+    variance relation. The grade-tonnage curve therefore depends on support: at a cut-off
+    of 500, point-support truth reports +13% tonnes relative to the block truth. Smoothed
+    estimates (OK/IDW) err the other way: too few high-grade tonnes at high cut-offs, too
+    many just above a low cut-off. A resource must state its selective mining unit, and
+    change-of-support corrections exist for exactly this.
+    [fig] figures/04_geostatistics/volume_variance_grade_tonnage.png
+
+==============================================================================
+Sequential Gaussian simulation: uncertainty instead of a single smoothed map
+==============================================================================
+normal-score variogram: nugget=0.30 range=45.9
+realisation sd (mean over 8): 285  vs point truth sd 250, E-type sd 222, OK sd 218
+realisation mean: 291  (declustered sample mean 287; truth 278)
+variogram reproduction (realisation 1, normal scores) at lag 11: 0.65 vs model 0.54
+tonnes above 500: realisations 647-740, point truth 587, block truth 521
+  > Each realisation has the full variance of its input histogram (sd ~285 vs OK's 218),
+    so it looks like a deposit rather than a smoothed map, and the E-type average recovers
+    a kriging-like map. The spread across realisations (647 to 740 tonnes above 500) is
+    the model's uncertainty, but note that the whole band sits above the point truth
+    (587): simulation reproduces the declustered sample histogram faithfully, and that
+    histogram is still richer and wider than the deposit (mean 287 vs 278). Simulation
+    quantifies uncertainty *given* the inputs; it cannot repair a biased histogram. Re-
+    block the realisations to SMU support before reading grade-tonnage for mine planning.
+    [fig] figures/04_geostatistics/sgs.png

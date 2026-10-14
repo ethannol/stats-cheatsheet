@@ -31,15 +31,15 @@ from statsheet.spatial import fit_interpolation_fold
 from statsheet.plotting import banner, note, savefig, setup
 from statsheet.stats import (
     distance_matrix_km,
-    empirical_variogram,
     exponential,
     fit_variogram,
     haversine_km,
-    idw,
+    idw_from_distances,
     knn_weights,
     morans_i,
-    ordinary_kriging,
+    ordinary_kriging_from_distances,
     spherical,
+    variogram_from_distances,
 )
 
 setup()
@@ -68,9 +68,9 @@ in section 03 were therefore too small, exactly as with time-series autocorrelat
 banner("Empirical variogram of the residuals and model fits")
 # fit only to ~half the domain width: pair counts thin out and large-scale trend leaks in
 bins = np.arange(0, 1300, 75.0)
-h, gam, cnt = empirical_variogram(D, st.resid.values, bins)
-sph = fit_variogram(h, gam, spherical)
-expo = fit_variogram(h, gam, exponential)
+h, gam, cnt = variogram_from_distances(D, st.resid.values, bins)
+sph = fit_variogram(h, gam, spherical, counts=cnt)
+expo = fit_variogram(h, gam, exponential, counts=cnt)
 print(f"spherical:   nugget={sph[0]:.3f} sill={sph[1]:.3f} range={sph[2]:.0f} km")
 print(f"exponential: nugget={expo[0]:.3f} sill={expo[1]:.3f} range={expo[2]:.0f} km (practical)")
 print(f"residual variance = {st.resid.var():.3f}")
@@ -99,12 +99,12 @@ gl = pd.DataFrame({"lon": glon.ravel(), "lat": glat.ravel()})
 Dq = haversine_km(gl.lat.values[:, None], gl.lon.values[:, None], st.lat.values[None, :], st.lon.values[None, :])
 mask = Dq.min(axis=1) < 250  # only show grid cells near a station (drops oceans, Canada, Mexico)
 
-idw_t = idw(Dq, st.tavg.values, power=2)
+idw_t = idw_from_distances(Dq, st.tavg.values, power=2)
 # regression kriging: trend from covariates (need elevation on the grid; approximate with IDW of
 # station elevation - a real analysis would use a DEM) + ordinary kriging of the residuals
-gl["elev_km"] = idw(Dq, st.elev_km.values, power=2)
+gl["elev_km"] = idw_from_distances(Dq, st.elev_km.values, power=2)
 trend_grid = trend.predict(gl)
-krig_res, krig_var = ordinary_kriging(D, Dq, st.resid.values, spherical, sph)
+krig_res, krig_var = ordinary_kriging_from_distances(D, Dq, st.resid.values, spherical, sph)
 rk_t = trend_grid.values + krig_res
 
 
@@ -143,14 +143,14 @@ for i in range(n):
     keep = np.arange(n) != i
     Di = D[np.ix_(keep, keep)]
     Dqi = D[i, keep][None, :]
-    errs["IDW p=2"].append(idw(Dqi, st.tavg.values[keep], 2)[0] - st.tavg[i])
-    errs["IDW p=1"].append(idw(Dqi, st.tavg.values[keep], 1)[0] - st.tavg[i])
+    errs["IDW p=2"].append(idw_from_distances(Dqi, st.tavg.values[keep], 2)[0] - st.tavg[i])
+    errs["IDW p=1"].append(idw_from_distances(Dqi, st.tavg.values[keep], 1)[0] - st.tavg[i])
     f, tavg_sph_fold, resid_sph_fold = fit_interpolation_fold(st, D, keep, bins)
     pred_trend = f.predict(st.iloc[[i]]).iloc[0]
     errs["OLS trend only"].append(pred_trend - st.tavg[i])
-    ok, _ = ordinary_kriging(Di, Dqi, st.tavg.values[keep], spherical, tavg_sph_fold)
+    ok, _ = ordinary_kriging_from_distances(Di, Dqi, st.tavg.values[keep], spherical, tavg_sph_fold)
     errs["OK on tavg"].append(ok[0] - st.tavg[i])
-    okr, _ = ordinary_kriging(Di, Dqi, f.resid.values, spherical, resid_sph_fold)
+    okr, _ = ordinary_kriging_from_distances(Di, Dqi, f.resid.values, spherical, resid_sph_fold)
     errs["regression kriging"].append(pred_trend + okr[0] - st.tavg[i])
 loo = pd.DataFrame({k: [np.sqrt(np.mean(np.square(v))), np.mean(np.abs(v))] for k, v in errs.items()},
                    index=["RMSE", "MAE"]).T.sort_values("RMSE")

@@ -1,0 +1,71 @@
+
+==============================================================================
+Field duplicates: precision
+==============================================================================
+400 pairs; HARD median=0.060, 90th percentile=0.164 (passes the 90% < 20% criterion)
+pairs with HARD > 0.5: 3  (planted swaps: 6, of which flagged: 3)
+Thompson-Howarth: sd = 0.010 + 0.100 * c   -> precision at 1 g/t = 11% (generated with sd = sqrt((0.12 c)^2 + 0.02^2), i.e. 12% at high grade, 0.02 g/t floor)
+mean duplicate / mean original = 1.014 (should be ~1; a systematic departure means the duplicate stream is treated differently)
+  > HARD summarises precision in one number per pair; its 90th percentile (0.16) is the
+    figure that goes in the QA/QC report. The Thompson-Howarth line recovers the
+    generating model (a concentration-proportional term plus an absolute floor), which is
+    how one should state precision: 'X% at grade Y', never a single percentage. Only 3 of
+    the 6 planted swaps show up as HARD > 0.5: a swap between two samples of similar grade
+    is invisible to any duplicate statistic, which is why sample tracking (barcodes, chain
+    of custody) matters more than statistics for gross errors.
+    [fig] figures/03_qaqc/duplicates.png
+
+==============================================================================
+Certified reference materials: accuracy and bias
+==============================================================================
+CRM-A: certified 0.52; 2 points beyond 3SD (planted mix-ups in this CRM: 2); 6 warnings; overall bias (ex-outliers)=+0.6%; CUSUM signals at batch 78
+CRM-B: certified 1.85; 4 points beyond 3SD (planted mix-ups in this CRM: 1); 7 warnings; overall bias (ex-outliers)=+1.1%; CUSUM signals at batch 78
+CRM-C: certified 4.10; 2 points beyond 3SD (planted mix-ups in this CRM: 0); 10 warnings; overall bias (ex-outliers)=+0.8%; CUSUM signals at batch 71
+    [fig] figures/03_qaqc/crm_control_charts.png
+  > An 8% bias is below the 3SD action line for most individual CRM inserts, so a limits-
+    only chart passes a lab that is over-reporting grade by 8%. The CUSUM, or simply 'how
+    many of the last 10 points are above the line', catches it within a few batches. Bias
+    is estimated per CRM and per period after removing the obvious mix-ups; a bias that
+    scales with grade (all three CRMs off by the same percentage) points at calibration, a
+    constant offset at a blank/contamination problem.
+
+==============================================================================
+Blanks: contamination and carry-over
+==============================================================================
+180 blanks; 167 below DL; 7 above 5xDL (planted carry-over events: 7, flagged: 7)
+mean blank after a >3 g/t sample: 31.7 ppb vs 2.1 ppb otherwise
+    [fig] figures/03_qaqc/blanks.png
+  > Every failing blank follows a high-grade sample: that is carry-over in sample
+    preparation (insufficient cleaning of the pulveriser), not laboratory contamination in
+    general. The remedy is a prep protocol change and re-assay of the samples that
+    followed high grades, which is a different (and cheaper) action than rejecting the
+    lab.
+
+==============================================================================
+Non-detects: trace metals in the Clark Fork River at Deer Lodge (USGS)
+==============================================================================
+non-detects by analyte:
+                            sum  size   pct
+characteristic fraction                    
+Lead           Dissolved    121   335  36.0
+Cadmium        Dissolved    114   327  35.0
+               Total         89   310  29.0
+Zinc           Dissolved     16   335   5.0
+Lead           Recoverable   13   316   4.0
+Copper         Dissolved      3   334   1.0
+
+using dissolved lead: 335 results, 121 non-detects (36%), detection limits used: [np.float64(0.04), np.float64(0.06), np.float64(0.08), np.float64(0.12), np.float64(0.5), np.float64(0.6), np.float64(1.0), np.float64(5.0), np.float64(100.0)]
+         method  mean  median    sd
+   substitute 0  0.23    0.06  0.84
+substitute DL/2  1.01    0.19  5.47
+  substitute DL  1.79    0.19 10.88
+   Kaplan-Meier  0.28    0.11   NaN
+ROS (lognormal)  0.63    0.19  1.36
+  > With 36% non-detects and detection limits spanning three orders of magnitude (one old
+    method reported '< 100'), substitution alone moves the mean from 0.23 to 1.79 ug/L
+    against a Kaplan-Meier estimate of 0.28. Kaplan-Meier needs no distributional
+    assumption and is the regulatory default (EPA ProUCL, Helsel); ROS assumes
+    lognormality and extrapolates below the DL; substitution is never right and gets worse
+    when detection limits changed over time, as they did here. Above ~50% censoring, stop
+    estimating means and report the upper percentiles only.
+    [fig] figures/03_qaqc/nondetects.png
