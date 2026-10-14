@@ -17,7 +17,7 @@ metal/nonmetal  injury rate ratio per year=0.959 (0.958-0.959); deviance/df=14.0
     GLM reports a deviance/df far above 1: even aggregated to the national level the year-
     to-year counts are more variable than Poisson, so the printed CI is too narrow. Use a
     quasi-Poisson scale or negative binomial for any inference about trend.
-    [fig] figures/07_safety/national_rates.png
+    [fig] figures/18_safety/national_rates.png
 
 ==============================================================================
 Across mines: Poisson vs negative binomial
@@ -57,14 +57,14 @@ mine_id  injuries   hours  rate  rate_eb
     exposure they have, and the shrunken ranking surfaces large mines with persistently
     high rates, which is what an inspector or an insurer actually wants. Zero-injury small
     mines are not safe; they are uninformative.
-    [fig] figures/07_safety/shrinkage_funnel.png
+    [fig] figures/18_safety/shrinkage_funnel.png
 
 ==============================================================================
 u-chart: one large mine's annual injury rate against Poisson limits
 ==============================================================================
 mine 0200024 (Freeport-McMoRan Morenci Inc.): centre line 3.38 per 200k h; 11 of 25 years outside Poisson limits: [2001, 2006, 2007, 2008, 2010, 2011, 2012, 2016, 2017, 2022, 2023]
 Poisson sigma at median exposure=0.32; observed year-to-year sigma (I-chart)=0.73
-    [fig] figures/07_safety/u_chart.png
+    [fig] figures/18_safety/u_chart.png
   > With 11 of 25 years outside the limits, this chart is not flagging 11 special causes:
     at tens of millions of hours per year the Poisson limits are so tight (sigma 0.32)
     that ordinary year-to-year variation (0.73 by the moving range) breaches them. Rates

@@ -3,76 +3,139 @@
     "01_eda.py": {
       "exit_code": 0,
       "output": "outputs/01_eda.txt",
-      "output_sha256": "1df1189cf6c2e3e83fdc11c26ff569140858248b0d2203f4103bb19783ae323c",
-      "script_sha256": "feea5dfec23e748e101f16307faa504799ddd75c3d6e7f54db400af6d4f512dd"
+      "output_sha256": "ad843824c51530b64ece9b68a47a898d14e909a29a122bb1358d7ad93a9c0e50",
+      "script_sha256": "ae99b6b359c4abaf7b21b573c5ec07dd4489659eb619a13066a46ba267629dcc"
     },
     "02_hypothesis_tests.py": {
       "exit_code": 0,
       "output": "outputs/02_hypothesis_tests.txt",
       "output_sha256": "bf31e642ac9697f8538d40b91b2de4c75f3476252a20eacfe72de45f3f34102e",
-      "script_sha256": "5dfdc06979e1e977a56b3b3f8ea1862dff55ac8f0503e4d73a985189fc2edbde"
+      "script_sha256": "f8495dea3976a519368b11237b19482149d71f19d510c760b98cec3b2e3313aa"
     },
     "03_regression.py": {
       "exit_code": 0,
       "output": "outputs/03_regression.txt",
       "output_sha256": "6d3abc3415da13409c47b1a8956881a98c6e8bfea179c68ad64566b4ae5376e4",
-      "script_sha256": "3d5f5d40dd6a310b2777c097e1204b08d5ece5d26b9cd9f67cee371054eb1cd2"
+      "script_sha256": "18cabf991d6f83825577b28193d1194877e91b10663cbc8fc56e35bbf212e770"
     },
     "04_time_series.py": {
       "exit_code": 0,
       "output": "outputs/04_time_series.txt",
-      "output_sha256": "7cf0b2b00e142539d3a56442b82542d91431feda400abe21a33ad582b9b3028b",
-      "script_sha256": "9f53b757d789536dfb7aa5c577314ce96247fc069e9c3c9c49f3c6ab1109a94d"
+      "output_sha256": "a7b8b4b813141c1923dca47bedb853555c5e4fbfa70ca0b0dc20b571e454e12a",
+      "script_sha256": "b7550bc118b95c33e0778ad37747457b0a1a9398615c42d78af5628ca3cbe860"
     },
     "05_trends_changepoints.py": {
       "exit_code": 0,
       "output": "outputs/05_trends_changepoints.txt",
       "output_sha256": "4d596088650b69c0dd1ee88c90ecfe354ac0e30509ca493f982defd0febeefcc",
-      "script_sha256": "17f68e324d24ef4c362436774602c9257baef87f7f441e4119d9c51e1ddd7b2f"
+      "script_sha256": "25f66b9deaafe20c186cff65facb48580385bdd574a67237188891b634315de1"
     },
     "06_extremes.py": {
       "exit_code": 0,
       "output": "outputs/06_extremes.txt",
       "output_sha256": "325686cacca6baae0547df546a0fc022b92a5d48fdf182e82e6ec4e25d0634a8",
-      "script_sha256": "5a37381afb5bb5fa37a15617c69abc4fefb063d69ca2c4e911203f7da33b2313"
+      "script_sha256": "66eaa21e3514e8eb308544a0613d8b0c5f4e4d114a2b68d1576708fa3541c581"
     },
     "07_resampling.py": {
       "exit_code": 0,
       "output": "outputs/07_resampling.txt",
       "output_sha256": "c2942d25f51f6d9c800da0f5f2fcba85aa56413fe1afee7a858d085e06033c37",
-      "script_sha256": "d8bfc191b16ed73ca0f5376b9ad5c6df6a8a8067c5f46f96e517bf80e61b7cdf"
+      "script_sha256": "40952f21cc5900093c2b056154296d0a386fbbf3a25c44bcd61b7c7bf13d8379"
     },
     "08_multivariate.py": {
       "exit_code": 0,
       "output": "outputs/08_multivariate.txt",
       "output_sha256": "ad7fa7ef6126d1128a1c86dd48769efa205d3aedb98b6ac5c5b0c660fb7f30dc",
-      "script_sha256": "bd20eaf7c815078d1f2339ffb37b4ecc221aac883dbb68e08ef2827a8e9ea938"
+      "script_sha256": "cc396bb4373b39e0ed8cf0f2f17a2951d71ba4a7c4364199ea094f20bf3a3bdc"
     },
     "09_spatial.py": {
       "exit_code": 0,
       "output": "outputs/09_spatial.txt",
-      "output_sha256": "e2f08ac995bcff28165ebc1e1ede1d79f1148bbfddfa0c17d2c64ef96ff03b2d",
-      "script_sha256": "c7a338591de33cdb81ad7c85d32d4a75541bf225526c906adb6902d41524efe9"
+      "output_sha256": "2f93fd3cbe46c31cbf215e864327144911dfc1db856060cfeb3c6489928176d2",
+      "script_sha256": "d99cf78366a5a4e5028f29160e6a51c1119fa8c21bb1ae58efba17a149e4ba94"
     },
     "10_bayesian.py": {
       "exit_code": 0,
       "output": "outputs/10_bayesian.txt",
       "output_sha256": "f8e4f29b4ab8d752a271d1cea81a18babee0c9b032b330f6295e31c8d62c4b7e",
-      "script_sha256": "b3bb4b95b5b7645410acb83a43c528b4f465b7ebbd3a74e2a07fafa812eef39b"
+      "script_sha256": "4bc40f26652f6dab5803a031461fd3ee15d80407cdacc41e9c5b62bf9ac4ed29"
     },
     "11_ml.py": {
       "exit_code": 0,
       "output": "outputs/11_ml.txt",
       "output_sha256": "5180bd20fc55cefd3e4d802b165ac493d7760c6c8a58dda8ad86ec53d47b5794",
-      "script_sha256": "5cb39f179aaef1f0cca88e896269d3d35adcd2bb4c100f05f7fd34a3ada782de"
+      "script_sha256": "b7ae1783198a6b14b3b95c4e74115f7d0f6d8de83e3c1fea17e35ea64cec699f"
+    },
+    "12_assay_eda.py": {
+      "exit_code": 0,
+      "output": "outputs/12_assay_eda.txt",
+      "output_sha256": "c8a6d927e19abe329b03ae01d9b6b0493aacc3b91807dba359d20e83c146e7ef",
+      "script_sha256": "4008543a2c46a0bc6352097aa17c5f236eefbeed5122c2a9c7500d4ffa1c1a8e"
+    },
+    "13_compositional.py": {
+      "exit_code": 0,
+      "output": "outputs/13_compositional.txt",
+      "output_sha256": "dc87a5b5e0fdfee10f76aed1832b4dcf26c1e72721dc117b27948f3d0f73040b",
+      "script_sha256": "13a508ff8f098a561e99c9acb286ab5e85365c1239a909ca2d9a565de7036874"
+    },
+    "14_qaqc.py": {
+      "exit_code": 0,
+      "output": "outputs/14_qaqc.txt",
+      "output_sha256": "7780bd8f34c8d76c29412b032fa47d37a16500f6b5a57b88dae44b210335c81f",
+      "script_sha256": "45901172cf4573f84f974a31174109dd7caa5783a12d9354b5f368f5cc6704bf"
+    },
+    "15_geostatistics.py": {
+      "exit_code": 0,
+      "output": "outputs/15_geostatistics.txt",
+      "output_sha256": "4e71f2b13a817c0a4928cda2ea91993822d9f055d451a9b7c6ca716003febd16",
+      "script_sha256": "4acc7b21755a4aabf07a40154b04af6151e9b6a9f8e67bf0dc065364c3418ae4"
+    },
+    "16_sampling_theory.py": {
+      "exit_code": 0,
+      "output": "outputs/16_sampling_theory.txt",
+      "output_sha256": "672885f46584245e57415587db59553d026fa46cfd9af226b4c66b6346a5bd47",
+      "script_sha256": "7240e668586d40eb09c91ea920b645d10cc2a69d92cb4e183f27c91d173ca3bd"
+    },
+    "17_reliability.py": {
+      "exit_code": 0,
+      "output": "outputs/17_reliability.txt",
+      "output_sha256": "4e9f1a3d4aaebae28d3e3ce6a6a1d8e8b0eecef42f95f1cb238b549b09c65a2a",
+      "script_sha256": "85ad96adfef09d759213c719abad2ea9e6b47010983905b9bc6fe840d2a4d3a6"
+    },
+    "18_safety.py": {
+      "exit_code": 0,
+      "output": "outputs/18_safety.txt",
+      "output_sha256": "aae70983c97e5bc5a11af6ce06eb8c126e5034f6bd7aa710a402720db36475f5",
+      "script_sha256": "5adc4a5817598d4710b73ec39d46d3b00dab1aedacfdc403749c7a3b2f76e5ea"
+    },
+    "19_economics.py": {
+      "exit_code": 0,
+      "output": "outputs/19_economics.txt",
+      "output_sha256": "e422a32d71cc381b4a36f95c6d1e7d5fbec02c27f351d78a20e86c989bd9c351",
+      "script_sha256": "73e78ff4697ea4fa84db490167a1b574513423d5ccc54ad0b986b6b0d79ea4ed"
+    },
+    "20_environmental.py": {
+      "exit_code": 0,
+      "output": "outputs/20_environmental.txt",
+      "output_sha256": "fd33432c6aab80c3e97df9dd7662a43d417276f337f73f43e1f6a0ebec281a73",
+      "script_sha256": "9472dab4b8e4c7aff3201b3745e9d816d5b7602433e54b3b491f90540a95c5c4"
+    },
+    "21_censored_inference.py": {
+      "exit_code": 0,
+      "output": "outputs/21_censored_inference.txt",
+      "output_sha256": "d27c90d1f0728d7838f86359be9233eeb3ac30ba89c37afb3f594faad547a128",
+      "script_sha256": "cc70322a2e4bbb63dbc92e04e012a2e0c1eceda0abfa1b07680a3a71b74434d3"
     }
   },
   "end_date": "2026-09-30",
   "figures": {
-    "interpolation_maps.png": "006a612b5110353ce73ad000f72957f5ced505d9f85c0a8d72b8bd0610ad39bb",
-    "variogram.png": "89ec8bdec92e3582251bd71477e6639e7b5976725024df8a7389c91b426ce06e"
+    "crm_control_charts.png": "84656dd949bdd9574cbbead19d42c2819f188be50bc4cabaabad9d0922a66770",
+    "estimation_maps.png": "2ef197e37ef8d7ea440c8d2bcc872a76b46ff86415b8533d8bbafbd830382ca1",
+    "interpolation_maps.png": "b9d6efbd3e879cdff05cf54d6414190b0df9e526b1753a9a9622b31062b8d3cb",
+    "seasonal_kendall.png": "a7ca64a0a78afa6652fb5f19c11b04fc28c13a0f420e9612cf309af2b2d882de",
+    "variogram.png": "12f1176cd315d5f906ce087332c46aa64d9c9665dc32fe39670ec95e31ba87ab"
   },
-  "finished_at": "2026-10-12T20:15:32.807468+00:00",
+  "finished_at": "2026-10-14T00:13:46.840606+00:00",
   "packages": {
     "PyYAML": "6.0.3",
     "Pygments": "2.21.0",
@@ -82,7 +145,7 @@
     "cloudpickle": "3.1.2",
     "contourpy": "1.4.0",
     "cycler": "0.12.1",
-    "earthstats": "0.1.0",
+    "et_xmlfile": "2.0.0",
     "fastjsonschema": "2.22.2",
     "fonttools": "4.66.1",
     "formulaic": "1.2.2",
@@ -102,6 +165,7 @@
     "narwhals": "2.26.0",
     "nbformat": "5.11.1",
     "numpy": "2.5.3",
+    "openpyxl": "3.1.5",
     "packaging": "26.3",
     "pandas": "3.0.6",
     "patsy": "1.0.3",
@@ -112,6 +176,7 @@
     "pyparsing": "3.3.3",
     "pytest": "9.1.1",
     "python-dateutil": "2.9.0.post0",
+    "rdata": "1.1.0",
     "referencing": "0.37.0",
     "requests": "2.34.2",
     "rpds-py": "2026.9.1",
@@ -119,50 +184,64 @@
     "scikit-learn": "1.9.1",
     "scipy": "1.18.1",
     "six": "1.17.0",
+    "stats-cheatsheet": "0.1.0",
     "statsmodels": "0.15.0",
     "threadpoolctl": "3.7.0",
     "traitlets": "5.16.1",
     "typing_extensions": "4.16.0",
     "urllib3": "2.8.0",
-    "wrapt": "2.5.0"
+    "wrapt": "2.5.0",
+    "xarray": "2026.9.0"
   },
   "presentation": {
-    "formatted_at": "2026-10-12T20:22:15.802850+00:00",
+    "formatted_at": "2026-10-14T00:13:47.018325+00:00",
     "formatter": "scripts/format_results.py",
     "formatter_sha256": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
     "note": "Text-only formatting of the original hash-checked numerical transcripts.",
     "output": "worked-results.md",
-    "output_sha256": "38aced9ae53d7829e1feb068b15b74bad741c7aff18a47eb07fd2a04ca96ab84"
+    "output_sha256": "7a8b424f5d2f5def82a1ce37089b0ac08d1993a7e209cfba933ce674b25aa05f"
   },
-  "python": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]",
+  "python": "3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56) [Clang 13.0.0 (clang-1300.0.29.30)]",
   "schema_version": 1,
-  "source_commit": "d618e0a4de4f330d1acd7cd0206423136d6f5d50",
+  "source_commit": "9122a16fd7f87003eaa0bf1a0e89733a75ce12a8",
   "source_files": {
-    "analyses/01_eda.py": "feea5dfec23e748e101f16307faa504799ddd75c3d6e7f54db400af6d4f512dd",
-    "analyses/02_hypothesis_tests.py": "5dfdc06979e1e977a56b3b3f8ea1862dff55ac8f0503e4d73a985189fc2edbde",
-    "analyses/03_regression.py": "3d5f5d40dd6a310b2777c097e1204b08d5ece5d26b9cd9f67cee371054eb1cd2",
-    "analyses/04_time_series.py": "9f53b757d789536dfb7aa5c577314ce96247fc069e9c3c9c49f3c6ab1109a94d",
-    "analyses/05_trends_changepoints.py": "17f68e324d24ef4c362436774602c9257baef87f7f441e4119d9c51e1ddd7b2f",
-    "analyses/06_extremes.py": "5a37381afb5bb5fa37a15617c69abc4fefb063d69ca2c4e911203f7da33b2313",
-    "analyses/07_resampling.py": "d8bfc191b16ed73ca0f5376b9ad5c6df6a8a8067c5f46f96e517bf80e61b7cdf",
-    "analyses/08_multivariate.py": "bd20eaf7c815078d1f2339ffb37b4ecc221aac883dbb68e08ef2827a8e9ea938",
-    "analyses/09_spatial.py": "c7a338591de33cdb81ad7c85d32d4a75541bf225526c906adb6902d41524efe9",
-    "analyses/10_bayesian.py": "b3bb4b95b5b7645410acb83a43c528b4f465b7ebbd3a74e2a07fafa812eef39b",
-    "analyses/11_ml.py": "5cb39f179aaef1f0cca88e896269d3d35adcd2bb4c100f05f7fd34a3ada782de",
-    "scripts/run_results.py": "907fee8cfb43a97ad7f79f2d13e9d9f3d18ef847c5dd2e0335b0aa2d35a4ec45",
-    "src/earthstats/__init__.py": "b7feb97ab7d5a36698bf067acb54e8e3e78ad003bcc2a33bdac14983a76e399b",
-    "src/earthstats/data.py": "36820ca82762344eae7b295222452b066fe417598d1f6d5a4f261bd4382510c1",
-    "src/earthstats/plotting.py": "f8639d94ced8fdd63590fd7f61907b4bbcc702128b7d85ca8ad5286978a0d0fb",
-    "src/earthstats/provenance.py": "72cd40324930c4e9ba05febdd9d76adf4d546a0352ab1f234f34a4c240d7eb91",
-    "src/earthstats/spatial.py": "6a024dc6303684129c16d3700308395b0ea753c918c1fd801fc8dbb3978e95f1",
-    "src/earthstats/stats.py": "9001781eb464cb3106c65c594bb04dde848739998032fcdf817900f0add1b687",
-    "uv.lock": "9e179bc77fcefcbfba5b59f4b17f3ae7c16b89e50ca58cd8b481c4e9be4f0f08"
+    "analyses/01_eda.py": "ae99b6b359c4abaf7b21b573c5ec07dd4489659eb619a13066a46ba267629dcc",
+    "analyses/02_hypothesis_tests.py": "f8495dea3976a519368b11237b19482149d71f19d510c760b98cec3b2e3313aa",
+    "analyses/03_regression.py": "18cabf991d6f83825577b28193d1194877e91b10663cbc8fc56e35bbf212e770",
+    "analyses/04_time_series.py": "b7550bc118b95c33e0778ad37747457b0a1a9398615c42d78af5628ca3cbe860",
+    "analyses/05_trends_changepoints.py": "25f66b9deaafe20c186cff65facb48580385bdd574a67237188891b634315de1",
+    "analyses/06_extremes.py": "66eaa21e3514e8eb308544a0613d8b0c5f4e4d114a2b68d1576708fa3541c581",
+    "analyses/07_resampling.py": "40952f21cc5900093c2b056154296d0a386fbbf3a25c44bcd61b7c7bf13d8379",
+    "analyses/08_multivariate.py": "cc396bb4373b39e0ed8cf0f2f17a2951d71ba4a7c4364199ea094f20bf3a3bdc",
+    "analyses/09_spatial.py": "d99cf78366a5a4e5028f29160e6a51c1119fa8c21bb1ae58efba17a149e4ba94",
+    "analyses/10_bayesian.py": "4bc40f26652f6dab5803a031461fd3ee15d80407cdacc41e9c5b62bf9ac4ed29",
+    "analyses/11_ml.py": "b7ae1783198a6b14b3b95c4e74115f7d0f6d8de83e3c1fea17e35ea64cec699f",
+    "analyses/12_assay_eda.py": "4008543a2c46a0bc6352097aa17c5f236eefbeed5122c2a9c7500d4ffa1c1a8e",
+    "analyses/13_compositional.py": "13a508ff8f098a561e99c9acb286ab5e85365c1239a909ca2d9a565de7036874",
+    "analyses/14_qaqc.py": "45901172cf4573f84f974a31174109dd7caa5783a12d9354b5f368f5cc6704bf",
+    "analyses/15_geostatistics.py": "4acc7b21755a4aabf07a40154b04af6151e9b6a9f8e67bf0dc065364c3418ae4",
+    "analyses/16_sampling_theory.py": "7240e668586d40eb09c91ea920b645d10cc2a69d92cb4e183f27c91d173ca3bd",
+    "analyses/17_reliability.py": "85ad96adfef09d759213c719abad2ea9e6b47010983905b9bc6fe840d2a4d3a6",
+    "analyses/18_safety.py": "5adc4a5817598d4710b73ec39d46d3b00dab1aedacfdc403749c7a3b2f76e5ea",
+    "analyses/19_economics.py": "73e78ff4697ea4fa84db490167a1b574513423d5ccc54ad0b986b6b0d79ea4ed",
+    "analyses/20_environmental.py": "9472dab4b8e4c7aff3201b3745e9d816d5b7602433e54b3b491f90540a95c5c4",
+    "analyses/21_censored_inference.py": "cc70322a2e4bbb63dbc92e04e012a2e0c1eceda0abfa1b07680a3a71b74434d3",
+    "scripts/format_results.py": "34e529f1089ca9526fe0ea6431e7c3bec95e2ead47eaecc76150d498104f221c",
+    "scripts/run_results.py": "64d592a60ac1c1d2be9ad26349da56c81deb0359fc3c0943188791fe3ef81d6f",
+    "src/statsheet/__init__.py": "fe4b102976a060c2f2c09b2ad4c5d338ca74c42c2dc1d3c81e81dfca802e7b1a",
+    "src/statsheet/data.py": "b86ce28783d12acd05a6e570af3ae554b5210809f82492250ccba0c01e2afd50",
+    "src/statsheet/plotting.py": "3e31b625432223aecf032d288a6365d0f52abb48d99d44f9e3298059e7a8d7fa",
+    "src/statsheet/provenance.py": "064e5b3fca84f97d50e27e507d46c8c3a46586900b9ab4b43f40a4b5c35eb31a",
+    "src/statsheet/spatial.py": "6a039e9f6827fa4918b0d6e870770eb8db0fa83267bf481355998aaab2138747",
+    "src/statsheet/stats.py": "6d1c51f0d3dd2d0d8e5d0d35caade358daba3de4d1231a9f6bd9f6926cd6c98b",
+    "uv.lock": "9a5afef799ae078f063c8d9bed0df11c316a1acc1ae5b9a41aeebf1cc810f714"
   },
   "source_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "started_at": "2026-10-12T20:12:59.009138+00:00",
+  "started_at": "2026-10-14T00:11:36.287539+00:00",
   "threads": {
     "MKL_NUM_THREADS": "1",
     "OMP_NUM_THREADS": "1",
     "OPENBLAS_NUM_THREADS": "1"
-  }
+  },
+  "upstream_gstat_commit": "c4612f3abcdb58b79f5639c2562d8314ae657ce8"
 }

@@ -15,12 +15,12 @@ Moran's I on the raw variable and on regression residuals
 ==============================================================================
 Empirical variogram of the residuals and model fits
 ==============================================================================
-spherical:   nugget=0.522 sill=1.746 range=2889 km
-exponential: nugget=0.470 sill=1.750 range=4140 km (practical)
+spherical:   nugget=0.552 sill=1.798 range=3132 km
+exponential: nugget=0.495 sill=1.594 range=3564 km (practical)
 residual variance = 1.576
     [fig] figures/09_spatial/variogram.png
-  > The nugget (0.52 C^2) is variance at zero distance: station siting, instrument
-    differences, microclimate. Semivariance rises toward the sill over ~2889 km, the
+  > The nugget (0.55 C^2) is variance at zero distance: station siting, instrument
+    differences, microclimate. Semivariance rises toward the sill over ~3132 km, the
     distance beyond which residuals are uncorrelated. The empirical curve keeps climbing
     past the sample variance at large lags: a sign that the lat+elev+lon trend has not
     removed all the large-scale structure (non-stationarity). Fit variograms only to
@@ -41,8 +41,8 @@ Interpolation: IDW vs regression + kriged residuals
 Leave-one-out cross-validation RMSE (C)
 ==============================================================================
                      RMSE    MAE
-regression kriging  0.803  0.537
-OK on tavg          1.256  0.769
+regression kriging  0.802  0.535
+OK on tavg          1.256  0.770
 OLS trend only      1.274  0.911
 IDW p=2             2.045  1.478
 IDW p=1             3.720  2.952

@@ -22,7 +22,7 @@ copper monthly return skew=-0.61, excess kurtosis=4.83 (normal = 0; fat tails)
     so a normal model understates the frequency of crashes; copper and zinc move together
     (macro demand) while gold is nearly uncorrelated with the industrial metals, which is
     why a diversified miner's cash-flow volatility is lower than any single commodity's.
-    [fig] figures/08_economics/prices_volatility.png
+    [fig] figures/19_economics/prices_volatility.png
 
 ==============================================================================
 Random walk or mean reversion? Copper and gold
@@ -35,7 +35,7 @@ gold     ADF p (unit root)=0.991  AR(1) b=1.0022 >= 1: no mean reversion estimab
     NPV distributions, so state the assumption, show both, and justify reversion with the
     cost curve (incentive price) rather than with a statistical test that cannot settle
     it.
-    [fig] figures/08_economics/price_fans.png
+    [fig] figures/19_economics/price_fans.png
 10-year 90% band width: GBM 9.2x, mean reversion 6.2x
 
 ==============================================================================
@@ -61,13 +61,13 @@ Monte Carlo (20,000 runs): mean NPV=$0.91bn, median=$0.73bn, P10=$-0.72bn, P90=$
     clipped), and asymmetric inputs (capex overruns). The result is a mean NPV of $0.91bn
     against a deterministic $0.91bn and a 27% chance of destroying value, which is the
     number the board needs.
-    [fig] figures/08_economics/npv.png
+    [fig] figures/19_economics/npv.png
 
 ==============================================================================
 Break-even cut-off grade
 ==============================================================================
 g_c = opex / (price x recovery x payability) = 0.292% Cu at 8,916 $/t; at -30% price: 0.417%
-  > The cut-off grade converts the grade-tonnage curve (section 04) into ore tonnes and
+  > The cut-off grade converts the grade-tonnage curve (section 15) into ore tonnes and
     metal, and it moves with price: a price fall raises the cut-off, shrinks the ore
     inventory and lowers the mine life, which is why resource statements quote the price
     assumption.

@@ -29,7 +29,7 @@ season
     information and the whole-series Kendall would let seasonality inflate the variance.
     Here every month with enough years agrees on the sign, which is the pattern of a real
     trend rather than a seasonal artefact. Flow adjustment moves the evidence from p =
-    0.009 to p = 7e-14: copper rides on discharge (section 09), so the flow the sampler
+    0.009 to p = 7e-14: copper rides on discharge (section 20), so the flow the sampler
     happened to catch is noise around the trend, and removing it is what sharpens the
     test. The sampled flows themselves drifted over the record (tau +0.09), so part of the
     raw trend is a flow artefact. Report the flow-adjusted slope (-1.98%/yr) with the raw
@@ -37,7 +37,7 @@ season
     same three effects, time, discharge and season, as a weighted regression and reports
     flow-normalised concentration; the seasonal Kendall is the hypothesis test it replaced
     for estimation.
-    [fig] figures/10_censored_inference/seasonal_kendall.png
+    [fig] figures/21_censored_inference/seasonal_kendall.png
 
 ==============================================================================
 Two groups with non-detects: dissolved lead, first era vs most recent
@@ -68,7 +68,7 @@ KM medians by era: 1969-90: 1.00 ug/L, 1991-05: 0.07 ug/L, 2006-15: 0.11 ug/L, 2
     claims. When censoring fractions differ between groups, as here, the Peto-Prentice
     score test weights the pairs more evenly than Gehan; both are in Helsel (2012) chapter
     9 and the NADA package.
-    [fig] figures/10_censored_inference/censored_groups.png
+    [fig] figures/21_censored_inference/censored_groups.png
 
 ==============================================================================
 Regression and trend with a censored response: dissolved lead
@@ -99,8 +99,8 @@ KM median by era: 1969-90: 1.00, 1991-05: 0.07, 2006-15: 0.11, 2016-23: 0.14
     drop between the first two eras and a flat or slightly rising tail as detection limits
     fell, which no single straight line fits well. The disagreement is the finding: the
     trend depends on the flow term, and a monotone trend is the wrong model for a step.
-    Section 09's change-point tools are the follow-up.
-    [fig] figures/10_censored_inference/censored_regression.png
+    Section 20's change-point tools are the follow-up.
+    [fig] figures/21_censored_inference/censored_regression.png
 
 ==============================================================================
 Upper confidence limit on the mean (ProUCL logic): total arsenic, recent era
@@ -135,7 +135,7 @@ recommended: KM (t) UCL95  (non-detects present, mild skew: KM mean with a t-int
     software does not print: a UCL assumes independent samples, and 75 river samples over
     eight years are seasonal and serially correlated, so the effective n is smaller than
     it looks.
-    [fig] figures/10_censored_inference/ucl_comparison.png
+    [fig] figures/21_censored_inference/ucl_comparison.png
 
 ==============================================================================
 Prediction and tolerance limits (Unified Guidance mechanics): is a new sample unusual?
@@ -172,4 +172,4 @@ Kruskal-Wallis H=10.6 p=1.40e-02;  Welch-type (Alexander-Govern) ANOVA on logs p
     usual mistakes are running six Mann-Whitney tests with no correction, or reading a
     significant omnibus test as 'every era differs'. Eras are an observational grouping:
     flow regime, laboratory method and detection limits also changed between them, which
-    is why section 09 flow-adjusts first.
+    is why section 20 flow-adjusts first.

@@ -13,7 +13,7 @@ tyres          204          12  3.077  1681.091       3.00    1800.0      1502.8
     TBFs) and 'censored as failed' both run below the Weibull MTBF because long lives are
     the ones that get censored. Inherent availability ranges from 0.990 to 0.997; at fleet
     level the components combine in series so unavailabilities roughly add.
-    [fig] figures/06_reliability/weibull.png
+    [fig] figures/17_reliability/weibull.png
 
 ==============================================================================
 Preventive replacement interval for the wear-out component (tyres)
@@ -46,4 +46,4 @@ EWMA (lambda=0.2): false alarms before shift=4, first signal after shift: day 60
     CUSUM settings): the design trade-off is choosing h or lambda for the false-alarm rate
     the operation can live with. Charting raw tonnes without removing the seasonal cycle
     would alarm every winter and go blind every summer.
-    [fig] figures/06_reliability/production_spc.png
+    [fig] figures/17_reliability/production_spc.png

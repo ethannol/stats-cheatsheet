@@ -48,7 +48,7 @@ total FSE of protocol (splits add in variance): 24.1% relative
     first split and pulverises the whole kilogram, cutting the total to 24%. Changing the
     final aliquot from 30 to 50 g is nearly irrelevant. Match the top size to the mass you
     are about to take.
-    [fig] figures/05_sampling_theory/nomogram.png
+    [fig] figures/16_sampling_theory/nomogram.png
 
 ==============================================================================
 Decomposing the variogram nugget (Walker Lake V + the synthetic duplicate precision)

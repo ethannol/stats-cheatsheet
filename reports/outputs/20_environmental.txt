@@ -13,7 +13,7 @@ year
 2011       92.6  12  222.4
 2016       41.9   8   60.4
 2021       25.5   8   36.9
-    [fig] figures/09_environmental/timeseries.png
+    [fig] figures/20_environmental/timeseries.png
 
 ==============================================================================
 Concentration-discharge relationship
@@ -26,7 +26,7 @@ monthly median Cu (ug/L): 1:38, 2:62, 3:36, 4:38, 5:76, 6:79, 7:19, 8:14, 9:38, 
     by a century of mining, the defining signature of this Superfund river. A point-source
     discharge would show the opposite sign. Any trend analysis must first remove this flow
     dependence.
-    [fig] figures/09_environmental/concentration_discharge.png
+    [fig] figures/20_environmental/concentration_discharge.png
 
 ==============================================================================
 Trend: raw vs flow-adjusted
@@ -65,7 +65,7 @@ fraction of exceedances occurring on top-quartile flow days: 28% (exceedance rat
     when it is worst, not when it is compliant. The criterion (13.0 ug/L) is the
     hardness-100 chronic value for illustration; the real standard moves with each
     sample's hardness, so compliance assessment needs paired hardness measurements.
-    [fig] figures/09_environmental/exceedances.png
+    [fig] figures/20_environmental/exceedances.png
 
 ==============================================================================
 CUSUM of annual flow-adjusted medians, and a censored low-level analyte
@@ -83,4 +83,4 @@ CUSUM of flow-adjusted annual medians peaks in 1996: regime shift from above-ave
     detect fraction was 60-70% in the early eras with changing detection limits, so only
     censored estimators (Kaplan-Meier) give comparable statistics across eras; the naive
     'DL as value' means are 2-3x too high.
-    [fig] figures/09_environmental/cusum_changepoint.png
+    [fig] figures/20_environmental/cusum_changepoint.png

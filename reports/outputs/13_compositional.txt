@@ -47,7 +47,7 @@ least proportional pairs: co/cu (0.56), cu/ni (0.58), cd/cu (0.76)
 Compositional biplot (PCA of clr coordinates)
 ==============================================================================
 explained variance PC1=0.54 PC2=0.24 (clr covariance has rank D-1=6)
-    [fig] figures/02_compositional/clr_biplot.png
+    [fig] figures/13_compositional/clr_biplot.png
   > In a compositional biplot the *links* between ray tips matter, not the rays: a short
     link between two elements means their log-ratio has low variance (they are
     proportional). Rock types separate along the log-ratio axes, which is the geochemical
@@ -70,4 +70,4 @@ Argovian vs Kimmeridgian: Euclidean distance between mean compositions=25.0 ppm 
     compositional mean is the geometric mean (closed), and the right distance is
     Aitchison's, which does not let the most abundant element (Zn here) dominate the way
     Euclidean distance on ppm does.
-    [fig] figures/02_compositional/logratio_maps.png
+    [fig] figures/13_compositional/logratio_maps.png

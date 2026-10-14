@@ -14,7 +14,7 @@ anisotropy: major axis azimuth 0 (range 62), minor 45 (range 27), ratio=0.44
     0.44): the mineralisation is elongated, as the sample map suggests, and the kriging
     search and model should follow that ellipse. Walker Lake is the textbook case of
     geometric anisotropy.
-    [fig] figures/04_geostatistics/variograms.png
+    [fig] figures/15_geostatistics/variograms.png
 
 ==============================================================================
 Estimating 5x5 blocks: OK vs IDW vs nearest neighbour, scored against truth
@@ -34,7 +34,7 @@ truth: mean=278.0 sd=228.7;  declustered sample mean=287.3
     and the truth-on-estimate slope closest to 1 (least conditional bias). Every estimator
     is smoother than the truth (sd 229); NN is the least smooth and the least accurate.
     Smoothness is the price of minimising squared error.
-    [fig] figures/04_geostatistics/estimation_maps.png
+    [fig] figures/15_geostatistics/estimation_maps.png
 
 ==============================================================================
 Leave-one-out cross-validation of the kriging model (what you can do without a truth)
@@ -68,7 +68,7 @@ at cut-off 500: tonnes above (blocks) truth=521  OK=437  IDW=474  point-support 
     estimates (OK/IDW) err the other way: too few high-grade tonnes at high cut-offs, too
     many just above a low cut-off. A resource must state its selective mining unit, and
     change-of-support corrections exist for exactly this.
-    [fig] figures/04_geostatistics/volume_variance_grade_tonnage.png
+    [fig] figures/15_geostatistics/volume_variance_grade_tonnage.png
 
 ==============================================================================
 Sequential Gaussian simulation: uncertainty instead of a single smoothed map
@@ -86,4 +86,4 @@ tonnes above 500: realisations 647-740, point truth 587, block truth 521
     histogram is still richer and wider than the deposit (mean 287 vs 278). Simulation
     quantifies uncertainty *given* the inputs; it cannot repair a biased histogram. Re-
     block the realisations to SMU support before reading grade-tonnage for mine planning.
-    [fig] figures/04_geostatistics/sgs.png
+    [fig] figures/15_geostatistics/sgs.png
