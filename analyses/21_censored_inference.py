@@ -1,8 +1,8 @@
 # %% [markdown]
-# # 10 Censored inference, seasonal trends and compliance limits
+# # 21 Censored inference, seasonal trends and compliance limits
 #
-# Data: the same Clark Fork River record as section 09 (USGS 12324200 at Deer Lodge, Montana,
-# 1969-2023 metals with non-detects, daily flow). Section 03 estimated a mean from censored
+# Data: the same Clark Fork River record as section 20 (USGS 12324200 at Deer Lodge, Montana,
+# 1969-2023 metals with non-detects, daily flow). Section 14 estimated a mean from censored
 # data; this section does the inference that regulators and consultants actually ask for.
 #
 # **Cheat sheet**
@@ -31,9 +31,9 @@ import pandas as pd
 from scipy import stats as sps
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import (
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     akritas_theil_sen,
     censored_regression_mle,
     dunn_test,
@@ -47,7 +47,7 @@ from miningstats.stats import (
 )
 
 setup()
-SEC = "10_censored_inference"
+SEC = "21_censored_inference"
 wq = data.clark_fork_wq()
 flow = data.clark_fork_flow()
 
@@ -104,7 +104,7 @@ enters the pairwise comparisons; the annual-median test throws away within-year
 information and the whole-series Kendall would let seasonality inflate the variance.
 Here every month with enough years agrees on the sign, which is the pattern of a real trend
 rather than a seasonal artefact. Flow adjustment moves the evidence from p = {sk_raw['p']:.1g} to
-p = {sk_adj['p']:.1g}: copper rides on discharge (section 09), so the flow the sampler happened to
+p = {sk_adj['p']:.1g}: copper rides on discharge (section 20), so the flow the sampler happened to
 catch is noise around the trend, and removing it is what sharpens the test. The sampled flows
 themselves {'drifted' if q_trend.pvalue < 0.05 else 'did not drift'} over the record (tau {q_trend.statistic:+.2f}), so
 {'part of the raw trend is a flow artefact' if q_trend.pvalue < 0.05 else 'the raw slope is not a flow artefact, only a noisier estimate'}.
@@ -223,7 +223,7 @@ MLE ({pct(mle_t['beta'][1]):+.2f}%/yr) and the distribution-free Akritas-Theil-S
 ({pct(ats['slope']):+.2f}%/yr) see much less: the record is a drop between the first two eras and a flat
 or slightly rising tail as detection limits fell, which no single straight line fits well.
 The disagreement is the finding: the trend depends on the flow term, and a monotone trend is
-the wrong model for a step. Section 09's change-point tools are the follow-up.""")
+the wrong model for a step. Section 20's change-point tools are the follow-up.""")
 
 fig, ax = plt.subplots(figsize=(10, 4.5))
 ax.semilogy(pb.t[det], pb.value[det], ".", ms=4, alpha=.6, label="detected")
@@ -325,4 +325,4 @@ which, with Holm keeping the family-wise error at 5% across six comparisons. Tuk
 agrees here because log copper is close to normal within eras. The usual mistakes are
 running six Mann-Whitney tests with no correction, or reading a significant omnibus test as
 'every era differs'. Eras are an observational grouping: flow regime, laboratory method and
-detection limits also changed between them, which is why section 09 flow-adjusts first.""")
+detection limits also changed between them, which is why section 20 flow-adjusts first.""")

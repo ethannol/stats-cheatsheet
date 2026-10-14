@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 03 Assay QA/QC and censored data
+# # 14 Assay QA/QC and censored data
 #
 # Data: SYNTHETIC gold QA/QC programme (duplicates, CRMs, blanks) with planted problems, so we
 # know the answers; then REAL censored data: dissolved copper in the Clark Fork River with
@@ -25,12 +25,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import cusum, hard, km_left_censored, ros_lognormal, thompson_howarth
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import cusum, hard, km_left_censored, ros_lognormal, thompson_howarth
 
 setup()
-SEC = "03_qaqc"
+SEC = "14_qaqc"
 qa = data.assay_qaqc()
 dup, crm, bl, DL = qa["duplicates"], qa["crm"], qa["blanks"], qa["dl"]
 

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 01 Assay EDA: skewed grades, declustering, top-cuts, compositing
+# # 12 Assay EDA: skewed grades, declustering, top-cuts, compositing
 #
 # Data: Walker Lake (470 samples of V; the 78,000-node exhaustive grid gives us the truth, which
 # no real deposit ever does). GSLIB cluster.dat for a reference check of declustering weights.
@@ -25,9 +25,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import (
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     cell_declustering,
     composite_intervals,
     declustering_scan,
@@ -35,7 +35,7 @@ from miningstats.stats import (
 )
 
 setup()
-SEC = "01_assay_eda"
+SEC = "12_assay_eda"
 w = data.walker()
 ex = data.walker_exhaustive()
 V = w.V.values
@@ -103,7 +103,7 @@ note(f"""The declustered-mean curve bottoms out near cell size {best:.0f} (the s
 regular sampling pass); that minimum is the conventional pick when high grades were
 oversampled. Declustering removes most of the bias but not all: the clusters sit on the
 richest ground, where even the declustered samples are rich. Declustered weights also feed
-the histogram used for simulation and the normal-score transform (section 04).""")
+the histogram used for simulation and the normal-score transform (section 15).""")
 
 fig, axes = plt.subplots(1, 2, figsize=(13, 4.8))
 axes[0].plot(cells, dm, "o-", ms=3)

@@ -9,7 +9,7 @@ SCRIPTS := $(sort $(wildcard analyses/*.py))
 all: data $(SCRIPTS)
 
 data:
-	$(PY) -m miningstats.data
+	$(PY) -m statsheet.data
 
 $(SCRIPTS):
 	@echo "\n=== $@ ==="

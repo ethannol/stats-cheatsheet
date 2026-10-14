@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 04 Geostatistics for resource estimation
+# # 15 Geostatistics for resource estimation
 #
 # Data: Walker Lake V. 470 samples to estimate; 78,000 exhaustive values to check against. This
 # is the one dataset where we can score estimators against the truth, so we do.
@@ -27,9 +27,9 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize_scalar
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import (
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     cell_declustering,
     experimental_variogram,
     fit_variogram,
@@ -44,7 +44,7 @@ from miningstats.stats import (
 )
 
 setup()
-SEC = "04_geostatistics"
+SEC = "15_geostatistics"
 w = data.walker()
 ex = data.walker_exhaustive()
 xy = w[["x", "y"]].to_numpy()

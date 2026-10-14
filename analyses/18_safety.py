@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 07 Mine safety: rates, exposure, overdispersion, small numbers
+# # 18 Mine safety: rates, exposure, overdispersion, small numbers
 #
 # Data: MSHA open data, every reportable injury at US mines since 2000 with annual employee
 # hours per mine. Real data; rates here are computed directly and will differ slightly from
@@ -27,12 +27,12 @@ import statsmodels.api as sm
 from scipy import stats as sps
 from scipy.optimize import minimize
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import u_chart_limits
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import u_chart_limits
 
 setup()
-SEC = "07_safety"
+SEC = "18_safety"
 acc = data.msha_accidents()
 prod = data.msha_production()
 mines = data.msha_mines()

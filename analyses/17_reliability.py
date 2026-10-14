@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 06 Equipment reliability and production SPC
+# # 17 Equipment reliability and production SPC
 #
 # Data: SYNTHETIC haul-truck fleet (failures with right-censoring; daily production with a
 # planted step change). Maintenance records are never public; the generating parameters are
@@ -26,12 +26,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import cusum, ewma, kaplan_meier, shewhart_limits, weibull_mle
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import cusum, ewma, kaplan_meier, shewhart_limits, weibull_mle
 
 setup()
-SEC = "06_reliability"
+SEC = "17_reliability"
 eq = data.equipment_failures()
 f, prod = eq["failures"], eq["production"]
 TRUE = {"engine": (2.4, 2400.0), "hydraulics": (0.85, 900.0), "tyres": (3.0, 1800.0)}

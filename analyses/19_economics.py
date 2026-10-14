@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 08 Commodity prices and project economics under uncertainty
+# # 19 Commodity prices and project economics under uncertainty
 #
 # Data: World Bank monthly metal prices 1960-2024 (real); a SYNTHETIC copper project model.
 #
@@ -15,7 +15,7 @@
 # - Tornado (one-at-a-time) sensitivity ranks drivers; it ignores interactions and correlations,
 #   which the Monte Carlo includes.
 # - Break-even cut-off grade g_c = cost per tonne ore / (price x recovery x payability): the link
-#   between economics and the grade-tonnage curve of section 04.
+#   between economics and the grade-tonnage curve of section 15.
 # - Real options: flexibility (defer, expand, abandon) has value that static NPV ignores; a
 #   simple simulation of 'wait and decide' makes the point without Black-Scholes.
 
@@ -24,12 +24,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import correlated_normals, fit_ou, gbm_paths
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import correlated_normals, fit_ou, gbm_paths
 
 setup()
-SEC = "08_economics"
+SEC = "19_economics"
 px = data.commodity_prices()["1990":]
 METALS = ["copper", "gold", "iron_ore", "nickel", "zinc"]
 
@@ -179,7 +179,7 @@ banner("Break-even cut-off grade")
 gc = base["opex_per_t"] / (base["price"] * base["recovery"] * base["payability"]) * 100
 print(f"g_c = opex / (price x recovery x payability) = {gc:.3f}% Cu at {base['price']:,.0f} $/t; "
       f"at -30% price: {gc / 0.7:.3f}%")
-note("""The cut-off grade converts the grade-tonnage curve (section 04) into ore tonnes and
+note("""The cut-off grade converts the grade-tonnage curve (section 15) into ore tonnes and
 metal, and it moves with price: a price fall raises the cut-off, shrinks the ore inventory
 and lowers the mine life, which is why resource statements quote the price assumption.""")
 

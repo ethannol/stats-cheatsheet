@@ -28,7 +28,7 @@ equipment_failures()           haul-truck component failures with censoring, rep
 drillhole_from_walker()        a 1-D 'drillhole' with irregular sample intervals built from a
                                Walker Lake exhaustive-grid column, for compositing.
 
-Run `python -m miningstats.data` to fetch everything up front.
+Run `python -m statsheet.data` to fetch everything up front.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ from . import DATA_DIR
 from .provenance import cached_bytes, cached_frame, sha256
 
 RAW = DATA_DIR / "raw"
-UA = {"User-Agent": "miningstats-cheatsheet/0.1 (educational)"}
+UA = {"User-Agent": "statsheet-cheatsheet/0.1 (educational)"}
 GSTAT_REVISION = "c4612f3abcdb58b79f5639c2562d8314ae657ce8"
 GSTAT = f"https://raw.githubusercontent.com/r-spatial/gstat/{GSTAT_REVISION}/"
 MSHA = "https://arlweb.msha.gov/OpenGovernmentData/DataSets/"

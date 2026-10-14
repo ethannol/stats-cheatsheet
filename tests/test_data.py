@@ -1,7 +1,7 @@
 """Offline regression fixture for a mutable water-quality response."""
 import pandas as pd
 
-from miningstats import data
+from statsheet import data
 
 
 def test_water_quality_loader_clips_provider_rows_after_cutoff(tmp_path, monkeypatch):

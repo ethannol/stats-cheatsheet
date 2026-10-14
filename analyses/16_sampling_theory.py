@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 05 Sampling theory: Gy's fundamental sampling error and the nugget effect
+# # 16 Sampling theory: Gy's fundamental sampling error and the nugget effect
 #
 # **Cheat sheet**
 # - Every assay is a tiny sub-sample of a lot. Gy's theory decomposes sampling error into:
@@ -16,16 +16,16 @@
 #   Duplicate programmes let you say how much of the nugget is measurement error and hence how
 #   much better a bigger sample or finer crush would make the resource model.
 # - For the domain mean, n = (z CV / E)^2 samples for relative error E; CV 1 and 10% error needs
-#   ~400 independent samples. Clustered samples count for less (section 01).
+#   ~400 independent samples. Clustered samples count for less (section 12).
 
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import (
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     cell_declustering,
     experimental_variogram,
     fit_variogram,
@@ -36,7 +36,7 @@ from miningstats.stats import (
 )
 
 setup()
-SEC = "05_sampling_theory"
+SEC = "16_sampling_theory"
 
 # %% ----------------------------------------------------------- mineralogical constant
 banner("Mineralogical constant: why gold is hard")

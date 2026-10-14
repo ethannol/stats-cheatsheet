@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats as sps
 
-from miningstats import stats as ms
+from statsheet import stats as ms
 
 
 def test_cell_declustering_downweights_clusters():

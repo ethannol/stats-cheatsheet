@@ -1,4 +1,4 @@
-"""miningstats: statistical-methods cheat sheet built on mining-industry data problems.
+"""statsheet: statistical-methods cheat sheet built on mining-industry data problems.
 
 Modules
 -------

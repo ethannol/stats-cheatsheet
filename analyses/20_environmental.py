@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 09 Environmental monitoring: a mining-impacted river
+# # 20 Environmental monitoring: a mining-impacted river
 #
 # Data: Clark Fork River at Deer Lodge, Montana (USGS 12324200), downstream of the Butte and
 # Anaconda copper district, the largest Superfund complex in the US. Metals and pH from the
@@ -15,7 +15,7 @@
 # - Compliance: fraction of samples exceeding a criterion per period with a binomial CI; a
 #   criterion that depends on hardness (copper, zinc) needs the paired hardness value.
 # - Change points: CUSUM of annual medians; relate to known interventions (remediation).
-# - Non-detects (section 03) and changing detection limits bias simple trend tests toward
+# - Non-detects (section 14) and changing detection limits bias simple trend tests toward
 #   finding decreases; use censored methods for low-level analytes.
 
 # %%
@@ -25,12 +25,12 @@ import pandas as pd
 import statsmodels.api as sm
 from scipy import stats as sps
 
-from miningstats import data
-from miningstats.plotting import banner, note, savefig, setup
-from miningstats.stats import km_left_censored
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import km_left_censored
 
 setup()
-SEC = "09_environmental"
+SEC = "20_environmental"
 wq = data.clark_fork_wq()
 flow = data.clark_fork_flow()
 cu = wq[(wq.characteristic == "Copper") & (wq.fraction == "Recoverable") & (wq.unit == "ug/l")].copy()

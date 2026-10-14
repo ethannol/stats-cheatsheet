@@ -1,5 +1,5 @@
 # %% [markdown]
-# # 02 Compositional data analysis (CoDA) for geochemistry
+# # 13 Compositional data analysis (CoDA) for geochemistry
 #
 # Data: Jura soil metals (Cd, Co, Cr, Cu, Ni, Pb, Zn in ppm) with rock type.
 #
@@ -24,12 +24,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from miningstats import data
-from miningstats.plotting import COLORS, banner, note, savefig, setup
-from miningstats.stats import closure, clr, ilr, variation_matrix
+from statsheet import data
+from statsheet.plotting import COLORS, banner, note, savefig, setup
+from statsheet.stats import closure, clr, ilr, variation_matrix
 
 setup()
-SEC = "02_compositional"
+SEC = "13_compositional"
 j = data.jura()
 METALS = ["cd", "co", "cr", "cu", "ni", "pb", "zn"]
 X = j[METALS].to_numpy()
