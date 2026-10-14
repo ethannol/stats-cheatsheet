@@ -13,8 +13,8 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from earthstats import data
-from earthstats.provenance import data_manifest, sha256
+from statsheet import data
+from statsheet.provenance import data_manifest, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
 PREVIEWS = ['09_spatial/interpolation_maps.png', '09_spatial/variogram.png']

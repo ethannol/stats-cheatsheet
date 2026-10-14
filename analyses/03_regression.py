@@ -31,9 +31,9 @@ from statsmodels.stats.diagnostic import acorr_ljungbox, het_breuschpagan
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import ar1_effective_n
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import ar1_effective_n
 
 setup()
 SEC = "03_regression"

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats as sps
 
-from earthstats import stats as es
+from statsheet import stats as es
 
 
 @pytest.fixture

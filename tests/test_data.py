@@ -1,7 +1,7 @@
 """Offline regression fixtures for mutable-provider monthly snapshots."""
 import pandas as pd
 
-from earthstats import data
+from statsheet import data
 
 
 def test_monthly_loaders_clip_newer_rows_even_in_cached_downloads(tmp_path, monkeypatch):

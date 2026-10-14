@@ -46,8 +46,8 @@ from sklearn.model_selection import KFold, TimeSeriesSplit, cross_val_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
 
 setup()
 SEC = "11_ml"

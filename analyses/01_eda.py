@@ -22,8 +22,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
 
 setup()
 SEC = "01_eda"

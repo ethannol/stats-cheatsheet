@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import pytest
 
-from earthstats.provenance import cached_bytes, cached_frame, data_manifest
+from statsheet.provenance import cached_bytes, cached_frame, data_manifest
 
 
 def test_raw_integrity_and_request_identity(tmp_path):

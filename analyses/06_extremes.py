@@ -26,9 +26,9 @@ import pandas as pd
 from scipy import stats as sps
 from scipy.optimize import minimize
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import fit_gev, plotting_positions, return_level_gev
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import fit_gev, plotting_positions, return_level_gev
 
 setup()
 SEC = "06_extremes"

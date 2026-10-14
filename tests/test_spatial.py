@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from earthstats.spatial import fit_interpolation_fold
+from statsheet.spatial import fit_interpolation_fold
 
 
 def test_held_out_temperature_cannot_change_fitted_models():

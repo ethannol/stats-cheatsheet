@@ -1,4 +1,4 @@
-"""earthstats: statistical-methods cheat sheet built on real earth-science data.
+"""statsheet: statistical-methods cheat sheet built on real earth-science data.
 
 Modules
 -------

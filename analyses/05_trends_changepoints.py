@@ -24,9 +24,9 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import (
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     ar1_effective_n,
     mann_kendall,
     mann_kendall_hamed_rao,

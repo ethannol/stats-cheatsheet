@@ -23,9 +23,9 @@ import numpy as np
 import statsmodels.api as sm
 from scipy import stats as sps
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import ar1_effective_n, block_bootstrap, bootstrap_ci
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import ar1_effective_n, block_bootstrap, bootstrap_ci
 
 setup()
 SEC = "07_resampling"

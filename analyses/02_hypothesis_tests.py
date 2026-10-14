@@ -31,9 +31,9 @@ from statsmodels.stats.multitest import multipletests
 from statsmodels.stats.power import TTestIndPower
 from statsmodels.stats.proportion import proportions_ztest
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import cohens_d, permutation_test
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import cohens_d, permutation_test
 
 setup()
 SEC = "02_hypothesis_tests"

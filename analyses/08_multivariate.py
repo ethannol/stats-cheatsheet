@@ -28,8 +28,8 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-from earthstats import data
-from earthstats.plotting import COLORS, banner, note, savefig, setup
+from statsheet import data
+from statsheet.plotting import COLORS, banner, note, savefig, setup
 
 setup()
 SEC = "08_multivariate"

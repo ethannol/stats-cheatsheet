@@ -16,7 +16,7 @@ station_normals() NOAA GSOY annual summaries for ~1,700 first-order US airport s
                   1991-2020, collapsed to one climatology row per station.
                   Spatial statistics, multivariate analysis, multiple regression.
 
-Run `python -m earthstats.data` to fetch everything up front.
+Run `python -m statsheet.data` to fetch everything up front.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from .provenance import cached_bytes, cached_frame, sha256
 RAW = DATA_DIR / "raw"
 END_DATE = "2026-09-30"  # fixed so cached results are reproducible; bump + `make refresh`
 NCEI = "https://www.ncei.noaa.gov/access/services/data/v1"
-UA = {"User-Agent": "earthstats-cheatsheet/0.1 (educational; contact via github)"}
+UA = {"User-Agent": "statsheet-cheatsheet/0.1 (educational; contact via github)"}
 
 
 def _get(url: str, params: dict | None = None, timeout: int = 180) -> bytes:

@@ -26,10 +26,10 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from earthstats import data
-from earthstats.spatial import fit_interpolation_fold
-from earthstats.plotting import banner, note, savefig, setup
-from earthstats.stats import (
+from statsheet import data
+from statsheet.spatial import fit_interpolation_fold
+from statsheet.plotting import banner, note, savefig, setup
+from statsheet.stats import (
     distance_matrix_km,
     empirical_variogram,
     exponential,

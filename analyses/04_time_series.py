@@ -33,8 +33,8 @@ from statsmodels.tsa.seasonal import STL, seasonal_decompose
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.stattools import adfuller, kpss
 
-from earthstats import data
-from earthstats.plotting import banner, note, savefig, setup
+from statsheet import data
+from statsheet.plotting import banner, note, savefig, setup
 
 warnings.filterwarnings("ignore")
 setup()
