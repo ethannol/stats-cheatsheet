@@ -66,7 +66,10 @@ feat["api"] = df.PRCP.shift(1).ewm(halflife=10).mean()  # antecedent precipitati
 feat["tmax30"] = df.TMAX.rolling(30).mean().shift(1)
 feat["snow30"] = df.SNOW.rolling(30).sum().shift(1)
 doy = df.index.dayofyear
-feat["sin_doy"], feat["cos_doy"] = np.sin(2 * np.pi * doy / 365.25), np.cos(2 * np.pi * doy / 365.25)
+feat["sin_doy"], feat["cos_doy"] = (
+    np.sin(2 * np.pi * doy / 365.25),
+    np.cos(2 * np.pi * doy / 365.25),
+)
 feat["logq_lag1"] = np.log10(df.q).shift(1)
 y = np.log10(df.q)
 ok = feat.notna().all(axis=1) & y.notna()
@@ -74,8 +77,10 @@ feat, y = feat[ok], y[ok]
 train = feat.index.year <= 2010
 test = ~train
 no_persist = [c for c in feat.columns if c != "logq_lag1"]
-print(f"{ok.sum()} days; train through 2010 ({train.sum()}), test 2011-2025 ({test.sum()}); "
-      f"{len(no_persist)} precipitation/season features (+1 persistence feature)")
+print(
+    f"{ok.sum()} days; train through 2010 ({train.sum()}), test 2011-2025 ({test.sum()}); "
+    f"{len(no_persist)} precipitation/season features (+1 persistence feature)"
+)
 
 
 def nse(obs, sim):
@@ -90,9 +95,14 @@ def kge(obs, sim):
 
 
 def report(name, yhat_log):
-    obs, sim = 10 ** y[test].values, 10 ** yhat_log
-    return dict(model=name, rmse_log=np.sqrt(mean_squared_error(y[test], yhat_log)),
-                r2_log=r2_score(y[test], yhat_log), NSE_flow=nse(obs, sim), KGE_flow=kge(obs, sim))
+    obs, sim = 10 ** y[test].values, 10**yhat_log
+    return dict(
+        model=name,
+        rmse_log=np.sqrt(mean_squared_error(y[test], yhat_log)),
+        r2_log=r2_score(y[test], yhat_log),
+        NSE_flow=nse(obs, sim),
+        KGE_flow=kge(obs, sim),
+    )
 
 
 # %% ----------------------------------------------------------- baselines and models
@@ -106,9 +116,13 @@ Xtr, Xte = feat.loc[train, no_persist], feat.loc[test, no_persist]
 models = {
     "linear regression": make_pipeline(StandardScaler(), LinearRegression()),
     "ridge (CV alpha)": make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-3, 3, 25))),
-    "lasso (CV alpha)": make_pipeline(StandardScaler(), LassoCV(cv=TimeSeriesSplit(5), random_state=0)),
+    "lasso (CV alpha)": make_pipeline(
+        StandardScaler(), LassoCV(cv=TimeSeriesSplit(5), random_state=0)
+    ),
     "random forest": RandomForestRegressor(300, min_samples_leaf=20, n_jobs=-1, random_state=0),
-    "gradient boosting": HistGradientBoostingRegressor(max_iter=400, learning_rate=0.05, random_state=0),
+    "gradient boosting": HistGradientBoostingRegressor(
+        max_iter=400, learning_rate=0.05, random_state=0
+    ),
 }
 fitted = {}
 for name, m in models.items():
@@ -116,13 +130,16 @@ for name, m in models.items():
     fitted[name] = m
     rows.append(report(f"{name} [weather only]", m.predict(Xte)))
 gb_p = HistGradientBoostingRegressor(max_iter=400, learning_rate=0.05, random_state=0).fit(
-    feat.loc[train], y[train])
+    feat.loc[train], y[train]
+)
 rows.append(report("gradient boosting [+ persistence]", gb_p.predict(feat.loc[test])))
 res = pd.DataFrame(rows).set_index("model")
 print(res.round(3).to_string())
 lasso = fitted["lasso (CV alpha)"][-1]
-print(f"\nlasso kept {np.sum(lasso.coef_ != 0)} of {len(no_persist)} features; dropped: "
-      f"{[f for f, c in zip(no_persist, lasso.coef_) if c == 0]}")
+print(
+    f"\nlasso kept {np.sum(lasso.coef_ != 0)} of {len(no_persist)} features; dropped: "
+    f"{[f for f, c in zip(no_persist, lasso.coef_) if c == 0]}"
+)
 wo = res[res.index.str.contains("weather only")]
 note(f"""Read the table top-down. Climatology explains the seasonal cycle; persistence is nearly
 unbeatable one day ahead because rivers are integrators. Weather-only models answer a
@@ -134,12 +151,16 @@ persistence to the boosted model gives the best one-day forecast. NSE rewards ma
 floods; KGE also penalises bias and variability errors.""")
 
 # %% ----------------------------------------------------------- leakage demo
-banner("Cross-validation that leaks: shuffled K-fold vs TimeSeriesSplit (random forest, train period)")
+banner(
+    "Cross-validation that leaks: shuffled K-fold vs TimeSeriesSplit (random forest, train period)"
+)
 rf = RandomForestRegressor(200, min_samples_leaf=20, n_jobs=-1, random_state=0)
 kf = cross_val_score(rf, Xtr, y[train], cv=KFold(5, shuffle=True, random_state=0), scoring="r2")
 ts = cross_val_score(rf, Xtr, y[train], cv=TimeSeriesSplit(5, gap=60), scoring="r2")
 print(f"shuffled KFold R2:    {kf.mean():.3f} +- {kf.std():.3f}")
-print(f"TimeSeriesSplit R2:   {ts.mean():.3f} +- {ts.std():.3f}  (60-day gap between train and test)")
+print(
+    f"TimeSeriesSplit R2:   {ts.mean():.3f} +- {ts.std():.3f}  (60-day gap between train and test)"
+)
 print(f"true holdout 2011-25: {res.loc['random forest [weather only]', 'r2_log']:.3f}")
 note("""Shuffled K-fold puts Tuesday in the training set and Wednesday in the test set; with
 30-120 day rolling features they are almost the same row, so the score is inflated. The
@@ -153,9 +174,13 @@ pi = permutation_importance(gb, Xte, y[test], n_repeats=10, random_state=0, n_jo
 imp = pd.Series(pi.importances_mean, index=no_persist).sort_values(ascending=False)
 print(imp.round(4).to_string())
 fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
-imp.iloc[::-1].plot.barh(ax=axes[0], xerr=pd.Series(pi.importances_std, index=no_persist)[imp.index[::-1]])
+imp.iloc[::-1].plot.barh(
+    ax=axes[0], xerr=pd.Series(pi.importances_std, index=no_persist)[imp.index[::-1]]
+)
 axes[0].set_title("Permutation importance (drop in R2 on test set)")
-PartialDependenceDisplay.from_estimator(gb, Xte, ["p30", "p120", "tmax30"], ax=axes[1], kind="average")
+PartialDependenceDisplay.from_estimator(
+    gb, Xte, ["p30", "p120", "tmax30"], ax=axes[1], kind="average"
+)
 axes[1].set_title("Partial dependence: 30-day, 120-day precipitation; 30-day TMAX")
 fig.tight_layout()
 savefig(fig, "importance_pdp", SEC)
@@ -173,40 +198,59 @@ features (p60/p120/api) share importance, so read groups, not individual bars.""
 fig, axes = plt.subplots(1, 2, figsize=(14, 4.5))
 seg = slice("2018-01-01", "2019-12-31")
 axes[0].plot(10 ** y[seg] / 1000, color="k", lw=1, label="observed")
-axes[0].plot(10 ** pd.Series(gb.predict(feat.loc[seg, no_persist]), index=y[seg].index) / 1000,
-             lw=1, label="gradient boosting [weather only]")
+axes[0].plot(
+    10 ** pd.Series(gb.predict(feat.loc[seg, no_persist]), index=y[seg].index) / 1000,
+    lw=1,
+    label="gradient boosting [weather only]",
+)
 axes[0].set_yscale("log")
 axes[0].set_ylabel("discharge (kcfs)")
 axes[0].set_title("2018-2019: timing right, peaks under-predicted (tree models cannot extrapolate)")
 axes[0].legend()
-axes[1].scatter(y[test], gb.predict(Xte), s=3, alpha=.3)
+axes[1].scatter(y[test], gb.predict(Xte), s=3, alpha=0.3)
 lims = [y.min(), y.max()]
-axes[1].plot(lims, lims, "k--", lw=.8)
+axes[1].plot(lims, lims, "k--", lw=0.8)
 axes[1].set_xlabel("observed log10 Q")
 axes[1].set_ylabel("predicted log10 Q")
-axes[1].set_title(f"Test set: NSE(flow)={res.loc['gradient boosting [weather only]', 'NSE_flow']:.2f}")
+axes[1].set_title(
+    f"Test set: NSE(flow)={res.loc['gradient boosting [weather only]', 'NSE_flow']:.2f}"
+)
 savefig(fig, "predictions", SEC)
 
 # %% ----------------------------------------------------------- classification of high-flow days
 banner("Classification: will tomorrow be a high-flow day (> 95th percentile)?")
-thr = np.quantile(10 ** y[train], .95)
-lab = (10 ** y > thr).astype(int)
+thr = np.quantile(10 ** y[train], 0.95)
+lab = (10**y > thr).astype(int)
 # predict tomorrow's exceedance from today's features including persistence
 Xc = feat.copy()
 yc = lab.shift(-1).dropna().astype(int)
 Xc = Xc.loc[yc.index]
 trc, tec = Xc.index.year <= 2010, Xc.index.year > 2010
-print(f"high-flow threshold {thr / 1000:.0f} kcfs; positive rate train={yc[trc].mean():.3f} test={yc[tec].mean():.3f}")
-clfs = {"logistic regression": make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000, C=1.0)),
-        "gradient boosting": HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05, random_state=0)}
+print(
+    f"high-flow threshold {thr / 1000:.0f} kcfs; positive rate train={yc[trc].mean():.3f} test={yc[tec].mean():.3f}"
+)
+clfs = {
+    "logistic regression": make_pipeline(
+        StandardScaler(), LogisticRegression(max_iter=2000, C=1.0)
+    ),
+    "gradient boosting": HistGradientBoostingClassifier(
+        max_iter=300, learning_rate=0.05, random_state=0
+    ),
+}
 fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))
 for name, clf in clfs.items():
     clf.fit(Xc[trc], yc[trc])
     p = clf.predict_proba(Xc[tec])[:, 1]
-    auc, ap, brier = roc_auc_score(yc[tec], p), average_precision_score(yc[tec], p), brier_score_loss(yc[tec], p)
+    auc, ap, brier = (
+        roc_auc_score(yc[tec], p),
+        average_precision_score(yc[tec], p),
+        brier_score_loss(yc[tec], p),
+    )
     acc_naive = 1 - yc[tec].mean()
-    print(f"  {name:20s} ROC-AUC={auc:.3f}  PR-AUC={ap:.3f}  Brier={brier:.4f}  "
-          f"(accuracy of 'never' = {acc_naive:.3f})")
+    print(
+        f"  {name:20s} ROC-AUC={auc:.3f}  PR-AUC={ap:.3f}  Brier={brier:.4f}  "
+        f"(accuracy of 'never' = {acc_naive:.3f})"
+    )
     fpr, tpr, _ = roc_curve(yc[tec], p)
     prec, rec, th = precision_recall_curve(yc[tec], p)
     axes[0].plot(fpr, tpr, label=f"{name} AUC={auc:.2f}")
@@ -217,18 +261,20 @@ for name, clf in clfs.items():
         # threshold choice: maximise F1, then show the trade-off
         f1 = 2 * prec[:-1] * rec[:-1] / (prec[:-1] + rec[:-1] + 1e-12)
         k = np.argmax(f1)
-        print(f"    best-F1 threshold={th[k]:.2f}: precision={prec[k]:.2f} recall={rec[k]:.2f}; "
-              f"at threshold 0.5: precision={prec[np.searchsorted(th, 0.5)]:.2f} "
-              f"recall={rec[np.searchsorted(th, 0.5)]:.2f}")
-axes[0].plot([0, 1], [0, 1], "k--", lw=.8)
+        print(
+            f"    best-F1 threshold={th[k]:.2f}: precision={prec[k]:.2f} recall={rec[k]:.2f}; "
+            f"at threshold 0.5: precision={prec[np.searchsorted(th, 0.5)]:.2f} "
+            f"recall={rec[np.searchsorted(th, 0.5)]:.2f}"
+        )
+axes[0].plot([0, 1], [0, 1], "k--", lw=0.8)
 axes[0].set_title("ROC")
 axes[0].set_xlabel("false positive rate")
 axes[0].set_ylabel("true positive rate")
-axes[1].axhline(yc[tec].mean(), color="k", ls="--", lw=.8, label="base rate")
+axes[1].axhline(yc[tec].mean(), color="k", ls="--", lw=0.8, label="base rate")
 axes[1].set_title("Precision-recall (the honest curve for rare events)")
 axes[1].set_xlabel("recall")
 axes[1].set_ylabel("precision")
-axes[2].plot([0, 1], [0, 1], "k--", lw=.8)
+axes[2].plot([0, 1], [0, 1], "k--", lw=0.8)
 axes[2].set_title("Calibration (reliability diagram)")
 axes[2].set_xlabel("predicted probability")
 axes[2].set_ylabel("observed frequency")

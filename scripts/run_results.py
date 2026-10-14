@@ -1,4 +1,5 @@
 """Run worked examples and publish hash-addressed outputs (workstation/CI only)."""
+
 from __future__ import annotations
 
 import argparse
@@ -17,9 +18,13 @@ from statsheet import data
 from statsheet.provenance import data_manifest, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-PREVIEWS = ['09_spatial/interpolation_maps.png', '09_spatial/variogram.png',
-            '14_qaqc/crm_control_charts.png', '15_geostatistics/estimation_maps.png',
-            '21_censored_inference/seasonal_kendall.png']
+PREVIEWS = [
+    "09_spatial/interpolation_maps.png",
+    "09_spatial/variogram.png",
+    "14_qaqc/crm_control_charts.png",
+    "15_geostatistics/estimation_maps.png",
+    "21_censored_inference/seasonal_kendall.png",
+]
 
 
 def verify_raw_snapshot(manifest_path: Path) -> None:
@@ -42,22 +47,37 @@ def main() -> None:
     args = parser.parse_args()
     if args.verify_inputs:
         verify_raw_snapshot(args.verify_inputs)
-    env = dict(os.environ, MPLBACKEND="Agg", OMP_NUM_THREADS="1",
-               OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1", PYTHONHASHSEED="0")
-    sources = {p.relative_to(ROOT).as_posix(): sha256(p)
-               for folder in ("src", "analyses", "scripts")
-               for p in sorted((ROOT / folder).rglob("*.py"))}
+    env = dict(
+        os.environ,
+        MPLBACKEND="Agg",
+        OMP_NUM_THREADS="1",
+        OPENBLAS_NUM_THREADS="1",
+        MKL_NUM_THREADS="1",
+        PYTHONHASHSEED="0",
+    )
+    sources = {
+        p.relative_to(ROOT).as_posix(): sha256(p)
+        for folder in ("src", "analyses", "scripts")
+        for p in sorted((ROOT / folder).rglob("*.py"))
+    }
     sources["uv.lock"] = sha256(ROOT / "uv.lock")
-    patch = subprocess.check_output(["git", "-C", str(ROOT), "diff", "HEAD", "--",
-                                     "src", "analyses", "scripts", "uv.lock"])
-    manifest = {"schema_version": 1, "started_at": datetime.now(UTC).isoformat(),
-                "source_commit": git("rev-parse", "HEAD"),
-                "source_patch_sha256": hashlib.sha256(patch).hexdigest(),
-                "source_files": sources, "end_date": data.END_DATE,
-                "python": sys.version, "packages": {d.metadata["Name"]: d.version
-                    for d in importlib.metadata.distributions()},
-                "threads": {k: env[k] for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
-                                               "MKL_NUM_THREADS")}, "analyses": {}}
+    patch = subprocess.check_output(
+        ["git", "-C", str(ROOT), "diff", "HEAD", "--", "src", "analyses", "scripts", "uv.lock"]
+    )
+    manifest = {
+        "schema_version": 1,
+        "started_at": datetime.now(UTC).isoformat(),
+        "source_commit": git("rev-parse", "HEAD"),
+        "source_patch_sha256": hashlib.sha256(patch).hexdigest(),
+        "source_files": sources,
+        "end_date": data.END_DATE,
+        "python": sys.version,
+        "packages": {d.metadata["Name"]: d.version for d in importlib.metadata.distributions()},
+        "threads": {
+            k: env[k] for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")
+        },
+        "analyses": {},
+    }
     if hasattr(data, "GSTAT_REVISION"):
         manifest["upstream_gstat_commit"] = data.GSTAT_REVISION
     with tempfile.TemporaryDirectory(prefix="worked-results-", dir=ROOT) as temp:
@@ -66,21 +86,31 @@ def main() -> None:
         (stage / "figures").mkdir()
         if patch:
             (stage / "source.patch").write_bytes(patch)
-        chapters = ["# Generated worked-example results", "",
-                    "These are executed educational examples, not a new scientific study.",
-                    f"Data cutoff: `{data.END_DATE}`. Source: `{manifest['source_commit']}`.",
-                    "The run manifest records any source patch and its hash, dependencies,",
-                    "input hashes, script hashes and output hashes. Full transcripts are linked",
-                    "for assumptions and interpretation; the numeric excerpts below are emitted",
-                    "directly by each script and may include illustrative synthetic examples.", ""]
+        chapters = [
+            "# Generated worked-example results",
+            "",
+            "These are executed educational examples, not a new scientific study.",
+            f"Data cutoff: `{data.END_DATE}`. Source: `{manifest['source_commit']}`.",
+            "The run manifest records any source patch and its hash, dependencies,",
+            "input hashes, script hashes and output hashes. Full transcripts are linked",
+            "for assumptions and interpretation; the numeric excerpts below are emitted",
+            "directly by each script and may include illustrative synthetic examples.",
+            "",
+        ]
         for script in sorted((ROOT / "analyses").glob("*.py")):
             print(f"Running {script.name}", flush=True)
             output = stage / "outputs" / f"{script.stem}.txt"
             try:
                 with output.open("w") as stream:
-                    subprocess.run([sys.executable, str(script)], cwd=ROOT, env=env,
-                                   stdout=stream, stderr=subprocess.STDOUT, check=True,
-                                   timeout=14400)
+                    subprocess.run(
+                        [sys.executable, str(script)],
+                        cwd=ROOT,
+                        env=env,
+                        stdout=stream,
+                        stderr=subprocess.STDOUT,
+                        check=True,
+                        timeout=14400,
+                    )
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
                 manifest["failed_script"] = script.name
                 manifest["failure"] = str(error)
@@ -97,16 +127,29 @@ def main() -> None:
             transcript = output.read_text().replace(str(ROOT) + "/", "")
             output.write_text(transcript)
             # Select numerical output, not a separately maintained copy of headline values.
-            lines = [line for line in transcript.splitlines()
-                     if any(c.isdigit() for c in line) and "[fig]" not in line
-                     and not line.lstrip().startswith((">", "File ", "warnings.", "return "))]
-            chapters += [f"## {script.stem.replace('_', ' ')}", "",
-                         f"[Source](../analyses/{script.name}) · "
-                         f"[Full output](outputs/{script.stem}.txt)", "", "```text",
-                         *lines[:35], "```", ""]
+            lines = [
+                line
+                for line in transcript.splitlines()
+                if any(c.isdigit() for c in line)
+                and "[fig]" not in line
+                and not line.lstrip().startswith((">", "File ", "warnings.", "return "))
+            ]
+            chapters += [
+                f"## {script.stem.replace('_', ' ')}",
+                "",
+                f"[Source](../analyses/{script.name}) · [Full output](outputs/{script.stem}.txt)",
+                "",
+                "```text",
+                *lines[:35],
+                "```",
+                "",
+            ]
             manifest["analyses"][script.name] = {
-                "script_sha256": sha256(script), "output": f"outputs/{output.name}",
-                "output_sha256": sha256(output), "exit_code": 0}
+                "script_sha256": sha256(script),
+                "output": f"outputs/{output.name}",
+                "output_sha256": sha256(output),
+                "exit_code": 0,
+            }
         for relative in PREVIEWS:
             source = ROOT / "figures" / relative
             shutil.copyfile(source, stage / "figures" / source.name)

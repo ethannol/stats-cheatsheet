@@ -60,8 +60,10 @@ class MKResult:
         return "increasing" if self.z > 0 else "decreasing"
 
     def __str__(self):
-        return (f"Mann-Kendall: S={self.S:.0f} z={self.z:.2f} p={self.p:.4f} "
-                f"tau={self.tau:.3f} n={self.n} -> {self.trend}")
+        return (
+            f"Mann-Kendall: S={self.S:.0f} z={self.z:.2f} p={self.p:.4f} "
+            f"tau={self.tau:.3f} n={self.n} -> {self.trend}"
+        )
 
 
 def mann_kendall(x) -> MKResult:
@@ -208,8 +210,14 @@ def pettitt(x):
 
 
 # ====================================================================== resampling
-def bootstrap_ci(x, statistic=np.mean, n_boot: int = 5000, alpha: float = 0.05,
-                 method: str = "percentile", rng=None):
+def bootstrap_ci(
+    x,
+    statistic=np.mean,
+    n_boot: int = 5000,
+    alpha: float = 0.05,
+    method: str = "percentile",
+    rng=None,
+):
     """Non-parametric bootstrap CI for an iid sample.
 
     percentile : quantiles of the bootstrap distribution. Simple; biased for skewed stats.
@@ -253,8 +261,9 @@ def block_bootstrap(x, statistic, block_len: int, n_boot: int = 2000, rng=None):
     return out
 
 
-def permutation_test(a, b, statistic=lambda a, b: np.mean(a) - np.mean(b),
-                     n_perm: int = 10000, rng=None):
+def permutation_test(
+    a, b, statistic=lambda a, b: np.mean(a) - np.mean(b), n_perm: int = 10000, rng=None
+):
     """Two-sample permutation test. Under H0 labels are exchangeable, so shuffle the pooled
     sample and recompute the statistic. Exact in spirit, no distributional assumptions.
     Returns (observed, p_two_sided, null_distribution)."""
@@ -266,7 +275,7 @@ def permutation_test(a, b, statistic=lambda a, b: np.mean(a) - np.mean(b),
     null = np.empty(n_perm)
     for k in range(n_perm):
         rng.shuffle(pooled)
-        null[k] = statistic(pooled[:len(a)], pooled[len(a):])
+        null[k] = statistic(pooled[: len(a)], pooled[len(a) :])
     p = (np.sum(np.abs(null) >= abs(obs)) + 1) / (n_perm + 1)
     return float(obs), float(p), null
 
@@ -275,8 +284,9 @@ def cohens_d(a, b) -> float:
     """Standardised mean difference with pooled SD. ~0.2 small, 0.5 medium, 0.8 large."""
     a, b = np.asarray(a, float), np.asarray(b, float)
     a, b = a[~np.isnan(a)], b[~np.isnan(b)]
-    sp = np.sqrt(((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1))
-                 / (len(a) + len(b) - 2))
+    sp = np.sqrt(
+        ((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1)) / (len(a) + len(b) - 2)
+    )
     return float((a.mean() - b.mean()) / sp)
 
 
@@ -300,7 +310,7 @@ def knn_weights(D, k: int = 8, row_standardize: bool = True):
     """Binary k-nearest-neighbour spatial weights from a distance matrix."""
     n = D.shape[0]
     W = np.zeros_like(D)
-    order = np.argsort(D, axis=1)[:, 1:k + 1]  # skip self
+    order = np.argsort(D, axis=1)[:, 1 : k + 1]  # skip self
     W[np.arange(n)[:, None], order] = 1.0
     if row_standardize:
         W /= W.sum(axis=1, keepdims=True)
@@ -336,9 +346,10 @@ def morans_i(z, W, n_perm: int = 999, rng=None):
 
 def idw_from_distances(D_query_known, z_known, power: float = 2.0):
     """Inverse-distance-weighted interpolation from a distance matrix (great-circle or any
-    metric). D_query_known: (m, n) distances from each query point to each known point. Exact at data points (weight -> inf as d -> 0)."""
+    metric). D_query_known: (m, n) distances from each query point to each known point.
+    Exact at data points (weight -> inf as d -> 0)."""
     D = np.where(D_query_known == 0, 1e-12, D_query_known)
-    w = 1.0 / D ** power
+    w = 1.0 / D**power
     return (w @ z_known) / w.sum(axis=1)
 
 
@@ -432,7 +443,7 @@ def cell_declustering(x, y, cell_size: float, n_offsets: int = 5) -> np.ndarray:
             iy = np.floor((y - y.min() + oy) / cell_size).astype(int)
             _, inv, counts = np.unique(ix * 100003 + iy, return_inverse=True, return_counts=True)
             w += 1.0 / counts[inv]
-    w /= n_offsets ** 2
+    w /= n_offsets**2
     return w * n / w.sum()
 
 
@@ -468,15 +479,29 @@ def top_cut_summary(z, cap):
     """Effect of capping at `cap`: fraction of samples cut, metal removed, CV before and after."""
     z = np.asarray(z, float)
     zc = np.minimum(z, cap)
-    return dict(cap=cap, n_cut=int((z > cap).sum()), frac_cut=float((z > cap).mean()),
-                mean_before=z.mean(), mean_after=zc.mean(),
-                metal_removed=float(1 - zc.sum() / z.sum()),
-                cv_before=z.std(ddof=1) / z.mean(), cv_after=zc.std(ddof=1) / zc.mean())
+    return dict(
+        cap=cap,
+        n_cut=int((z > cap).sum()),
+        frac_cut=float((z > cap).mean()),
+        mean_before=z.mean(),
+        mean_after=zc.mean(),
+        metal_removed=float(1 - zc.sum() / z.sum()),
+        cv_before=z.std(ddof=1) / z.mean(),
+        cv_after=zc.std(ddof=1) / zc.mean(),
+    )
 
 
 # ================================================================== variograms
-def experimental_variogram(x, y, z, lag: float, n_lags: int, azimuth: float | None = None,
-                           tol_deg: float = 22.5, bandwidth: float | None = None):
+def experimental_variogram(
+    x,
+    y,
+    z,
+    lag: float,
+    n_lags: int,
+    azimuth: float | None = None,
+    tol_deg: float = 22.5,
+    bandwidth: float | None = None,
+):
     """Semivariogram gamma(h) = 1/(2N) sum (z_i - z_j)^2 for pairs binned by separation.
     azimuth (degrees clockwise from +y, mining convention) restricts pairs to a direction cone;
     None gives the omnidirectional variogram. Returns (lag_centres, gamma, pair_counts)."""
@@ -509,7 +534,7 @@ def experimental_variogram(x, y, z, lag: float, n_lags: int, azimuth: float | No
 def spherical(h, nugget, sill, rng_):
     h = np.asarray(h, float)
     r = np.clip(h / rng_, 0, 1)
-    return nugget + (sill - nugget) * (1.5 * r - 0.5 * r ** 3)
+    return nugget + (sill - nugget) * (1.5 * r - 0.5 * r**3)
 
 
 def exponential(h, nugget, sill, rng_):
@@ -548,8 +573,9 @@ def _cov_from_vario(h, model, params):
     return sill - model(h, nugget, sill, rng_)
 
 
-def ordinary_kriging(xy_known, z, xy_query, model, params, n_max: int = 24, radius=None,
-                     anisotropy=None):
+def ordinary_kriging(
+    xy_known, z, xy_query, model, params, n_max: int = 24, radius=None, anisotropy=None
+):
     """Ordinary kriging with a moving neighbourhood of the n_max nearest samples.
     Solves [C 1; 1' 0][w; mu] = [c0; 1] per query point. Returns (estimate, kriging variance).
     anisotropy = (azimuth_major, ratio) applies anisotropic_distance to all separations."""
@@ -577,7 +603,7 @@ def ordinary_kriging(xy_known, z, xy_query, model, params, n_max: int = 24, radi
             continue
         pts = xy_known[sel]
         C = _cov_from_vario(D(pts, pts), model, params)
-        c0 = _cov_from_vario(D(xy_query[q:q + 1], pts), model, params)[0]
+        c0 = _cov_from_vario(D(xy_query[q : q + 1], pts), model, params)[0]
         n = len(sel)
         A = np.ones((n + 1, n + 1))
         A[:n, :n] = C
@@ -598,7 +624,7 @@ def idw(xy_known, z, xy_query, power: float = 2.0, n_max: int = 24):
     z = np.asarray(z, float)
     dist, idx = cKDTree(xy_known).query(xy_query, k=min(n_max, len(z)))
     dist = np.maximum(dist, 1e-9)
-    w = 1 / dist ** power
+    w = 1 / dist**power
     return (w * z[idx]).sum(axis=1) / w.sum(axis=1)
 
 
@@ -632,8 +658,9 @@ def nscore_back(y, table, tail_max=None):
 
 
 # ======================================================== conditional simulation
-def sequential_gaussian_simulation(xy_known, y_known, xy_grid, model, params, n_real: int = 1,
-                                   n_max: int = 16, seed: int = 0):
+def sequential_gaussian_simulation(
+    xy_known, y_known, xy_grid, model, params, n_real: int = 1, n_max: int = 16, seed: int = 0
+):
     """Sequential Gaussian simulation in normal-score space with simple kriging (mean 0, sill 1).
 
     For each realisation: visit grid nodes in a random path; at each node krige from the n_max
@@ -665,9 +692,11 @@ def sequential_gaussian_simulation(xy_known, y_known, xy_grid, model, params, n_
             d_all = np.hypot(pts[cand, 0] - q[0], pts[cand, 1] - q[1])
             cand = cand[np.argsort(d_all)[:n_max]]
             P = pts[cand]
-            C = _cov_from_vario(np.hypot(P[:, None, 0] - P[None, :, 0], P[:, None, 1] - P[None, :,
-                1]),
-                                model, params)
+            C = _cov_from_vario(
+                np.hypot(P[:, None, 0] - P[None, :, 0], P[:, None, 1] - P[None, :, 1]),
+                model,
+                params,
+            )
             c0 = _cov_from_vario(np.hypot(P[:, 0] - q[0], P[:, 1] - q[1]), model, params)
             w = np.linalg.solve(C + 1e-9 * np.eye(len(cand)), c0)
             mean = w @ vals[cand]
@@ -689,8 +718,14 @@ def grade_tonnage(block_grades, cutoffs, block_tonnes: float = 1.0):
     for c in cutoffs:
         above = g[g >= c]
         t = len(above) * block_tonnes
-        rows.append(dict(cutoff=c, tonnes=t, grade=above.mean() if len(above) else np.nan,
-                         metal=above.sum() * block_tonnes))
+        rows.append(
+            dict(
+                cutoff=c,
+                tonnes=t,
+                grade=above.mean() if len(above) else np.nan,
+                metal=above.sum() * block_tonnes,
+            )
+        )
     return rows
 
 
@@ -702,7 +737,7 @@ def closure(X, total: float = 1.0):
 
 def alr(X, denom: int = -1):
     X = np.asarray(X, float)
-    d = X[:, denom:denom + 1] if denom != -1 else X[:, -1:]
+    d = X[:, denom : denom + 1] if denom != -1 else X[:, -1:]
     keep = np.delete(np.arange(X.shape[1]), denom if denom != -1 else X.shape[1] - 1)
     return np.log(X[:, keep] / d)
 
@@ -803,9 +838,9 @@ def km_left_censored(values, censored):
     xs, Ss = np.array(xs), np.array(Ss)
     # flip back. S_T(t_i) = P(T > t_i) = P(X < x_i) with x_i = M - t_i, i.e. F(x_i-).
     x_back = M - xs[::-1]
-    F_minus = Ss[::-1]                                   # P(X < x_k)
-    F = np.concatenate([F_minus[1:], [1.0]])             # P(X <= x_k)
-    pmf = F - F_minus                                    # P(X = x_k)
+    F_minus = Ss[::-1]  # P(X < x_k)
+    F = np.concatenate([F_minus[1:], [1.0]])  # P(X <= x_k)
+    pmf = F - F_minus  # P(X = x_k)
     # the mass below the lowest censoring limit has no estimable location; place it at that
     # limit (Helsel 2012 section 6.4), which makes the KM mean a slight upper bound there
     pmf[0] += F_minus[0]
@@ -832,8 +867,13 @@ def ros_lognormal(values, censored):
     slope, intercept = np.polyfit(sps.norm.ppf(pp[det]), np.log(v[det]), 1)
     imputed = v.copy()
     imputed[c] = np.exp(intercept + slope * sps.norm.ppf(pp[c]))
-    return dict(mean=float(imputed.mean()), median=float(np.median(imputed)),
-                imputed_values=imputed, sigma=slope, mu=intercept)
+    return dict(
+        mean=float(imputed.mean()),
+        median=float(np.median(imputed)),
+        imputed_values=imputed,
+        sigma=slope,
+        mu=intercept,
+    )
 
 
 # ==================================================== censored inference and trend
@@ -861,13 +901,13 @@ def km_mean_se(values, censored):
     # S is defined up to the largest observation; a censored tail is set to the last S
     t_end = t.max()
     knots = np.append(times, t_end)
-    areas = np.diff(knots) * S              # area of each step
+    areas = np.diff(knots) * S  # area of each step
     mean_t = areas.sum()
     var = 0.0
     for i, (n_i, d_i) in enumerate(zip(n_risk, d_at)):
-        A_i = areas[i + 1:].sum()
+        A_i = areas[i + 1 :].sum()
         if n_i > d_i:
-            var += A_i ** 2 * d_i / (n_i * (n_i - d_i))
+            var += A_i**2 * d_i / (n_i * (n_i - d_i))
     return float(M - mean_t), float(np.sqrt(var))
 
 
@@ -899,10 +939,11 @@ def gehan_test(values, censored, group):
     g1 = g == labels[0]
     n1, n2 = g1.sum(), n - g1.sum()
     W = scores[g1].sum()
-    var = n1 * n2 / (n * (n - 1)) * np.sum(scores ** 2)
+    var = n1 * n2 / (n * (n - 1)) * np.sum(scores**2)
     z = W / np.sqrt(var)
-    return dict(W=float(W), z=float(z), p=float(2 * sps.norm.sf(abs(z))), scores=scores,
-                groups=labels)
+    return dict(
+        W=float(W), z=float(z), p=float(2 * sps.norm.sf(abs(z))), scores=scores, groups=labels
+    )
 
 
 def censored_kendall_S(x, y, y_censored):
@@ -988,14 +1029,24 @@ def censored_regression_mle(X, y, censored, add_constant: bool = True):
             if i == j:
                 H[i, i] = (nll(theta + ei) - 2 * f0 + nll(theta - ei)) / h[i] ** 2
             else:
-                mixed = (nll(theta + ei + ej) - nll(theta + ei - ej)
-                         - nll(theta - ei + ej) + nll(theta - ei - ej))
+                mixed = (
+                    nll(theta + ei + ej)
+                    - nll(theta + ei - ej)
+                    - nll(theta - ei + ej)
+                    + nll(theta - ei - ej)
+                )
                 H[i, j] = H[j, i] = mixed / (4 * h[i] * h[j])
     cov = np.linalg.pinv(H)
     se = np.sqrt(np.clip(np.diag(cov), 0, None))
     loglik = -f0
-    return dict(beta=theta[:k], se=se[:k], sigma=float(np.exp(theta[k])), loglik=float(loglik),
-                aic=float(2 * (k + 1) - 2 * loglik), converged=bool(res.success))
+    return dict(
+        beta=theta[:k],
+        se=se[:k],
+        sigma=float(np.exp(theta[k])),
+        loglik=float(loglik),
+        aic=float(2 * (k + 1) - 2 * loglik),
+        converged=bool(res.success),
+    )
 
 
 def seasonal_kendall(values, years, seasons):
@@ -1006,9 +1057,12 @@ def seasonal_kendall(values, years, seasons):
     within-season pairwise slopes (units per year). Returns dict(S, var, z, p, tau, sen,
     per_season DataFrame)."""
     import pandas as pd
-    df = (pd.DataFrame(dict(v=np.asarray(values, float), y=np.asarray(years),
-                            s=np.asarray(seasons)))
-          .groupby(["s", "y"], as_index=False).v.median())
+
+    df = (
+        pd.DataFrame(dict(v=np.asarray(values, float), y=np.asarray(years), s=np.asarray(seasons)))
+        .groupby(["s", "y"], as_index=False)
+        .v.median()
+    )
     S_tot, var_tot, n_pairs, rows, slopes = 0.0, 0.0, 0, [], []
     for s, g in df.groupby("s"):
         g = g.sort_values("y")
@@ -1016,7 +1070,7 @@ def seasonal_kendall(values, years, seasons):
         n = len(vv)
         if n < 2:
             continue
-        dv = vv[None, :] - vv[:, None]      # v_j - v_i for i < j
+        dv = vv[None, :] - vv[:, None]  # v_j - v_i for i < j
         dy = yv[None, :] - yv[:, None]
         iu = np.triu_indices(n, 1)
         S = float(np.sum(np.sign(dv[iu])))
@@ -1029,27 +1083,41 @@ def seasonal_kendall(values, years, seasons):
         var_tot += var
         n_pairs += n * (n - 1) / 2
         ok = np.isfinite(sl)
-        rows.append(dict(season=s, n_years=n, S=S, tau=S / (n * (n - 1) / 2),
-                         sen=float(np.median(sl[ok])) if ok.any() else np.nan))
+        rows.append(
+            dict(
+                season=s,
+                n_years=n,
+                S=S,
+                tau=S / (n * (n - 1) / 2),
+                sen=float(np.median(sl[ok])) if ok.any() else np.nan,
+            )
+        )
     z = (S_tot - np.sign(S_tot)) / np.sqrt(var_tot) if var_tot > 0 else 0.0
-    return dict(S=S_tot, var=var_tot, z=float(z), p=float(2 * sps.norm.sf(abs(z))),
-                tau=S_tot / n_pairs if n_pairs else np.nan, sen=float(np.median(slopes)),
-                per_season=pd.DataFrame(rows))
+    return dict(
+        S=S_tot,
+        var=var_tot,
+        z=float(z),
+        p=float(2 * sps.norm.sf(abs(z))),
+        tau=S_tot / n_pairs if n_pairs else np.nan,
+        sen=float(np.median(slopes)),
+        per_season=pd.DataFrame(rows),
+    )
 
 
 def dunn_test(groups, labels=None, adjust: str = "holm"):
     """Dunn's (1964) pairwise rank-sum comparisons after Kruskal-Wallis, with the tie
     correction and Holm or Benjamini-Hochberg adjustment. Returns a DataFrame of pairs."""
     import pandas as pd
+
     groups = [np.asarray(g, float) for g in groups]
     labels = list(labels) if labels is not None else list(range(len(groups)))
     allv = np.concatenate(groups)
     N = len(allv)
     ranks = sps.rankdata(allv)
     _, counts = np.unique(allv, return_counts=True)
-    tie_term = np.sum(counts ** 3 - counts) / (12 * (N - 1))
+    tie_term = np.sum(counts**3 - counts) / (12 * (N - 1))
     idx = np.cumsum([0] + [len(g) for g in groups])
-    rbar = [ranks[idx[i]:idx[i + 1]].mean() for i in range(len(groups))]
+    rbar = [ranks[idx[i] : idx[i + 1]].mean() for i in range(len(groups))]
     rows = []
     for i in range(len(groups)):
         for j in range(i + 1, len(groups)):
@@ -1061,8 +1129,9 @@ def dunn_test(groups, labels=None, adjust: str = "holm"):
         out["p_adj"] = sps.false_discovery_control(out.p, method="bh")
     else:  # Holm step-down
         order = np.argsort(out.p.values)
-        stepped = np.minimum(1, np.maximum.accumulate(
-            out.p.values[order] * np.arange(len(out), 0, -1)))
+        stepped = np.minimum(
+            1, np.maximum.accumulate(out.p.values[order] * np.arange(len(out), 0, -1))
+        )
         out["p_adj"] = stepped[np.argsort(order)]
     return out
 
@@ -1100,8 +1169,14 @@ def ucl_table(values, censored=None, alpha: float = 0.05, n_boot: int = 2000, rn
     bs = boots.std(axis=1, ddof=1) / np.sqrt(n)
     t_star = (bm - xbar) / np.where(bs > 0, bs, np.nan)
     out["Bootstrap-t UCL95"] = xbar - np.nanquantile(t_star, alpha) * se
-    bca = sps.bootstrap((v,), np.mean, confidence_level=1 - 2 * alpha, method="BCa",
-                        n_resamples=n_boot, random_state=rng)
+    bca = sps.bootstrap(
+        (v,),
+        np.mean,
+        confidence_level=1 - 2 * alpha,
+        method="BCa",
+        n_resamples=n_boot,
+        random_state=rng,
+    )
     out["BCa bootstrap UCL95"] = float(bca.confidence_interval.high)
     return out
 
@@ -1118,23 +1193,39 @@ def ucl_recommend(values, censored=None):
     fits = {}
     if c.any():
         if sd_log < 0.5:
-            return dict(choice="KM (t) UCL95", sd_log=sd_log, fits=fits,
-                        rationale="non-detects present, mild skew: KM mean with a t-interval")
+            return dict(
+                choice="KM (t) UCL95",
+                sd_log=sd_log,
+                fits=fits,
+                rationale="non-detects present, mild skew: KM mean with a t-interval",
+            )
         q = {True: "95", False: "97.5"}[sd_log < 1.0] if sd_log < 1.5 else "99"
-        return dict(choice=f"KM Chebyshev UCL{q}", sd_log=sd_log, fits=fits,
-                    rationale=f"non-detects present, sd of log detects {sd_log:.2f}: KM mean "
-                              "with a Chebyshev interval, widened as skew grows")
+        return dict(
+            choice=f"KM Chebyshev UCL{q}",
+            sd_log=sd_log,
+            fits=fits,
+            rationale=f"non-detects present, sd of log detects {sd_log:.2f}: KM mean "
+            "with a Chebyshev interval, widened as skew grows",
+        )
     fits["normal p"] = float(sps.shapiro(v).pvalue) if len(v) <= 5000 else np.nan
     k_hat, _, scale_hat = sps.gamma.fit(v, floc=0)
     fits["gamma p (KS)"] = float(sps.kstest(v, "gamma", args=(k_hat, 0, scale_hat)).pvalue)
     fits["lognormal p"] = float(sps.shapiro(np.log(v)).pvalue)
     if fits["normal p"] > 0.05:
-        return dict(choice="Student-t UCL95", sd_log=sd_log, fits=fits,
-                    rationale="normality not rejected: the t-interval is exact")
+        return dict(
+            choice="Student-t UCL95",
+            sd_log=sd_log,
+            fits=fits,
+            rationale="normality not rejected: the t-interval is exact",
+        )
     if fits["gamma p (KS)"] > 0.05:
-        return dict(choice="Gamma UCL95 (adjusted)", sd_log=sd_log, fits=fits,
-                    rationale="gamma fit not rejected: the gamma UCL is stable where "
-                              "lognormal-based limits explode")
+        return dict(
+            choice="Gamma UCL95 (adjusted)",
+            sd_log=sd_log,
+            fits=fits,
+            rationale="gamma fit not rejected: the gamma UCL is stable where "
+            "lognormal-based limits explode",
+        )
     if sd_log < 0.5:
         choice, why = "Student-t UCL95", "skew is mild (sd of logs < 0.5): t-interval, or BCa"
     elif sd_log < 1.0:
@@ -1155,8 +1246,11 @@ def prediction_limit(background, k_future: int = 1, alpha: float = 0.05):
     n = len(x)
     t = sps.t.ppf(1 - alpha / k_future, n - 1)
     normal = x.mean() + t * x.std(ddof=1) * np.sqrt(1 + 1 / n)
-    return dict(normal=float(normal), nonparametric=float(x.max()),
-                nonparametric_confidence=n / (n + k_future))
+    return dict(
+        normal=float(normal),
+        nonparametric=float(x.max()),
+        nonparametric_confidence=n / (n + k_future),
+    )
 
 
 def tolerance_limit(background, coverage: float = 0.95, confidence: float = 0.95):
@@ -1195,6 +1289,7 @@ class WeibullFit:
     @property
     def mttf(self):
         from scipy.special import gamma as G
+
         return self.scale * G(1 + 1 / self.shape)
 
     def hazard(self, t):
@@ -1202,7 +1297,7 @@ class WeibullFit:
         return self.shape / self.scale * (t / self.scale) ** (self.shape - 1)
 
     def reliability(self, t):
-        return np.exp(-(np.asarray(t, float) / self.scale) ** self.shape)
+        return np.exp(-((np.asarray(t, float) / self.scale) ** self.shape))
 
 
 def weibull_mle(time, event) -> WeibullFit:
@@ -1216,14 +1311,18 @@ def weibull_mle(time, event) -> WeibullFit:
         beta, eta = np.exp(np.clip(p, -20, 20))
         with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
             logpdf = np.log(beta / eta) + (beta - 1) * np.log(t / eta) - (t / eta) ** beta
-            logsf = -(t / eta) ** beta
+            logsf = -((t / eta) ** beta)
             val = -(np.sum(logpdf[e]) + np.sum(logsf[~e]))
         return val if np.isfinite(val) else 1e300
 
     best = None
     for b0 in (0.7, 1.5, 3.0):  # several starts: the likelihood can be flat for beta near 1
-        res = minimize(nll, [np.log(b0), np.log(t.mean())], method="Nelder-Mead",
-                       options=dict(xatol=1e-8, fatol=1e-10, maxiter=5000))
+        res = minimize(
+            nll,
+            [np.log(b0), np.log(t.mean())],
+            method="Nelder-Mead",
+            options=dict(xatol=1e-8, fatol=1e-10, maxiter=5000),
+        )
         if best is None or res.fun < best.fun:
             best = res
     beta, eta = np.exp(best.x)
@@ -1290,8 +1389,9 @@ def _liberation(d_cm, liberation, liberation_size_cm, alpha):
     return 1.0 if liberation is None else liberation
 
 
-def gy_fse_variance(d_cm, mass_g, c_g_cm3, f=0.5, g=0.25, liberation=None,
-                    liberation_size_cm=None, alpha=3.0):
+def gy_fse_variance(
+    d_cm, mass_g, c_g_cm3, f=0.5, g=0.25, liberation=None, liberation_size_cm=None, alpha=3.0
+):
     """Gy's fundamental sampling error: relative variance s^2 = c f g l d^3 / M_s
     (sample mass only; lot mass assumed >> sample). d = nominal top size (cm), c = mineralogical
     constant (g/cm3), f shape factor (0.5), g granulometric factor (0.25 for crushed material),
@@ -1304,11 +1404,12 @@ def gy_fse_variance(d_cm, mass_g, c_g_cm3, f=0.5, g=0.25, liberation=None,
     return np.sqrt(c_g_cm3 * f * g * l * np.asarray(d_cm, float) ** 3 / np.asarray(mass_g, float))
 
 
-def gy_min_mass(d_cm, target_rsd, c_g_cm3, f=0.5, g=0.25, liberation=None, liberation_size_cm=None,
-                alpha=3.0):
+def gy_min_mass(
+    d_cm, target_rsd, c_g_cm3, f=0.5, g=0.25, liberation=None, liberation_size_cm=None, alpha=3.0
+):
     """Minimum sample mass (g) to hold the fundamental error at target_rsd for top size d."""
     l = _liberation(d_cm, liberation, liberation_size_cm, alpha)
-    return c_g_cm3 * f * g * l * np.asarray(d_cm, float) ** 3 / target_rsd ** 2
+    return c_g_cm3 * f * g * l * np.asarray(d_cm, float) ** 3 / target_rsd**2
 
 
 def mineralogical_constant(grade_frac, density_mineral, density_gangue):
@@ -1323,7 +1424,7 @@ def gbm_paths(s0, mu, sigma, n_steps, n_paths, dt=1 / 12, rng=None):
     """Geometric Brownian motion S_t+dt = S_t exp((mu - sigma^2/2) dt + sigma sqrt(dt) Z)."""
     rng = np.random.default_rng(rng)
     z = rng.normal(size=(n_paths, n_steps))
-    logret = (mu - 0.5 * sigma ** 2) * dt + sigma * np.sqrt(dt) * z
+    logret = (mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z
     return s0 * np.exp(np.cumsum(logret, axis=1))
 
 
@@ -1337,14 +1438,20 @@ def fit_ou(log_price, dt=1 / 12):
     resid = x[1:] - (a + b * x[:-1])
     kappa = -np.log(b) / dt if 0 < b < 1 else np.nan
     if 0 < b < 1:
-        sigma = resid.std(ddof=2) * np.sqrt(2 * kappa / (1 - b ** 2))
+        sigma = resid.std(ddof=2) * np.sqrt(2 * kappa / (1 - b**2))
     else:
         sigma = resid.std(ddof=2) / np.sqrt(dt)
     from statsmodels.tsa.stattools import adfuller
+
     p_ur = adfuller(x, regression="c", autolag="AIC", result_object=False)[1]
-    return dict(kappa=kappa, mean=a / (1 - b) if 0 < b < 1 else np.nan, sigma=sigma,
-                half_life_years=np.log(2) / kappa if kappa == kappa else np.nan, b=b,
-                p_unit_root=p_ur)
+    return dict(
+        kappa=kappa,
+        mean=a / (1 - b) if 0 < b < 1 else np.nan,
+        sigma=sigma,
+        half_life_years=np.log(2) / kappa if kappa == kappa else np.nan,
+        b=b,
+        p_unit_root=p_ur,
+    )
 
 
 def correlated_normals(n, corr, rng=None):

@@ -1,4 +1,5 @@
 """Fold-local interpolation fitting, shared with the worked spatial example."""
+
 import numpy as np
 import statsmodels.formula.api as smf
 

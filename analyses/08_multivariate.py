@@ -35,8 +35,23 @@ setup()
 SEC = "08_multivariate"
 
 st = data.station_normals()
-VARS = ["tavg", "tmax", "tmin", "prcp", "snow", "dp01", "dp10", "dx90", "dx32", "dt32", "dt00",
-        "emxt", "emnt", "htdd", "cldd"]
+VARS = [
+    "tavg",
+    "tmax",
+    "tmin",
+    "prcp",
+    "snow",
+    "dp01",
+    "dp10",
+    "dx90",
+    "dx32",
+    "dt32",
+    "dt00",
+    "emxt",
+    "emnt",
+    "htdd",
+    "cldd",
+]
 st = st.dropna(subset=VARS).reset_index(drop=True)
 X = st[VARS].to_numpy()
 Z = StandardScaler().fit_transform(X)
@@ -52,12 +67,14 @@ ax.set_xticklabels(VARS, rotation=90)
 ax.set_yticks(range(len(VARS)))
 ax.set_yticklabels(VARS)
 ax.grid(False)
-fig.colorbar(im, ax=ax, shrink=.8, label="Pearson r")
+fig.colorbar(im, ax=ax, shrink=0.8, label="Pearson r")
 ax.set_title("Station climatology variables are highly redundant")
 savefig(fig, "correlation_matrix", SEC)
 pairs = C.where(np.triu(np.ones_like(C, dtype=bool), 1)).stack()
-print("strongest |r| pairs:\n" + pairs.reindex(pairs.abs().sort_values(ascending=False).index)
-      .head(6).round(3).to_string())
+print(
+    "strongest |r| pairs:\n"
+    + pairs.reindex(pairs.abs().sort_values(ascending=False).index).head(6).round(3).to_string()
+)
 note("""Fifteen variables, but a handful of underlying factors: 'how warm' (tavg, htdd, cldd,
 dt32...), 'how wet' (prcp, dp01, dp10), 'how snowy / continental'. PCA will find these.""")
 
@@ -65,7 +82,12 @@ dt32...), 'how wet' (prcp, dp01, dp10), 'how snowy / continental'. PCA will find
 banner("PCA")
 pca = PCA().fit(Z)
 ev = pca.explained_variance_ratio_
-print("explained variance by component:", np.round(ev[:6], 3), "... cumulative(3) =", round(ev[:3].sum(), 3))
+print(
+    "explained variance by component:",
+    np.round(ev[:6], 3),
+    "... cumulative(3) =",
+    round(ev[:3].sum(), 3),
+)
 print("Kaiser rule (eigenvalue > 1): keep", int((pca.explained_variance_ > 1).sum()), "components")
 load = pd.DataFrame(pca.components_[:3].T, index=VARS, columns=["PC1", "PC2", "PC3"])
 print("\nloadings:\n" + load.round(2).to_string())
@@ -86,8 +108,15 @@ axes[0].set_title("Scree plot and cumulative variance")
 sc = axes[1].scatter(st.PC1, st.PC2, c=st.lat, cmap="viridis", s=14)
 for v in VARS:
     axes[1].annotate(v, (load.loc[v, "PC1"] * 6, load.loc[v, "PC2"] * 6), fontsize=7, color="C3")
-    axes[1].arrow(0, 0, load.loc[v, "PC1"] * 5.5, load.loc[v, "PC2"] * 5.5, color="C3", alpha=.4,
-                  head_width=.1)
+    axes[1].arrow(
+        0,
+        0,
+        load.loc[v, "PC1"] * 5.5,
+        load.loc[v, "PC2"] * 5.5,
+        color="C3",
+        alpha=0.4,
+        head_width=0.1,
+    )
 axes[1].set_xlabel(f"PC1 ({ev[0]:.0%})")
 axes[1].set_ylabel(f"PC2 ({ev[1]:.0%})")
 axes[1].set_title("Biplot: scores (coloured by latitude) + loadings")
@@ -144,8 +173,13 @@ print("\ncluster profiles (means):\n" + prof.to_string())
 fig, axes = plt.subplots(1, 2, figsize=(14, 5), gridspec_kw=dict(width_ratios=[1.3, 1]))
 for c in range(K):
     m = st.kmeans == c
-    axes[0].scatter(st.lon[m], st.lat[m], s=18, color=COLORS[c],
-                    label=f"{c}: tavg {prof.loc[c, 'tavg']:.0f}C, prcp {prof.loc[c, 'prcp']:.0f}mm")
+    axes[0].scatter(
+        st.lon[m],
+        st.lat[m],
+        s=18,
+        color=COLORS[c],
+        label=f"{c}: tavg {prof.loc[c, 'tavg']:.0f}C, prcp {prof.loc[c, 'prcp']:.0f}mm",
+    )
 axes[0].legend(fontsize=8, loc="lower left")
 axes[0].set_title(f"k-means (k={K}) on 15 standardised climate variables")
 axes[0].set_xlabel("lon")

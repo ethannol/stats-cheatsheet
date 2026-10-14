@@ -1,4 +1,5 @@
 """Small, offline tests of cache integrity and snapshot provenance (no rendering)."""
+
 import json
 
 import pandas as pd
@@ -34,8 +35,10 @@ def test_legacy_history_is_unknown_and_pinned_inputs_refetched(tmp_path):
     assert meta["origin"] == "legacy-cache"
     pinned = dynamic.with_name("pinned.rda")
     pinned.write_bytes(b"old")
-    assert cached_bytes(pinned, "https://example.test/commit", {}, lambda *_: b"pinned",
-                        pinned=True) == b"pinned"
+    assert (
+        cached_bytes(pinned, "https://example.test/commit", {}, lambda *_: b"pinned", pinned=True)
+        == b"pinned"
+    )
     snapshot = data_manifest(tmp_path)
     assert snapshot["files"]["raw/pinned.rda"]["retrieved_at"]
 

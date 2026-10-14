@@ -129,8 +129,8 @@ def test_hamed_rao_controls_size_under_ar1():
         x = _ar1(rng, 60, 0.6)
         raw += st.mann_kendall(x).p < 0.05
         hr += st.mann_kendall_hamed_rao(x).p < 0.05
-    assert raw / 300 > 0.15           # raw MK badly over-rejects
-    assert hr / 300 < 0.12            # corrected test is near nominal
+    assert raw / 300 > 0.15  # raw MK badly over-rejects
+    assert hr / 300 < 0.12  # corrected test is near nominal
 
 
 def test_hamed_rao_equals_mk_for_white_noise():
@@ -232,8 +232,9 @@ def test_sgs_honours_data_and_variance():
     y = rng.normal(size=30)
     grid = np.array([[i, j] for i in range(0, 41, 4) for j in range(0, 41, 4)], float)
     grid = np.vstack([grid, xy[:5]])  # include 5 data locations as nodes
-    sims = st.sequential_gaussian_simulation(xy, y, grid, st.spherical, (0.0, 1.0, 15.0),
-                                             n_real=3, seed=1)
+    sims = st.sequential_gaussian_simulation(
+        xy, y, grid, st.spherical, (0.0, 1.0, 15.0), n_real=3, seed=1
+    )
     assert np.allclose(sims[:, -5:], y[:5], atol=1e-3)
     assert 0.6 < sims.std() < 1.4
 
@@ -251,9 +252,9 @@ def test_clr_ilr_inverses():
 def test_thompson_howarth_recovers_precision():
     rng = np.random.default_rng(8)
     c = rng.lognormal(0, 0.8, 3000)
-    sd = 0.05 + 0.1 * c                       # per-measurement sd grows with concentration
+    sd = 0.05 + 0.1 * c  # per-measurement sd grows with concentration
     a = c + rng.normal(0, 1, 3000) * sd
-    b = c + rng.normal(0, 1, 3000) * sd       # both members carry the error
+    b = c + rng.normal(0, 1, 3000) * sd  # both members carry the error
     bm, bsd, s0, k = st.thompson_howarth(a, b, n_bins=15)
     assert k == pytest.approx(0.1, abs=0.03)
     assert s0 == pytest.approx(0.05, abs=0.04)
@@ -280,7 +281,7 @@ def test_ros_recovers_lognormal_mean():
 def test_kaplan_meier_matches_empirical_without_censoring():
     t = np.array([1, 2, 3, 4, 5.0])
     times, S, _ = st.kaplan_meier(t, np.ones(5, bool))
-    assert np.allclose(S, [1, .8, .6, .4, .2, 0])
+    assert np.allclose(S, [1, 0.8, 0.6, 0.4, 0.2, 0])
 
 
 def test_weibull_mle_recovers_parameters_with_censoring():
@@ -309,7 +310,7 @@ def test_cusum_detects_one_sigma_shift_fast():
     x = np.concatenate([rng.normal(0, 1, 60), rng.normal(1, 1, 100)])
     _, _, sig = st.cusum(x, 0, 1)
     after = sig[sig >= 60]
-    assert len(after) and after[0] <= 90   # ARL1 for a 1-sigma shift is ~10 samples
+    assert len(after) and after[0] <= 90  # ARL1 for a 1-sigma shift is ~10 samples
 
 
 def test_gy_mass_and_variance_are_consistent():
@@ -320,7 +321,8 @@ def test_gy_mass_and_variance_are_consistent():
     assert v2 == pytest.approx(0.1)
     # liberation factor is capped at 1 once the top size reaches the liberation size
     assert st.gy_fse_variance(0.001, 10, 1e7, liberation_size_cm=0.005, alpha=1.5) == pytest.approx(
-        st.gy_fse_variance(0.001, 10, 1e7))
+        st.gy_fse_variance(0.001, 10, 1e7)
+    )
 
 
 def test_fit_ou_recovers_mean_reversion():
@@ -396,6 +398,7 @@ def test_akritas_theil_sen_reduces_to_theil_sen_without_censoring():
 
 def test_censored_regression_matches_ols_and_recovers_truth():
     import statsmodels.api as sm
+
     rng = np.random.default_rng(24)
     X = rng.normal(0, 1, (300, 2))
     beta = np.array([1.0, 0.8, -0.5])
@@ -447,7 +450,8 @@ def test_ucl_student_t_and_recommendation():
     v = rng.normal(10, 1, 60)
     tab = st.ucl_table(v, rng=0)
     assert tab["Student-t UCL95"] == pytest.approx(
-        v.mean() + sps.t.ppf(0.95, 59) * v.std(ddof=1) / np.sqrt(60))
+        v.mean() + sps.t.ppf(0.95, 59) * v.std(ddof=1) / np.sqrt(60)
+    )
     assert tab["Chebyshev UCL95"] > tab["Student-t UCL95"]
     assert st.ucl_recommend(v)["choice"] == "Student-t UCL95"
     skewed = rng.lognormal(0, 1.2, 60)
@@ -465,6 +469,6 @@ def test_prediction_and_tolerance_limits_cover_at_nominal_rate():
         pl = st.prediction_limit(bg, k_future=1)
         hits_pl += rng.normal() > pl["normal"]
         tl = st.tolerance_limit(bg, coverage=0.95, confidence=0.95)
-        hits_tl += sps.norm.sf(tl) > 0.05   # the limit fails to cover 95 % of the population
-    assert 0.02 < hits_pl / 400 < 0.09      # nominal 5 %
-    assert hits_tl / 400 < 0.10             # nominal 5 % confidence failure
+        hits_tl += sps.norm.sf(tl) > 0.05  # the limit fails to cover 95 % of the population
+    assert 0.02 < hits_pl / 400 < 0.09  # nominal 5 %
+    assert hits_tl / 400 < 0.10  # nominal 5 % confidence failure

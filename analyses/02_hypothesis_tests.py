@@ -51,8 +51,10 @@ def period_means(var):
 banner("Summer mean TMIN (nights): 1951-1980 vs 1991-2020 (n=30 summers each)")
 early, late = period_means("TMIN")
 diff = late.mean() - early.mean()
-print(f"early: mean={early.mean():.2f} sd={early.std():.2f} | late: mean={late.mean():.2f} "
-      f"sd={late.std():.2f} | diff={diff:+.2f} C")
+print(
+    f"early: mean={early.mean():.2f} sd={early.std():.2f} | late: mean={late.mean():.2f} "
+    f"sd={late.std():.2f} | diff={diff:+.2f} C"
+)
 
 t_welch = sps.ttest_ind(late, early, equal_var=False)
 t_student = sps.ttest_ind(late, early, equal_var=True)
@@ -63,8 +65,10 @@ obs, p_perm, null = permutation_test(late.values, early.values, n_perm=20000, rn
 d = cohens_d(late, early)
 ci = t_welch.confidence_interval()
 
-print(f"Welch t:        t={t_welch.statistic:.2f}  p={t_welch.pvalue:.4f}  "
-      f"95% CI diff=({ci.low:.2f}, {ci.high:.2f})")
+print(
+    f"Welch t:        t={t_welch.statistic:.2f}  p={t_welch.pvalue:.4f}  "
+    f"95% CI diff=({ci.low:.2f}, {ci.high:.2f})"
+)
 print(f"Student t:      t={t_student.statistic:.2f}  p={t_student.pvalue:.4f}")
 print(f"Mann-Whitney U: U={mw.statistic:.0f}  p={mw.pvalue:.4f}")
 print(f"Permutation:    diff={obs:+.2f}  p={p_perm:.4f}  ({len(null)} shuffles)")
@@ -77,12 +81,12 @@ the test whose assumptions you can defend plus the effect size: summer nights ar
 Student and Welch coincide; prefer Welch by default anyway, it costs almost nothing.""")
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-axes[0].hist(early, bins=12, alpha=.6, label="1951-1980")
-axes[0].hist(late, bins=12, alpha=.6, label="1991-2020")
+axes[0].hist(early, bins=12, alpha=0.6, label="1951-1980")
+axes[0].hist(late, bins=12, alpha=0.6, label="1991-2020")
 axes[0].set_xlabel("JJA mean TMIN (C)")
 axes[0].legend()
 axes[0].set_title("Two samples of 30 summers")
-axes[1].hist(null, bins=60, alpha=.8, density=True)
+axes[1].hist(null, bins=60, alpha=0.8, density=True)
 axes[1].axvline(obs, color="C3", lw=2, label=f"observed diff={obs:+.2f}")
 axes[1].axvline(-obs, color="C3", lw=1, ls="--")
 axes[1].set_title(f"Permutation null distribution (p={p_perm:.4f})")
@@ -95,9 +99,11 @@ banner("Contrast: summer mean TMAX (daytime highs)")
 e2, l2 = period_means("TMAX")
 t2 = sps.ttest_ind(l2, e2, equal_var=False)
 ci2 = t2.confidence_interval()
-print(f"diff={l2.mean() - e2.mean():+.2f} C  Welch p={t2.pvalue:.3f}  "
-      f"95% CI=({ci2.low:.2f}, {ci2.high:.2f})  d={cohens_d(l2, e2):.2f}  "
-      f"Levene p={sps.levene(l2, e2).pvalue:.3f}")
+print(
+    f"diff={l2.mean() - e2.mean():+.2f} C  Welch p={t2.pvalue:.3f}  "
+    f"95% CI=({ci2.low:.2f}, {ci2.high:.2f})  d={cohens_d(l2, e2):.2f}  "
+    f"Levene p={sps.levene(l2, e2).pvalue:.3f}"
+)
 note(f"""A null result. The CI ({ci2.low:.2f}, {ci2.high:.2f}) is the honest summary: the data
 are compatible with anything from a small cooling to a ~0.4 C warming. 'Not significant'
 does not mean 'no change'. Note also Levene p={sps.levene(l2, e2).pvalue:.2f}: summer
@@ -120,10 +126,13 @@ the dependence explicitly (mixed model, GLS).""")
 
 # %% ----------------------------------------------------------- bootstrap CI for the difference
 rng = np.random.default_rng(0)
-boots = np.array([rng.choice(late, len(late)).mean() - rng.choice(early, len(early)).mean()
-                  for _ in range(5000)])
-print(f"Bootstrap 95% CI for difference in means: ({np.percentile(boots, 2.5):.2f}, "
-      f"{np.percentile(boots, 97.5):.2f})  vs Welch CI ({ci.low:.2f}, {ci.high:.2f})")
+boots = np.array(
+    [rng.choice(late, len(late)).mean() - rng.choice(early, len(early)).mean() for _ in range(5000)]
+)
+print(
+    f"Bootstrap 95% CI for difference in means: ({np.percentile(boots, 2.5):.2f}, "
+    f"{np.percentile(boots, 97.5):.2f})  vs Welch CI ({ci.low:.2f}, {ci.high:.2f})"
+)
 
 # %% ----------------------------------------------------------- proportions / chi-square
 banner("Proportions: warm nights (TMIN >= 21.1 C / 70 F) by period")
@@ -140,8 +149,10 @@ warm_per_summer = (jja.TMIN >= 21.1).resample("YE").sum()
 warm_per_summer.index = warm_per_summer.index.year
 a, b = warm_per_summer.loc[1951:1980], warm_per_summer.loc[1991:2020]
 mw2 = sps.mannwhitneyu(b, a)
-print(f"Warm nights per summer: early median={a.median():.0f} late median={b.median():.0f}  "
-      f"Mann-Whitney p={mw2.pvalue:.4f}  (n=30 vs 30 summers)")
+print(
+    f"Warm nights per summer: early median={a.median():.0f} late median={b.median():.0f}  "
+    f"Mann-Whitney p={mw2.pvalue:.4f}  (n=30 vs 30 summers)"
+)
 note("""Chi-square and the two-proportion z-test are the same test for a 2x2 table (z^2 = chi2).
 Both inherit the daily-independence problem. The cleaner design is one count per summer
 compared with Mann-Whitney or a Poisson / negative-binomial GLM with a period term.""")
@@ -159,12 +170,14 @@ for m in range(1, 13):
 mt = pd.DataFrame(rows)
 mt["p_bonferroni"] = multipletests(mt.p_raw, method="bonferroni")[1]
 mt["p_bh_fdr"] = multipletests(mt.p_raw, method="fdr_bh")[1]
-mt["sig_raw"] = mt.p_raw < .05
-mt["sig_bonf"] = mt.p_bonferroni < .05
-mt["sig_bh"] = mt.p_bh_fdr < .05
+mt["sig_raw"] = mt.p_raw < 0.05
+mt["sig_bonf"] = mt.p_bonferroni < 0.05
+mt["sig_bh"] = mt.p_bh_fdr < 0.05
 print(mt.round(4).to_string(index=False))
-print(f"\nsignificant months: raw={mt.sig_raw.sum()} Bonferroni={mt.sig_bonf.sum()} "
-      f"BH-FDR={mt.sig_bh.sum()}")
+print(
+    f"\nsignificant months: raw={mt.sig_raw.sum()} Bonferroni={mt.sig_bonf.sum()} "
+    f"BH-FDR={mt.sig_bh.sum()}"
+)
 note("""Running 12 tests at alpha=0.05 gives a 46% chance of at least one false positive under
 H0. Bonferroni divides alpha by m (controls the family-wise error rate; conservative when
 tests are correlated). Benjamini-Hochberg controls the expected fraction of false
@@ -176,16 +189,16 @@ banner("Power analysis: how many summers to detect a given TMIN shift?")
 sd = np.sqrt((early.var() + late.var()) / 2)
 pw = TTestIndPower()
 for delta in [0.25, 0.5, 1.0]:
-    n = pw.solve_power(effect_size=delta / sd, alpha=.05, power=.8, alternative="two-sided")
+    n = pw.solve_power(effect_size=delta / sd, alpha=0.05, power=0.8, alternative="two-sided")
     print(f"  shift {delta:.2f} C (d={delta / sd:.2f}): n={np.ceil(n):.0f} per group for 80% power")
-achieved = pw.power(effect_size=abs(d), nobs1=30, alpha=.05)
+achieved = pw.power(effect_size=abs(d), nobs1=30, alpha=0.05)
 print(f"  achieved power for observed d={d:.2f} with n=30: {achieved:.3f}")
 
 fig, ax = plt.subplots(figsize=(7, 4))
 ns = np.arange(5, 120)
 for delta in [0.25, 0.5, 1.0]:
-    ax.plot(ns, pw.power(effect_size=delta / sd, nobs1=ns, alpha=.05), label=f"shift {delta} C")
-ax.axhline(.8, color="k", ls="--", lw=.8)
+    ax.plot(ns, pw.power(effect_size=delta / sd, nobs1=ns, alpha=0.05), label=f"shift {delta} C")
+ax.axhline(0.8, color="k", ls="--", lw=0.8)
 ax.set_xlabel("n per group (years)")
 ax.set_ylabel("power")
 ax.set_title("Power curves, two-sample t, alpha=0.05")

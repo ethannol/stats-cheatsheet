@@ -39,3 +39,5 @@ ignore = ["E741", "B905"]
 [tool.ruff.lint.per-file-ignores]
 # tutorial scripts: long f-string print lines are deliberate
 "analyses/*" = ["E501"]
+# notebooks are generated from those scripts by jupytext
+"notebooks/*" = ["E501"]

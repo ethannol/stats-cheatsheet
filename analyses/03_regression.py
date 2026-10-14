@@ -53,8 +53,10 @@ print(f"R^2={m1.rsquared:.3f}  AIC={m1.aic:.1f}  n={int(m1.nobs)}")
 slope = m1.params["lnco2"]
 tcr_like = slope * np.log(2)
 ci_lo, ci_hi = m1.conf_int().loc["lnco2"].values * np.log(2)
-print(f"\nImplied warming per CO2 doubling (slope * ln 2): {tcr_like:.2f} C "
-      f"(OLS 95% CI {ci_lo:.2f} to {ci_hi:.2f})")
+print(
+    f"\nImplied warming per CO2 doubling (slope * ln 2): {tcr_like:.2f} C "
+    f"(OLS 95% CI {ci_lo:.2f} to {ci_hi:.2f})"
+)
 note(f"""The slope is the warming per e-fold of CO2; times ln(2) it is warming per doubling:
 {tcr_like:.1f} C here. The IPCC transient climate response is ~1.8 C (likely 1.4-2.2), so this
 single-predictor fit overshoots. Why: methane, N2O, halocarbons and declining aerosol
@@ -76,19 +78,19 @@ print(f"Ljung-Box p (lag1, lag5): {lb.lb_pvalue.round(4).tolist()}")
 print(f"Breusch-Pagan p={bp[1]:.3f} (heteroscedasticity)  Shapiro p={sw.pvalue:.3f}")
 
 fig, axes = plt.subplots(2, 2, figsize=(11, 7))
-axes[0, 0].scatter(df.lnco2, df["T"], s=12, alpha=.7)
+axes[0, 0].scatter(df.lnco2, df["T"], s=12, alpha=0.7)
 xs = np.linspace(df.lnco2.min(), df.lnco2.max(), 50)
 axes[0, 0].plot(xs, m1.params.iloc[0] + slope * xs, color="C3")
 axes[0, 0].set_xlabel("ln(CO2/280)")
 axes[0, 0].set_ylabel("global anomaly (C)")
 axes[0, 0].set_title(f"Fit: slope={slope:.2f} C per e-fold, R2={m1.rsquared:.2f}")
 axes[0, 1].scatter(m1.fittedvalues, resid, s=12)
-axes[0, 1].axhline(0, color="k", lw=.8)
+axes[0, 1].axhline(0, color="k", lw=0.8)
 axes[0, 1].set_xlabel("fitted")
 axes[0, 1].set_ylabel("residual")
 axes[0, 1].set_title("Residuals vs fitted (look for curvature / fanning)")
 axes[1, 0].plot(df.index, resid, lw=1)
-axes[1, 0].axhline(0, color="k", lw=.8)
+axes[1, 0].axhline(0, color="k", lw=0.8)
 axes[1, 0].set_title(f"Residuals vs time: runs => autocorrelation (DW={dw:.2f})")
 sm.qqplot(resid, line="s", ax=axes[1, 1])
 axes[1, 1].set_title("QQ plot of residuals")
@@ -99,12 +101,15 @@ savefig(fig, "ols_diagnostics", SEC)
 banner("Standard errors under autocorrelation: OLS vs HAC vs GLS-AR(1)")
 hac = smf.ols("T ~ lnco2", data=df).fit(cov_type="HAC", cov_kwds={"maxlags": 5})
 gls = sm.GLSAR(df["T"], sm.add_constant(df.lnco2), rho=1).iterative_fit(maxiter=20)
-rows = pd.DataFrame({
-    "OLS": [m1.params["lnco2"], m1.bse["lnco2"]],
-    "OLS + n_eff adj": [m1.params["lnco2"], m1.bse["lnco2"] * np.sqrt(len(resid) / n_eff)],
-    "HAC (Newey-West, 5 lags)": [hac.params["lnco2"], hac.bse["lnco2"]],
-    "GLSAR(1) Cochrane-Orcutt": [gls.params["lnco2"], gls.bse["lnco2"]],
-}, index=["slope", "SE"]).T
+rows = pd.DataFrame(
+    {
+        "OLS": [m1.params["lnco2"], m1.bse["lnco2"]],
+        "OLS + n_eff adj": [m1.params["lnco2"], m1.bse["lnco2"] * np.sqrt(len(resid) / n_eff)],
+        "HAC (Newey-West, 5 lags)": [hac.params["lnco2"], hac.bse["lnco2"]],
+        "GLSAR(1) Cochrane-Orcutt": [gls.params["lnco2"], gls.bse["lnco2"]],
+    },
+    index=["slope", "SE"],
+).T
 rows["t"] = rows.slope / rows.SE
 print(rows.round(4).to_string())
 print(f"GLSAR estimated rho = {gls.model.rho[0]:.2f}")
@@ -118,20 +123,30 @@ banner("Model comparison: ln CO2 vs linear time vs both")
 m_time = smf.ols("T ~ year", data=df).fit()
 m_both = smf.ols("T ~ lnco2 + year", data=df).fit()
 m_quad = smf.ols("T ~ lnco2 + I(lnco2**2)", data=df).fit()
-cmp = pd.DataFrame({m: [f.rsquared_adj, f.aic, f.bic] for m, f in
-                    [("T~lnco2", m1), ("T~year", m_time), ("T~lnco2+year", m_both),
-                     ("T~lnco2+lnco2^2", m_quad)]},
-                   index=["adj R2", "AIC", "BIC"]).T
+cmp = pd.DataFrame(
+    {
+        m: [f.rsquared_adj, f.aic, f.bic]
+        for m, f in [
+            ("T~lnco2", m1),
+            ("T~year", m_time),
+            ("T~lnco2+year", m_both),
+            ("T~lnco2+lnco2^2", m_quad),
+        ]
+    },
+    index=["adj R2", "AIC", "BIC"],
+).T
 print(cmp.round(3).to_string())
 X2 = sm.add_constant(df[["lnco2", "year"]])
 vif2 = variance_inflation_factor(X2.values, 1)
-print(f"\nIn T~lnco2+year: coef(lnco2)={m_both.params['lnco2']:.2f} (was {m1.params['lnco2']:.2f} alone), "
-      f"p(lnco2)={m_both.pvalues['lnco2']:.3f}, p(year)={m_both.pvalues['year']:.3f}, "
-      f"corr(lnco2, year)={df.lnco2.corr(df.year):.3f}, VIF={vif2:.0f}")
+print(
+    f"\nIn T~lnco2+year: coef(lnco2)={m_both.params['lnco2']:.2f} (was {m1.params['lnco2']:.2f} alone), "
+    f"p(lnco2)={m_both.pvalues['lnco2']:.3f}, p(year)={m_both.pvalues['year']:.3f}, "
+    f"corr(lnco2, year)={df.lnco2.corr(df.year):.3f}, VIF={vif2:.0f}"
+)
 note(f"""ln(CO2) beats a linear time trend (lower AIC/BIC) because CO2 growth accelerated and so
 did warming. Adding 'year' still improves AIC, but with r=0.995 between the predictors the
-VIF is {vif2:.0f} and the CO2 coefficient swings from {m1.params['lnco2']:.1f} to
-{m_both.params['lnco2']:.1f}: multicollinearity makes individual coefficients unstable even
+VIF is {vif2:.0f} and the CO2 coefficient swings from {m1.params["lnco2"]:.1f} to
+{m_both.params["lnco2"]:.1f}: multicollinearity makes individual coefficients unstable even
 when the joint fit is excellent. Observational data alone cannot separate 'CO2' from
 'anything else that rose smoothly'.""")
 
@@ -143,16 +158,17 @@ m2 = smf.ols("tavg ~ lat + elev_km + lon", data=st).fit()
 print(m2.summary().tables[1])
 print(f"R^2={m2.rsquared:.3f}  n={int(m2.nobs)}  RMSE={np.sqrt(m2.mse_resid):.2f} C")
 X = sm.add_constant(st[["lat", "elev_km", "lon"]])
-vif = pd.Series([variance_inflation_factor(X.values, i) for i in range(1, X.shape[1])],
-                index=X.columns[1:])
+vif = pd.Series(
+    [variance_inflation_factor(X.values, i) for i in range(1, X.shape[1])], index=X.columns[1:]
+)
 print("\nVIF:\n" + vif.round(2).to_string())
 std_coef = m2.params[1:] * st[["lat", "elev_km", "lon"]].std() / st.tavg.std()
 print("\nStandardised coefficients (SD of tavg per SD of x):\n" + std_coef.round(3).to_string())
-note(f"""Elevation coefficient {m2.params['elev_km']:.2f} C/km is a surface lapse rate. It is
+note(f"""Elevation coefficient {m2.params["elev_km"]:.2f} C/km is a surface lapse rate. It is
 shallower than the free-air 6.5 C/km because high stations sit in the dry, sunny
 interior West where surface heating is strong and because longitude (r with elevation is
 nonzero) soaks up part of the effect; drop lon and the lapse rate steepens. The latitude
-coefficient {m2.params['lat']:.2f} C/deg is the meridional gradient and dominates the
+coefficient {m2.params["lat"]:.2f} C/deg is the meridional gradient and dominates the
 standardised coefficients. VIFs are small so the coefficients are interpretable. Residual
 RMSE {np.sqrt(m2.mse_resid):.1f} C is coasts, aspect, urban heat; those residuals are spatially
 autocorrelated, which section 09 tests.""")
@@ -162,7 +178,7 @@ for ax, var in zip(axes, ["lat", "elev_km", "lon"]):
     others = [v for v in ["lat", "elev_km", "lon"] if v != var]
     # partial residual (component + residual) plot
     pr = m2.resid + m2.params[var] * st[var]
-    ax.scatter(st[var], pr, s=10, alpha=.6)
+    ax.scatter(st[var], pr, s=10, alpha=0.6)
     xs = np.linspace(st[var].min(), st[var].max(), 20)
     ax.plot(xs, m2.params[var] * xs, color="C3")
     ax.set_xlabel(var)
@@ -176,14 +192,23 @@ savefig(fig, "multiple_regression_partials", SEC)
 banner("Precipitation ~ predictors: when y is positive and skewed")
 m3 = smf.ols("prcp ~ lat + elev_km + lon", data=st).fit()
 m3log = smf.ols("np.log(prcp) ~ lat + elev_km + lon", data=st).fit()
-m3gam = smf.glm("prcp ~ lat + elev_km + lon", data=st,
-                family=sm.families.Gamma(link=sm.families.links.Log())).fit()
-print(f"OLS on prcp:      R2={m3.rsquared:.3f}  Breusch-Pagan p="
-      f"{het_breuschpagan(m3.resid, m3.model.exog)[1]:.1e}")
-print(f"OLS on log(prcp): R2={m3log.rsquared:.3f}  Breusch-Pagan p="
-      f"{het_breuschpagan(m3log.resid, m3log.model.exog)[1]:.3f}")
-print("coefficients (multiplicative scale):\n" + pd.DataFrame(
-    {"log-OLS": m3log.params, "Gamma GLM log-link": m3gam.params}).round(4).to_string())
+m3gam = smf.glm(
+    "prcp ~ lat + elev_km + lon", data=st, family=sm.families.Gamma(link=sm.families.links.Log())
+).fit()
+print(
+    f"OLS on prcp:      R2={m3.rsquared:.3f}  Breusch-Pagan p="
+    f"{het_breuschpagan(m3.resid, m3.model.exog)[1]:.1e}"
+)
+print(
+    f"OLS on log(prcp): R2={m3log.rsquared:.3f}  Breusch-Pagan p="
+    f"{het_breuschpagan(m3log.resid, m3log.model.exog)[1]:.3f}"
+)
+print(
+    "coefficients (multiplicative scale):\n"
+    + pd.DataFrame({"log-OLS": m3log.params, "Gamma GLM log-link": m3gam.params})
+    .round(4)
+    .to_string()
+)
 note("""Annual precipitation is strictly positive and heteroscedastic (wet places vary more).
 Log-transforming y or using a Gamma GLM with a log link gives multiplicative effects
 (coefficient = fractional change per unit of x). The two sets of coefficients agree closely.

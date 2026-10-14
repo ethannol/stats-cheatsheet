@@ -87,9 +87,13 @@ def _cached_bytes(name: str, url: str, params: dict | None = None) -> bytes:
 
 def _parquet_cached(name: str, builder):
     # A loader edit or a changed date cutoff always rebuilds old parsed caches.
-    return cached_frame(DATA_DIR / f"{name}.parquet", builder,
-                        identity={"loader_sha256": sha256(Path(__file__)),
-                                  "end_date": END_DATE}, data_dir=DATA_DIR, pd=pd)
+    return cached_frame(
+        DATA_DIR / f"{name}.parquet",
+        builder,
+        identity={"loader_sha256": sha256(Path(__file__)), "end_date": END_DATE},
+        data_dir=DATA_DIR,
+        pd=pd,
+    )
 
 
 def _rda(name):
@@ -104,8 +108,9 @@ def co2() -> pd.DataFrame:
     """Monthly Mauna Loa CO2. Columns: co2 (ppm), deseasonalized, ndays, sdev, unc."""
 
     def build():
-        raw = _cached_bytes("co2_mm_mlo.csv",
-                            "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv")
+        raw = _cached_bytes(
+            "co2_mm_mlo.csv", "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv"
+        )
         df = pd.read_csv(io.BytesIO(raw), comment="#")
         df.index = pd.to_datetime(dict(year=df.year, month=df.month, day=1))
         df.index.name = "date"
@@ -121,11 +126,24 @@ def gistemp() -> pd.DataFrame:
     """Monthly global land-ocean anomaly (deg C relative to 1951-1980). Column: anomaly."""
 
     def build():
-        raw = _cached_bytes("gistemp_glb.csv",
-                            "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv")
+        raw = _cached_bytes(
+            "gistemp_glb.csv", "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
+        )
         wide = pd.read_csv(io.BytesIO(raw), skiprows=1, na_values="***")
-        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ]
         long = wide.melt(id_vars="Year", value_vars=months, var_name="mon", value_name="anomaly")
         long["date"] = pd.to_datetime(long.Year.astype(str) + "-" + long.mon, format="%Y-%b")
         out = long.set_index("date").sort_index()[["anomaly"]].dropna()
@@ -144,14 +162,28 @@ def ghcn_daily(station: str = CENTRAL_PARK, start: str = "1950-01-01") -> pd.Dat
 
     def build():
         name = f"ghcnd_{station}.csv" if start == "1950-01-01" else f"ghcnd_{station}_{start}.csv"
-        raw = _cached_bytes(name, NCEI, dict(
-            dataset="daily-summaries", stations=station, startDate=start, endDate=END_DATE,
-            dataTypes="TMAX,TMIN,PRCP,SNOW", format="csv", units="metric",
-            includeStationLocation="1"))
+        raw = _cached_bytes(
+            name,
+            NCEI,
+            dict(
+                dataset="daily-summaries",
+                stations=station,
+                startDate=start,
+                endDate=END_DATE,
+                dataTypes="TMAX,TMIN,PRCP,SNOW",
+                format="csv",
+                units="metric",
+                includeStationLocation="1",
+            ),
+        )
         df = pd.read_csv(io.BytesIO(raw), parse_dates=["DATE"]).set_index("DATE")
         df.index.name = "date"
-        df.attrs = dict(station=station, lat=float(df.LATITUDE.iloc[0]),
-                        lon=float(df.LONGITUDE.iloc[0]), elev=float(df.ELEVATION.iloc[0]))
+        df.attrs = dict(
+            station=station,
+            lat=float(df.LATITUDE.iloc[0]),
+            lon=float(df.LONGITUDE.iloc[0]),
+            elev=float(df.ELEVATION.iloc[0]),
+        )
         df = df.loc[:END_DATE, ["TMAX", "TMIN", "PRCP", "SNOW"]].astype(float)
         # reindex to a complete daily calendar so gaps show up as NaN, not silently missing
         full = pd.date_range(df.index.min(), df.index.max(), freq="D", name="date")
@@ -170,9 +202,18 @@ def usgs_daily(site: str = POTOMAC, start: str = "1930-01-01") -> pd.DataFrame:
 
     def build():
         name = f"usgs_{site}.json" if start == "1930-01-01" else f"usgs_{site}_{start}.json"
-        raw = _cached_bytes(name, NWIS, dict(
-            format="json", sites=site, parameterCd="00060", statCd="00003",
-            startDT=start, endDT=END_DATE))
+        raw = _cached_bytes(
+            name,
+            NWIS,
+            dict(
+                format="json",
+                sites=site,
+                parameterCd="00060",
+                statCd="00003",
+                startDT=start,
+                endDT=END_DATE,
+            ),
+        )
         ts = json.loads(raw)["value"]["timeSeries"][0]
         vals = ts["values"][0]["value"]
         df = pd.DataFrame(vals)
@@ -193,23 +234,47 @@ def clark_fork_flow() -> pd.DataFrame:
 
 
 # ------------------------------------------------------------ station normals
-GSOY_TYPES = ["TAVG", "TMAX", "TMIN", "PRCP", "SNOW", "DP01", "DP10", "DX90", "DX32",
-              "DT32", "DT00", "EMXT", "EMNT", "HTDD", "CLDD"]
+GSOY_TYPES = [
+    "TAVG",
+    "TMAX",
+    "TMIN",
+    "PRCP",
+    "SNOW",
+    "DP01",
+    "DP10",
+    "DX90",
+    "DX32",
+    "DT32",
+    "DT00",
+    "EMXT",
+    "EMNT",
+    "HTDD",
+    "CLDD",
+]
 CONUS = dict(lat_min=24.5, lat_max=49.5, lon_min=-125.0, lon_max=-66.5)
 
 
 def _conus_airport_stations() -> pd.DataFrame:
-    raw = _cached_bytes("ghcnd-stations.txt",
-                        "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt")
+    raw = _cached_bytes(
+        "ghcnd-stations.txt", "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
+    )
     rows = []
     for line in raw.decode("latin-1").splitlines():
         if not line.startswith("USW"):
             continue
-        rows.append(dict(station=line[0:11], lat=float(line[12:20]), lon=float(line[21:30]),
-                         elev=float(line[31:37]), name=line[41:71].strip()))
+        rows.append(
+            dict(
+                station=line[0:11],
+                lat=float(line[12:20]),
+                lon=float(line[21:30]),
+                elev=float(line[31:37]),
+                name=line[41:71].strip(),
+            )
+        )
     st = pd.DataFrame(rows)
-    m = st.lat.between(CONUS["lat_min"], CONUS["lat_max"]) & \
-        st.lon.between(CONUS["lon_min"], CONUS["lon_max"])
+    m = st.lat.between(CONUS["lat_min"], CONUS["lat_max"]) & st.lon.between(
+        CONUS["lon_min"], CONUS["lon_max"]
+    )
     return st[m].reset_index(drop=True)
 
 
@@ -222,18 +287,30 @@ def station_annual(start: str = "1991-01-01", end: str = "2020-12-31") -> pd.Dat
         chunk = 100
         default = (start, end) == ("1991-01-01", "2020-12-31")
         for i in range(0, len(stations), chunk):
-            ids = ",".join(stations.station.iloc[i:i + chunk])
+            ids = ",".join(stations.station.iloc[i : i + chunk])
             name = f"gsoy_{i:04d}.csv" if default else f"gsoy_{i:04d}_{start}_{end}.csv"
-            raw = _cached_bytes(name, NCEI, dict(
-                dataset="global-summary-of-the-year", stations=ids, startDate=start,
-                endDate=end, dataTypes=",".join(GSOY_TYPES), format="csv", units="metric",
-                includeStationLocation="1", includeStationName="1"))
+            raw = _cached_bytes(
+                name,
+                NCEI,
+                dict(
+                    dataset="global-summary-of-the-year",
+                    stations=ids,
+                    startDate=start,
+                    endDate=end,
+                    dataTypes=",".join(GSOY_TYPES),
+                    format="csv",
+                    units="metric",
+                    includeStationLocation="1",
+                    includeStationName="1",
+                ),
+            )
             if raw.strip():
                 frames.append(pd.read_csv(io.BytesIO(raw)))
         df = pd.concat(frames, ignore_index=True)
         df.columns = [c.lower() for c in df.columns]
-        df = df.rename(columns={"date": "year", "latitude": "lat", "longitude": "lon",
-                                "elevation": "elev"})
+        df = df.rename(
+            columns={"date": "year", "latitude": "lat", "longitude": "lon", "elevation": "elev"}
+        )
         return df
 
     return _parquet_cached(f"gsoy_annual_{start}_{end}", build)
@@ -285,8 +362,11 @@ def walker_exhaustive() -> pd.DataFrame:
     def build():
         e = _rda("walker.rda")["walker.exh"]
         g = vars(e.grid)
-        off, cs, dim = (np.asarray(g["cellcentre.offset"]), np.asarray(g["cellsize"]),
-                        np.asarray(g["cells.dim"]).astype(int))
+        off, cs, dim = (
+            np.asarray(g["cellcentre.offset"]),
+            np.asarray(g["cellsize"]),
+            np.asarray(g["cells.dim"]).astype(int),
+        )
         xs = off[0] + cs[0] * np.arange(dim[0])
         ys = off[1] + cs[1] * np.arange(dim[1])
         X, Y = np.meshgrid(xs, ys[::-1])  # top row first
@@ -311,8 +391,24 @@ def jura() -> pd.DataFrame:
         df = df.rename(columns={"xloc": "x", "yloc": "y"})
         for c in ["landuse", "rock", "set"]:
             df[c] = df[c].astype(str)
-        return df[["x", "y", "long", "lat", "landuse", "rock", "cd", "co", "cr", "cu", "ni", "pb",
-                   "zn", "set"]]
+        return df[
+            [
+                "x",
+                "y",
+                "long",
+                "lat",
+                "landuse",
+                "rock",
+                "cd",
+                "co",
+                "cr",
+                "cu",
+                "ni",
+                "pb",
+                "zn",
+                "set",
+            ]
+        ]
 
     return _parquet_cached("jura", build)
 
@@ -336,9 +432,17 @@ def _msha_txt(zip_name: str, usecols=None) -> pd.DataFrame:
     with zipfile.ZipFile(io.BytesIO(raw)) as z:
         member = z.namelist()[0]
         with z.open(member) as f:
-            return pd.read_csv(f, sep="|", encoding="latin-1", usecols=usecols, dtype=str,
-                               quotechar='"', na_values=["", "?", "NO VALUE FOUND"],
-                               keep_default_na=True, low_memory=False)
+            return pd.read_csv(
+                f,
+                sep="|",
+                encoding="latin-1",
+                usecols=usecols,
+                dtype=str,
+                quotechar='"',
+                na_values=["", "?", "NO VALUE FOUND"],
+                keep_default_na=True,
+                low_memory=False,
+            )
 
 
 def msha_mines() -> pd.DataFrame:
@@ -346,10 +450,21 @@ def msha_mines() -> pd.DataFrame:
     state, lat/lon, employees."""
 
     def build():
-        cols = ["MINE_ID", "CURRENT_MINE_NAME", "COAL_METAL_IND", "CURRENT_MINE_TYPE",
-                "CURRENT_MINE_STATUS", "CURRENT_STATUS_DT", "STATE", "PRIMARY_SIC",
-                "PRIMARY_CANVASS",
-                "LONGITUDE", "LATITUDE", "NO_EMPLOYEES", "CURRENT_CONTROLLER_NAME"]
+        cols = [
+            "MINE_ID",
+            "CURRENT_MINE_NAME",
+            "COAL_METAL_IND",
+            "CURRENT_MINE_TYPE",
+            "CURRENT_MINE_STATUS",
+            "CURRENT_STATUS_DT",
+            "STATE",
+            "PRIMARY_SIC",
+            "PRIMARY_CANVASS",
+            "LONGITUDE",
+            "LATITUDE",
+            "NO_EMPLOYEES",
+            "CURRENT_CONTROLLER_NAME",
+        ]
         df = _msha_txt("Mines.zip", usecols=cols)
         df.columns = [c.lower() for c in df.columns]
         for c in ["longitude", "latitude", "no_employees"]:
@@ -367,12 +482,27 @@ def msha_production() -> pd.DataFrame:
     def build():
         df = _msha_txt("MinesProdYearly.zip")
         df.columns = [c.lower() for c in df.columns]
-        for c in ["calendar_yr", "annual_hrs", "annual_coal_prod", "avg_annual_empl",
-                  "avg_employee_hours"]:
+        for c in [
+            "calendar_yr",
+            "annual_hrs",
+            "annual_coal_prod",
+            "avg_annual_empl",
+            "avg_employee_hours",
+        ]:
             df[c] = pd.to_numeric(df[c], errors="coerce")
         df = df.rename(columns={"calendar_yr": "year", "c_m_ind": "coal_metal_ind"})
-        cols = ["mine_id", "curr_mine_nm", "state_abbr", "subunit_cd", "subunit_desc", "year",
-                "annual_hrs", "annual_coal_prod", "avg_annual_empl", "coal_metal_ind"]
+        cols = [
+            "mine_id",
+            "curr_mine_nm",
+            "state_abbr",
+            "subunit_cd",
+            "subunit_desc",
+            "year",
+            "annual_hrs",
+            "annual_coal_prod",
+            "avg_annual_empl",
+            "coal_metal_ind",
+        ]
         return df.loc[df.year <= int(END_DATE[:4]), cols]
 
     return _parquet_cached("msha_production", build)
@@ -382,15 +512,43 @@ def msha_accidents() -> pd.DataFrame:
     """One row per reportable accident/injury/illness (~275k since 2000), selected columns."""
 
     def build():
-        cols = ["MINE_ID", "SUBUNIT_CD", "SUBUNIT", "ACCIDENT_DT", "CAL_YR", "DEGREE_INJURY_CD",
-                "DEGREE_INJURY", "MINING_EQUIP", "CLASSIFICATION", "ACCIDENT_TYPE", "NO_INJURIES",
-                "TOT_EXPER", "MINE_EXPER", "JOB_EXPER", "OCCUPATION", "ACTIVITY", "INJURY_SOURCE",
-                "NATURE_INJURY", "INJ_BODY_PART", "DAYS_RESTRICT", "DAYS_LOST", "COAL_METAL_IND"]
+        cols = [
+            "MINE_ID",
+            "SUBUNIT_CD",
+            "SUBUNIT",
+            "ACCIDENT_DT",
+            "CAL_YR",
+            "DEGREE_INJURY_CD",
+            "DEGREE_INJURY",
+            "MINING_EQUIP",
+            "CLASSIFICATION",
+            "ACCIDENT_TYPE",
+            "NO_INJURIES",
+            "TOT_EXPER",
+            "MINE_EXPER",
+            "JOB_EXPER",
+            "OCCUPATION",
+            "ACTIVITY",
+            "INJURY_SOURCE",
+            "NATURE_INJURY",
+            "INJ_BODY_PART",
+            "DAYS_RESTRICT",
+            "DAYS_LOST",
+            "COAL_METAL_IND",
+        ]
         df = _msha_txt("Accidents.zip", usecols=cols)
         df.columns = [c.lower() for c in df.columns]
         df["accident_dt"] = pd.to_datetime(df.accident_dt, format="%m/%d/%Y", errors="coerce")
-        for c in ["cal_yr", "degree_injury_cd", "no_injuries", "tot_exper", "mine_exper",
-                  "job_exper", "days_restrict", "days_lost"]:
+        for c in [
+            "cal_yr",
+            "degree_injury_cd",
+            "no_injuries",
+            "tot_exper",
+            "mine_exper",
+            "job_exper",
+            "days_restrict",
+            "days_lost",
+        ]:
             df[c] = pd.to_numeric(df[c], errors="coerce")
         return df.loc[df.accident_dt <= END_DATE].rename(columns={"cal_yr": "year"})
 
@@ -403,17 +561,28 @@ def clark_fork_wq() -> pd.DataFrame:
     detection limit. Metals in ug/L; pH in standard units."""
 
     def build():
-        raw = _cached_bytes("wqp_clark_fork.csv", WQP, dict(
-            siteid=f"USGS-{CLARK_FORK}", mimeType="csv", zip="no",
-            characteristicName=["Copper", "Zinc", "Arsenic", "Cadmium", "Lead", "pH"]))
+        raw = _cached_bytes(
+            "wqp_clark_fork.csv",
+            WQP,
+            dict(
+                siteid=f"USGS-{CLARK_FORK}",
+                mimeType="csv",
+                zip="no",
+                characteristicName=["Copper", "Zinc", "Arsenic", "Cadmium", "Lead", "pH"],
+            ),
+        )
         df = pd.read_csv(io.BytesIO(raw), low_memory=False)
-        keep = {"ActivityStartDate": "date", "CharacteristicName": "characteristic",
-                "ResultSampleFractionText": "fraction", "ResultMeasureValue": "value",
-                "ResultMeasure/MeasureUnitCode": "unit",
-                "ResultDetectionConditionText": "detect_cond",
-                "DetectionQuantitationLimitMeasure/MeasureValue": "dl",
-                "DetectionQuantitationLimitMeasure/MeasureUnitCode": "dl_unit",
-                "ActivityMediaName": "media"}
+        keep = {
+            "ActivityStartDate": "date",
+            "CharacteristicName": "characteristic",
+            "ResultSampleFractionText": "fraction",
+            "ResultMeasureValue": "value",
+            "ResultMeasure/MeasureUnitCode": "unit",
+            "ResultDetectionConditionText": "detect_cond",
+            "DetectionQuantitationLimitMeasure/MeasureValue": "dl",
+            "DetectionQuantitationLimitMeasure/MeasureUnitCode": "dl_unit",
+            "ActivityMediaName": "media",
+        }
         df = df[list(keep)].rename(columns=keep)
         df = df[df.media == "Water"].drop(columns="media")
         df["date"] = pd.to_datetime(df.date)
@@ -433,11 +602,24 @@ def clark_fork_wq() -> pd.DataFrame:
 
 
 # ------------------------------------------------------------ commodity prices
-CMO_URL = ("https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/"
-           "related/CMO-Historical-Data-Monthly.xlsx")
-METALS = {"gold": "Gold", "silver": "Silver", "platinum": "Platinum", "copper": "Copper",
-          "aluminum": "Aluminum", "nickel": "Nickel", "zinc": "Zinc", "lead": "Lead", "tin": "Tin",
-          "iron_ore": "Iron ore", "coal_aus": "Coal, Australian", "crude_oil": "Crude oil, average"}
+CMO_URL = (
+    "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/"
+    "related/CMO-Historical-Data-Monthly.xlsx"
+)
+METALS = {
+    "gold": "Gold",
+    "silver": "Silver",
+    "platinum": "Platinum",
+    "copper": "Copper",
+    "aluminum": "Aluminum",
+    "nickel": "Nickel",
+    "zinc": "Zinc",
+    "lead": "Lead",
+    "tin": "Tin",
+    "iron_ore": "Iron ore",
+    "coal_aus": "Coal, Australian",
+    "crude_oil": "Crude oil, average",
+}
 
 
 def commodity_prices() -> pd.DataFrame:
@@ -485,15 +667,20 @@ def assay_qaqc(seed: int = 7) -> dict[str, pd.DataFrame]:
     true = np.exp(rng.normal(np.log(0.8), 1.0, n_dup))  # lognormal, median 0.8 g/t
     rel_sd = 0.12
     abs_sd = 0.02
-    sd = np.sqrt((rel_sd * true) ** 2 + abs_sd ** 2)  # each member carries its own error
+    sd = np.sqrt((rel_sd * true) ** 2 + abs_sd**2)  # each member carries its own error
     orig = np.maximum(true + rng.normal(0, 1, n_dup) * sd, DL)
     dup = np.maximum(true + rng.normal(0, 1, n_dup) * sd, DL)
     batch = rng.integers(1, 121, n_dup)
     swap = rng.choice(n_dup, 6, replace=False)
     dup[swap] = np.exp(rng.normal(np.log(0.8), 1.0, 6))  # unrelated sample
-    duplicates = pd.DataFrame({"batch": batch, "original": orig, "duplicate": dup,
-                               "planted_swap": np.isin(np.arange(n_dup),
-                                   swap)}).sort_values("batch")
+    duplicates = pd.DataFrame(
+        {
+            "batch": batch,
+            "original": orig,
+            "duplicate": dup,
+            "planted_swap": np.isin(np.arange(n_dup), swap),
+        }
+    ).sort_values("batch")
 
     crms = {"CRM-A": (0.52, 0.025), "CRM-B": (1.85, 0.07), "CRM-C": (4.10, 0.14)}
     rows = []
@@ -501,8 +688,18 @@ def assay_qaqc(seed: int = 7) -> dict[str, pd.DataFrame]:
         b = np.sort(rng.integers(1, 121, 60))
         val = rng.normal(cert, sd * 0.9, 60)
         bias = np.where((b >= 70) & (b <= 90), 1.08, 1.0)
-        rows.append(pd.DataFrame({"crm": name, "batch": b, "certified": cert, "cert_sd": sd,
-                                  "assay": val * bias, "planted_bias": bias > 1}))
+        rows.append(
+            pd.DataFrame(
+                {
+                    "crm": name,
+                    "batch": b,
+                    "certified": cert,
+                    "cert_sd": sd,
+                    "assay": val * bias,
+                    "planted_bias": bias > 1,
+                }
+            )
+        )
     crm = pd.concat(rows, ignore_index=True)
     mix = rng.choice(len(crm), 3, replace=False)
     crm["planted_mixup"] = False
@@ -515,10 +712,15 @@ def assay_qaqc(seed: int = 7) -> dict[str, pd.DataFrame]:
     prev_grade = np.exp(rng.normal(np.log(0.8), 1.0, n_bl))
     contaminated = rng.choice(np.where(prev_grade > 3)[0], 7, replace=False)
     blank[contaminated] += prev_grade[contaminated] * rng.uniform(0.004, 0.02, 7)
-    blanks = pd.DataFrame({"batch": bl_batch, "assay": np.maximum(blank, 0),
-        "prev_grade": prev_grade,
-                           "below_dl": blank < DL, "planted_contamination":
-                           np.isin(np.arange(n_bl), contaminated)})
+    blanks = pd.DataFrame(
+        {
+            "batch": bl_batch,
+            "assay": np.maximum(blank, 0),
+            "prev_grade": prev_grade,
+            "below_dl": blank < DL,
+            "planted_contamination": np.isin(np.arange(n_bl), contaminated),
+        }
+    )
     blanks["assay_reported"] = np.where(blanks.below_dl, DL / 2, blanks.assay)
     return {"duplicates": duplicates, "crm": crm, "blanks": blanks, "dl": DL}
 
@@ -535,9 +737,11 @@ def equipment_failures(seed: int = 11) -> dict[str, pd.DataFrame]:
     """
     rng = np.random.default_rng(seed)
     horizon = 3 * 365 * 24.0
-    comps = {"engine": (2.4, 2400.0, (np.log(18), 0.5)),
-             "hydraulics": (0.85, 900.0, (np.log(6), 0.6)),
-             "tyres": (3.0, 1800.0, (np.log(4), 0.3))}
+    comps = {
+        "engine": (2.4, 2400.0, (np.log(18), 0.5)),
+        "hydraulics": (0.85, 900.0, (np.log(6), 0.6)),
+        "tyres": (3.0, 1800.0, (np.log(4), 0.3)),
+    }
     rows = []
     for truck in range(1, 13):
         for comp, (beta, eta, (mu, s)) in comps.items():
@@ -545,8 +749,9 @@ def equipment_failures(seed: int = 11) -> dict[str, pd.DataFrame]:
             while t < horizon:
                 tbf = eta * rng.weibull(beta)
                 if t + tbf > horizon:
-                    rows.append(dict(truck=truck, component=comp, tbf=horizon - t, ttr=np.nan,
-                        event=0))
+                    rows.append(
+                        dict(truck=truck, component=comp, tbf=horizon - t, ttr=np.nan, event=0)
+                    )
                     break
                 ttr = np.exp(rng.normal(mu, s))
                 rows.append(dict(truck=truck, component=comp, tbf=tbf, ttr=ttr, event=1))
@@ -556,8 +761,9 @@ def equipment_failures(seed: int = 11) -> dict[str, pd.DataFrame]:
     base = 48000 + 2500 * np.sin(2 * np.pi * np.arange(days) / 365)  # seasonal (weather) effect
     tonnes = rng.normal(base, 3000)
     tonnes[600:] *= 0.93
-    production = pd.DataFrame({"day": np.arange(1, days + 1), "tonnes": tonnes,
-                               "planted_shift": np.arange(days) >= 600})
+    production = pd.DataFrame(
+        {"day": np.arange(1, days + 1), "tonnes": tonnes, "planted_shift": np.arange(days) >= 600}
+    )
     return {"failures": failures, "production": production}
 
 
@@ -577,22 +783,33 @@ def drillhole_from_walker(column_x: int = 120, seed: int = 3) -> pd.DataFrame:
         m = (depth >= start) & (depth < end)
         if m.sum() == 0:
             m = np.argmin(np.abs(depth - start))
-        rows.append(dict(**{"from": start, "to": end}, length=end - start,
-            grade=float(np.mean(v[m]))))
+        rows.append(
+            dict(**{"from": start, "to": end}, length=end - start, grade=float(np.mean(v[m])))
+        )
         start = end
     return pd.DataFrame(rows)
 
 
 def fetch_all():
     print("Fetching / verifying cached datasets", file=sys.stderr)
-    loaders = [("co2", co2), ("gistemp", gistemp), ("ghcn_daily", ghcn_daily),
-               ("ghcn_daily(DC)", lambda: ghcn_daily(REAGAN_NATIONAL)), ("usgs_daily", usgs_daily),
-               ("station_normals", station_normals), ("walker", walker),
-               ("walker_exhaustive", walker_exhaustive), ("jura", jura),
-               ("gslib_cluster", gslib_cluster), ("msha_mines", msha_mines),
-               ("msha_production", msha_production), ("msha_accidents", msha_accidents),
-               ("clark_fork_wq", clark_fork_wq), ("clark_fork_flow", clark_fork_flow),
-               ("commodity_prices", commodity_prices)]
+    loaders = [
+        ("co2", co2),
+        ("gistemp", gistemp),
+        ("ghcn_daily", ghcn_daily),
+        ("ghcn_daily(DC)", lambda: ghcn_daily(REAGAN_NATIONAL)),
+        ("usgs_daily", usgs_daily),
+        ("station_normals", station_normals),
+        ("walker", walker),
+        ("walker_exhaustive", walker_exhaustive),
+        ("jura", jura),
+        ("gslib_cluster", gslib_cluster),
+        ("msha_mines", msha_mines),
+        ("msha_production", msha_production),
+        ("msha_accidents", msha_accidents),
+        ("clark_fork_wq", clark_fork_wq),
+        ("clark_fork_flow", clark_fork_flow),
+        ("commodity_prices", commodity_prices),
+    ]
     for label, fn in loaders:
         df = fn()
         print(f"  {label:18s} {df.shape}", file=sys.stderr)

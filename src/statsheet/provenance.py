@@ -1,4 +1,5 @@
 """Hash-checked download and parsed caches; metadata never invents retrieval history."""
+
 from __future__ import annotations
 
 import hashlib
@@ -27,13 +28,24 @@ def cached_bytes(path: Path, url: str, params: dict | None, fetch, *, pinned=Fal
         temporary.write_bytes(payload)
         temporary.replace(path)
         now = datetime.now(UTC).isoformat()
-        meta = {"request": request, "retrieved_at": now, "observed_at": now,
-                "origin": "downloaded", "sha256": sha256(path), "bytes": path.stat().st_size}
+        meta = {
+            "request": request,
+            "retrieved_at": now,
+            "observed_at": now,
+            "origin": "downloaded",
+            "sha256": sha256(path),
+            "bytes": path.stat().st_size,
+        }
     elif meta is None:
-        meta = {"request": request, "retrieved_at": None,
-                "observed_at": datetime.now(UTC).isoformat(), "origin": "legacy-cache",
-                "note": "Request describes the loader; original retrieval history is unavailable.",
-                "sha256": sha256(path), "bytes": path.stat().st_size}
+        meta = {
+            "request": request,
+            "retrieved_at": None,
+            "observed_at": datetime.now(UTC).isoformat(),
+            "origin": "legacy-cache",
+            "note": "Request describes the loader; original retrieval history is unavailable.",
+            "sha256": sha256(path),
+            "bytes": path.stat().st_size,
+        }
     sidecar.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n")
     return path.read_bytes()
 
@@ -43,18 +55,29 @@ def cached_frame(path: Path, builder, *, identity: dict, data_dir: Path, pd):
     sidecar = path.with_name(path.name + ".metadata.json")
     meta = json.loads(sidecar.read_text()) if sidecar.exists() else None
     raw = data_dir / "raw"
-    inputs = {p.name: sha256(p) for p in sorted(raw.glob("*"))
-              if p.is_file() and not p.name.endswith((".metadata.json", ".download"))}
+    inputs = {
+        p.name: sha256(p)
+        for p in sorted(raw.glob("*"))
+        if p.is_file() and not p.name.endswith((".metadata.json", ".download"))
+    }
     if path.exists() and meta and meta["identity"] == identity and meta["raw_inputs"] == inputs:
         if sha256(path) != meta["sha256"]:
             raise ValueError(f"parsed cache changed: {path}")
         return pd.read_parquet(path)
     frame = builder()
     frame.to_parquet(path)
-    inputs = {p.name: sha256(p) for p in sorted(raw.glob("*"))
-              if p.is_file() and not p.name.endswith((".metadata.json", ".download"))}
-    meta = {"identity": identity, "raw_inputs": inputs, "sha256": sha256(path),
-            "rows": len(frame), "columns": list(frame.columns)}
+    inputs = {
+        p.name: sha256(p)
+        for p in sorted(raw.glob("*"))
+        if p.is_file() and not p.name.endswith((".metadata.json", ".download"))
+    }
+    meta = {
+        "identity": identity,
+        "raw_inputs": inputs,
+        "sha256": sha256(path),
+        "rows": len(frame),
+        "columns": list(frame.columns),
+    }
     sidecar.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n")
     return frame
 

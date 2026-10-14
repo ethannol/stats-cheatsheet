@@ -37,18 +37,26 @@ dup, crm, bl, DL = qa["duplicates"], qa["crm"], qa["blanks"], qa["dl"]
 # %% ----------------------------------------------------------- duplicates
 banner("Field duplicates: precision")
 h = hard(dup.original, dup.duplicate)
-p90 = np.quantile(h, .9)
-print(f"{len(dup)} pairs; HARD median={np.median(h):.3f}, 90th percentile={p90:.3f} "
-      f"({'passes' if p90 < .2 else 'fails'} the 90% < 20% criterion)")
-n_flag = (h > .5).sum()
-n_caught = (dup.planted_swap & (h > .5)).sum()
-print(f"pairs with HARD > 0.5: {n_flag}  (planted swaps: {dup.planted_swap.sum()}, of which flagged: {n_caught})")
+p90 = np.quantile(h, 0.9)
+print(
+    f"{len(dup)} pairs; HARD median={np.median(h):.3f}, 90th percentile={p90:.3f} "
+    f"({'passes' if p90 < 0.2 else 'fails'} the 90% < 20% criterion)"
+)
+n_flag = (h > 0.5).sum()
+n_caught = (dup.planted_swap & (h > 0.5)).sum()
+print(
+    f"pairs with HARD > 0.5: {n_flag}  (planted swaps: {dup.planted_swap.sum()}, of which flagged: {n_caught})"
+)
 bm, bsd, s0, k = thompson_howarth(dup.original, dup.duplicate)
-print(f"Thompson-Howarth: sd = {s0:.3f} + {k:.3f} * c   -> precision at 1 g/t = {(s0 + k) / 1 * 100:.0f}% "
-      f"(generated with sd = sqrt((0.12 c)^2 + 0.02^2), i.e. 12% at high grade, 0.02 g/t floor)")
+print(
+    f"Thompson-Howarth: sd = {s0:.3f} + {k:.3f} * c   -> precision at 1 g/t = {(s0 + k) / 1 * 100:.0f}% "
+    f"(generated with sd = sqrt((0.12 c)^2 + 0.02^2), i.e. 12% at high grade, 0.02 g/t floor)"
+)
 ratio = dup.duplicate.mean() / dup.original.mean()
-print(f"mean duplicate / mean original = {ratio:.3f} (should be ~1; a systematic departure means "
-      f"the duplicate stream is treated differently)")
+print(
+    f"mean duplicate / mean original = {ratio:.3f} (should be ~1; a systematic departure means "
+    f"the duplicate stream is treated differently)"
+)
 note(f"""HARD summarises precision in one number per pair; its 90th percentile ({p90:.2f}) is
 the figure that goes in the QA/QC report. The Thompson-Howarth line recovers the generating
 model (a concentration-proportional term plus an absolute floor), which is how one should
@@ -58,20 +66,26 @@ similar grade is invisible to any duplicate statistic, which is why sample track
 chain of custody) matters more than statistics for gross errors.""")
 
 fig, axes = plt.subplots(1, 3, figsize=(16, 4.6))
-axes[0].loglog(dup.original, dup.duplicate, ".", alpha=.6)
+axes[0].loglog(dup.original, dup.duplicate, ".", alpha=0.6)
 lim = [DL, dup[["original", "duplicate"]].max().max() * 1.2]
-axes[0].plot(lim, lim, "k-", lw=.8)
-axes[0].plot(lim, [v * 1.2 for v in lim], "k:", lw=.8)
-axes[0].plot(lim, [v / 1.2 for v in lim], "k:", lw=.8)
-axes[0].scatter(dup.original[dup.planted_swap], dup.duplicate[dup.planted_swap], s=60,
-                facecolor="none", edgecolor="C3", label="planted swaps")
+axes[0].plot(lim, lim, "k-", lw=0.8)
+axes[0].plot(lim, [v * 1.2 for v in lim], "k:", lw=0.8)
+axes[0].plot(lim, [v / 1.2 for v in lim], "k:", lw=0.8)
+axes[0].scatter(
+    dup.original[dup.planted_swap],
+    dup.duplicate[dup.planted_swap],
+    s=60,
+    facecolor="none",
+    edgecolor="C3",
+    label="planted swaps",
+)
 axes[0].set_xlabel("original (g/t)")
 axes[0].set_ylabel("duplicate (g/t)")
 axes[0].set_title("Duplicate scatter (dotted = +-20%)")
 axes[0].legend()
 mean_pair = 0.5 * (dup.original + dup.duplicate)
-axes[1].semilogx(mean_pair, h, ".", alpha=.6)
-axes[1].axhline(.2, color="C3", ls="--", label="20%")
+axes[1].semilogx(mean_pair, h, ".", alpha=0.6)
+axes[1].axhline(0.2, color="C3", ls="--", label="20%")
 axes[1].axhline(p90, color="C1", ls=":", label=f"observed P90={p90:.2f}")
 axes[1].set_xlabel("pair mean (g/t)")
 axes[1].set_ylabel("HARD")
@@ -97,17 +111,21 @@ for ax, (name, g) in zip(axes, crm.groupby("crm")):
     warn = (np.abs(z) > 2) & ~out3
     clean = g[~out3]
     bias = (clean.assay.mean() / clean.certified.iloc[0] - 1) * 100
-    cp, cm, sig = cusum(clean.assay.values, clean.certified.iloc[0], clean.cert_sd.iloc[0], k=0.5, h=4)
+    cp, cm, sig = cusum(
+        clean.assay.values, clean.certified.iloc[0], clean.cert_sd.iloc[0], k=0.5, h=4
+    )
     first_sig_batch = int(clean.batch.iloc[sig[0]]) if len(sig) else None
-    print(f"{name}: certified {g.certified.iloc[0]:.2f}; {out3.sum()} points beyond 3SD (planted mix-ups in "
-          f"this CRM: {g.planted_mixup.sum()}); {warn.sum()} warnings; overall bias (ex-outliers)={bias:+.1f}%; "
-          f"CUSUM signals at batch {first_sig_batch}")
-    ax.plot(g.batch, g.assay, "o-", ms=3, lw=.6)
+    print(
+        f"{name}: certified {g.certified.iloc[0]:.2f}; {out3.sum()} points beyond 3SD (planted mix-ups in "
+        f"this CRM: {g.planted_mixup.sum()}); {warn.sum()} warnings; overall bias (ex-outliers)={bias:+.1f}%; "
+        f"CUSUM signals at batch {first_sig_batch}"
+    )
+    ax.plot(g.batch, g.assay, "o-", ms=3, lw=0.6)
     for s_, ls in [(2, "--"), (3, "-")]:
-        ax.axhline(g.certified.iloc[0] + s_ * g.cert_sd.iloc[0], color="C3", ls=ls, lw=.8)
-        ax.axhline(g.certified.iloc[0] - s_ * g.cert_sd.iloc[0], color="C3", ls=ls, lw=.8)
-    ax.axhline(g.certified.iloc[0], color="k", lw=.8)
-    ax.axvspan(70, 90, color="C1", alpha=.15, label="planted +8% bias period")
+        ax.axhline(g.certified.iloc[0] + s_ * g.cert_sd.iloc[0], color="C3", ls=ls, lw=0.8)
+        ax.axhline(g.certified.iloc[0] - s_ * g.cert_sd.iloc[0], color="C3", ls=ls, lw=0.8)
+    ax.axhline(g.certified.iloc[0], color="k", lw=0.8)
+    ax.axvspan(70, 90, color="C1", alpha=0.15, label="planted +8% bias period")
     ax.set_ylabel(f"{name} (g/t)")
     if ax is axes[0]:
         ax.legend(loc="upper left")
@@ -124,20 +142,24 @@ a blank/contamination problem.""")
 # %% ----------------------------------------------------------- blanks
 banner("Blanks: contamination and carry-over")
 fail = bl.assay > 5 * DL
-print(f"{len(bl)} blanks; {bl.below_dl.sum()} below DL; {fail.sum()} above 5xDL "
-      f"(planted carry-over events: {bl.planted_contamination.sum()}, flagged: {(fail & bl.planted_contamination).sum()})")
+print(
+    f"{len(bl)} blanks; {bl.below_dl.sum()} below DL; {fail.sum()} above 5xDL "
+    f"(planted carry-over events: {bl.planted_contamination.sum()}, flagged: {(fail & bl.planted_contamination).sum()})"
+)
 hi_prev = bl.prev_grade > 3
-print(f"mean blank after a >3 g/t sample: {bl.assay[hi_prev].mean() * 1000:.1f} ppb vs "
-      f"{bl.assay[~hi_prev].mean() * 1000:.1f} ppb otherwise")
+print(
+    f"mean blank after a >3 g/t sample: {bl.assay[hi_prev].mean() * 1000:.1f} ppb vs "
+    f"{bl.assay[~hi_prev].mean() * 1000:.1f} ppb otherwise"
+)
 fig, axes = plt.subplots(1, 2, figsize=(12, 4.3))
-axes[0].semilogy(bl.batch, np.maximum(bl.assay, DL / 10), ".", alpha=.7)
+axes[0].semilogy(bl.batch, np.maximum(bl.assay, DL / 10), ".", alpha=0.7)
 axes[0].axhline(DL, color="k", ls="--", label="DL")
 axes[0].axhline(5 * DL, color="C3", ls="-", label="5 x DL action")
 axes[0].set_xlabel("batch")
 axes[0].set_ylabel("blank assay (g/t)")
 axes[0].set_title("Blank chart")
 axes[0].legend()
-axes[1].loglog(bl.prev_grade, np.maximum(bl.assay, DL / 10), ".", alpha=.7)
+axes[1].loglog(bl.prev_grade, np.maximum(bl.assay, DL / 10), ".", alpha=0.7)
 axes[1].axhline(5 * DL, color="C3")
 axes[1].set_xlabel("grade of preceding sample (g/t)")
 axes[1].set_ylabel("blank assay (g/t)")
@@ -155,27 +177,45 @@ wq = data.clark_fork_wq()
 metals = wq[(wq.characteristic != "pH") & (wq.unit == "ug/l")]
 nd_counts = metals.groupby(["characteristic", "fraction"]).nondetect.agg(["sum", "size"])
 nd_counts["pct"] = nd_counts["sum"] / nd_counts["size"] * 100
-print("non-detects by analyte:\n" + nd_counts.sort_values("sum", ascending=False).head(6).round(0).to_string())
+print(
+    "non-detects by analyte:\n"
+    + nd_counts.sort_values("sum", ascending=False).head(6).round(0).to_string()
+)
 char, frac = nd_counts["sum"].idxmax()
 cu = metals[(metals.characteristic == char) & (metals.fraction == frac)].copy()
 n_cens = cu.nondetect.sum()
-print(f"\nusing {frac.lower()} {char.lower()}: {len(cu)} results, {n_cens} non-detects ({n_cens / len(cu) * 100:.0f}%), "
-      f"detection limits used: {sorted(cu.loc[cu.nondetect, 'value'].unique())}")
+print(
+    f"\nusing {frac.lower()} {char.lower()}: {len(cu)} results, {n_cens} non-detects ({n_cens / len(cu) * 100:.0f}%), "
+    f"detection limits used: {sorted(cu.loc[cu.nondetect, 'value'].unique())}"
+)
 v, c = cu.value.values, cu.nondetect.values
 km = km_left_censored(v, c)
 ros = ros_lognormal(v, c)
-subs = {"substitute 0": np.where(c, 0, v), "substitute DL/2": np.where(c, v / 2, v), "substitute DL": v}
-rows = [{"method": k, "mean": s.mean(), "median": np.median(s), "sd": s.std(ddof=1)} for k, s in subs.items()]
+subs = {
+    "substitute 0": np.where(c, 0, v),
+    "substitute DL/2": np.where(c, v / 2, v),
+    "substitute DL": v,
+}
+rows = [
+    {"method": k, "mean": s.mean(), "median": np.median(s), "sd": s.std(ddof=1)}
+    for k, s in subs.items()
+]
 rows.append({"method": "Kaplan-Meier", "mean": km["mean"], "median": km["median"], "sd": np.nan})
-rows.append({"method": "ROS (lognormal)", "mean": ros["mean"], "median": ros["median"],
-             "sd": ros["imputed_values"].std(ddof=1)})
+rows.append(
+    {
+        "method": "ROS (lognormal)",
+        "mean": ros["mean"],
+        "median": ros["median"],
+        "sd": ros["imputed_values"].std(ddof=1),
+    }
+)
 print(pd.DataFrame(rows).round(2).to_string(index=False))
 res_tab = pd.DataFrame(rows).set_index("method")
 spread = res_tab["mean"].max() - res_tab["mean"].min()
 note(f"""With {n_cens / len(cu) * 100:.0f}% non-detects and detection limits spanning three orders of
 magnitude (one old method reported '< 100'), substitution alone moves the mean from
-{res_tab['mean'].min():.2f} to {res_tab['mean'].max():.2f} ug/L against a Kaplan-Meier estimate of
-{res_tab.loc['Kaplan-Meier', 'mean']:.2f}. Kaplan-Meier needs no distributional assumption and is the regulatory default
+{res_tab["mean"].min():.2f} to {res_tab["mean"].max():.2f} ug/L against a Kaplan-Meier estimate of
+{res_tab.loc["Kaplan-Meier", "mean"]:.2f}. Kaplan-Meier needs no distributional assumption and is the regulatory default
 (EPA ProUCL, Helsel); ROS assumes lognormality and extrapolates below the DL; substitution is
 never right and gets worse when detection limits changed over time, as they did here. Above
 ~50% censoring, stop estimating means and report the upper percentiles only.""")
@@ -184,7 +224,9 @@ fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
 axes[0].semilogy(cu.date[~c], v[~c], ".", ms=4, label="detected")
 axes[0].semilogy(cu.date[c], v[c], "v", ms=5, color="C3", label="non-detect (plotted at DL)")
 axes[0].set_ylabel(f"{frac.lower()} {char} (ug/L)")
-axes[0].set_title(f"Clark Fork {frac.lower()} {char.lower()}: non-detects and changing detection limits")
+axes[0].set_title(
+    f"Clark Fork {frac.lower()} {char.lower()}: non-detects and changing detection limits"
+)
 axes[0].legend()
 axes[1].step(km["x"], km["F"], where="post", label="Kaplan-Meier CDF")
 srt = np.sort(ros["imputed_values"])

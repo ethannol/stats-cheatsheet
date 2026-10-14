@@ -39,8 +39,10 @@ banner("Potomac annual peak daily flow: GEV vs Gumbel vs log-Pearson III")
 q = data.usgs_daily().flow_cfs
 wy = q.index.year + (q.index.month >= 10)
 amax = q.groupby(wy).max().loc[1931:2025].dropna() / 1000  # kcfs
-print(f"n={len(amax)} water years; median peak {amax.median():.0f} kcfs; record "
-      f"{amax.max():.0f} kcfs in WY{amax.idxmax()}")
+print(
+    f"n={len(amax)} water years; median peak {amax.median():.0f} kcfs; record "
+    f"{amax.max():.0f} kcfs in WY{amax.idxmax()}"
+)
 
 c, loc, scale = fit_gev(amax)
 xi = -c
@@ -49,7 +51,9 @@ ll_gev = sps.genextreme.logpdf(amax, c, loc, scale).sum()
 ll_gum = sps.gumbel_r.logpdf(amax, g_loc, g_scale).sum()
 lrt = 2 * (ll_gev - ll_gum)
 p_lrt = sps.chi2.sf(lrt, df=1)
-print(f"GEV: xi={xi:+.3f} loc={loc:.1f} scale={scale:.1f}   Gumbel: loc={g_loc:.1f} scale={g_scale:.1f}")
+print(
+    f"GEV: xi={xi:+.3f} loc={loc:.1f} scale={scale:.1f}   Gumbel: loc={g_loc:.1f} scale={g_scale:.1f}"
+)
 print(f"AIC GEV={-2 * ll_gev + 6:.1f}  AIC Gumbel={-2 * ll_gum + 4:.1f}  LRT p={p_lrt:.3f}")
 
 # log-Pearson III (Bulletin 17C flavour, method of moments on log10 Q)
@@ -57,9 +61,14 @@ lq = np.log10(amax)
 skew, mu, sd = sps.skew(lq, bias=False), lq.mean(), lq.std(ddof=1)
 lp3_levels = 10 ** sps.pearson3.ppf(1 - 1 / T, skew, loc=mu, scale=sd)
 
-levels = pd.DataFrame({"T (yr)": T, "GEV": return_level_gev(c, loc, scale, T),
-                       "Gumbel": sps.gumbel_r.ppf(1 - 1 / T, g_loc, g_scale),
-                       "LP3": lp3_levels}).set_index("T (yr)")
+levels = pd.DataFrame(
+    {
+        "T (yr)": T,
+        "GEV": return_level_gev(c, loc, scale, T),
+        "Gumbel": sps.gumbel_r.ppf(1 - 1 / T, g_loc, g_scale),
+        "LP3": lp3_levels,
+    }
+).set_index("T (yr)")
 
 # parametric bootstrap CI on GEV return levels
 rng = np.random.default_rng(0)
@@ -76,10 +85,14 @@ boot = np.array(boot)
 levels["GEV 2.5%"] = np.percentile(boot, 2.5, axis=0)
 levels["GEV 97.5%"] = np.percentile(boot, 97.5, axis=0)
 xi_lo, xi_hi = np.percentile(boot_xi, [2.5, 97.5])
-print(f"parametric bootstrap: 1000 fits ({failed} discarded as implausible); "
-      f"xi 95% CI = ({xi_lo:+.2f}, {xi_hi:+.2f})")
+print(
+    f"parametric bootstrap: 1000 fits ({failed} discarded as implausible); "
+    f"xi 95% CI = ({xi_lo:+.2f}, {xi_hi:+.2f})"
+)
 print("\nReturn levels (kcfs):\n" + levels.round(0).to_string())
-half_width = (levels.loc[100, 'GEV 97.5%'] - levels.loc[100, 'GEV 2.5%']) / 2 / levels.loc[100, 'GEV'] * 100
+half_width = (
+    (levels.loc[100, "GEV 97.5%"] - levels.loc[100, "GEV 2.5%"]) / 2 / levels.loc[100, "GEV"] * 100
+)
 note(f"""The shape xi={xi:+.2f} is positive (heavy tail), the likelihood-ratio test prefers GEV
 over Gumbel (p={p_lrt:.3f}), yet the bootstrap CI on xi runs {xi_lo:+.2f} to {xi_hi:+.2f}:
 {len(amax)} years constrain the tail only loosely. The three models agree to ~10 years and
@@ -92,8 +105,10 @@ fig, ax = plt.subplots(figsize=(9, 5))
 Tg = np.logspace(0.01, 2.8, 200)
 ax.plot(Tg, return_level_gev(c, loc, scale, Tg), label=f"GEV (xi={xi:+.2f})")
 ax.plot(Tg, sps.gumbel_r.ppf(1 - 1 / Tg, g_loc, g_scale), ls="--", label="Gumbel")
-ax.plot(Tg, 10 ** sps.pearson3.ppf(1 - 1 / Tg, skew, loc=mu, scale=sd), ls=":", label="log-Pearson III")
-ax.fill_between(T, levels["GEV 2.5%"], levels["GEV 97.5%"], alpha=.2, label="GEV 95% bootstrap")
+ax.plot(
+    Tg, 10 ** sps.pearson3.ppf(1 - 1 / Tg, skew, loc=mu, scale=sd), ls=":", label="log-Pearson III"
+)
+ax.fill_between(T, levels["GEV 2.5%"], levels["GEV 97.5%"], alpha=0.2, label="GEV 95% bootstrap")
 ax.scatter(T_emp, x_sorted, s=14, color="k", zorder=3, label="observed (Gringorten positions)")
 ax.set_xscale("log")
 ax.set_xlabel("return period (years)")
@@ -141,8 +156,10 @@ peaks = exceed.groupby(cluster_id).max()
 lam = len(peaks) / years
 cg, _, sg = sps.genpareto.fit(peaks - u, floc=0)
 xi_g = cg
-print(f"threshold u={u:.0f} mm: {len(exceed)} exceedance days -> {len(peaks)} declustered events "
-      f"({lam:.2f}/yr); GPD xi={xi_g:+.3f} sigma={sg:.1f}")
+print(
+    f"threshold u={u:.0f} mm: {len(exceed)} exceedance days -> {len(peaks)} declustered events "
+    f"({lam:.2f}/yr); GPD xi={xi_g:+.3f} sigma={sg:.1f}"
+)
 rl_pot = u + sg / xi_g * ((lam * T) ** xi_g - 1)
 # compare with annual-maxima GEV on the same data
 pr_amax = pr.groupby(pr.index.year).max()
@@ -177,9 +194,15 @@ def nll_trend(p):
 
 
 p0 = [y.mean(), np.log(y.std()), -0.1]
-fs = minimize(nll_stationary, p0, method="Nelder-Mead", options=dict(maxiter=5000, xatol=1e-6, fatol=1e-8))
-ft = minimize(nll_trend, [fs.x[0], 0.0, fs.x[1], fs.x[2]], method="Nelder-Mead",
-              options=dict(maxiter=10000, xatol=1e-6, fatol=1e-8))
+fs = minimize(
+    nll_stationary, p0, method="Nelder-Mead", options=dict(maxiter=5000, xatol=1e-6, fatol=1e-8)
+)
+ft = minimize(
+    nll_trend,
+    [fs.x[0], 0.0, fs.x[1], fs.x[2]],
+    method="Nelder-Mead",
+    options=dict(maxiter=10000, xatol=1e-6, fatol=1e-8),
+)
 lrt = 2 * (fs.fun - ft.fun)
 p_lrt = sps.chi2.sf(lrt, 1)
 mu0, mu1, lsig, xi_t = ft.x
@@ -189,8 +212,10 @@ print(f"likelihood-ratio stat={lrt:.2f}  p={p_lrt:.4f}")
 rl20_1950 = sps.genextreme.ppf(1 - 1 / 20, -xi_t, loc=mu0, scale=np.exp(lsig))
 rl20_2025 = sps.genextreme.ppf(1 - 1 / 20, -xi_t, loc=mu0 + mu1 * t[-1], scale=np.exp(lsig))
 p_now = 1 - sps.genextreme.cdf(rl20_1950, -xi_t, loc=mu0 + mu1 * t[-1], scale=np.exp(lsig))
-print(f"20-yr return level: {rl20_1950:.1f} C in 1950 -> {rl20_2025:.1f} C in 2025; the 1950 "
-      f"20-yr night is now a 1-in-{1 / p_now:.0f}-year event")
+print(
+    f"20-yr return level: {rl20_1950:.1f} C in 1950 -> {rl20_2025:.1f} C in 2025; the 1950 "
+    f"20-yr night is now a 1-in-{1 / p_now:.0f}-year event"
+)
 note(f"""Fitting the GEV by writing the negative log-likelihood and calling an optimiser is
 worth knowing: it generalises to any covariate. The negative shape (xi={xi_t:+.2f}) is typical
 for temperature: a bounded upper tail. Letting location drift with time is strongly
@@ -202,8 +227,13 @@ fig, ax = plt.subplots(figsize=(9, 4.5))
 ax.scatter(am.index, y, s=14, color="k", label="annual max TMIN")
 yrs = am.index.values
 for Tq, ls in [(2, "-"), (20, "--"), (100, ":")]:
-    ax.plot(yrs, sps.genextreme.ppf(1 - 1 / Tq, -xi_t, loc=mu0 + mu1 * t, scale=np.exp(lsig)),
-            ls=ls, color="C3", label=f"{Tq}-yr level (nonstationary)")
+    ax.plot(
+        yrs,
+        sps.genextreme.ppf(1 - 1 / Tq, -xi_t, loc=mu0 + mu1 * t, scale=np.exp(lsig)),
+        ls=ls,
+        color="C3",
+        label=f"{Tq}-yr level (nonstationary)",
+    )
 ax.set_ylabel("deg C")
 ax.set_title("Nonstationary GEV: return levels drift upward with the location parameter")
 ax.legend(ncol=2)

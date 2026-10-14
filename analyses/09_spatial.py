@@ -27,8 +27,8 @@ import pandas as pd
 import statsmodels.formula.api as smf
 
 from statsheet import data
-from statsheet.spatial import fit_interpolation_fold
 from statsheet.plotting import banner, note, savefig, setup
+from statsheet.spatial import fit_interpolation_fold
 from statsheet.stats import (
     distance_matrix_km,
     exponential,
@@ -55,10 +55,15 @@ banner("Moran's I on the raw variable and on regression residuals")
 trend = smf.ols("tavg ~ lat + elev_km + lon", data=st).fit()
 st["resid"] = trend.resid
 W8 = knn_weights(D, k=8)
-for label, z in [("tavg (raw)", st.tavg.values), ("OLS residual", st.resid.values),
-                 ("shuffled residual (null check)", np.random.default_rng(0).permutation(st.resid.values))]:
+for label, z in [
+    ("tavg (raw)", st.tavg.values),
+    ("OLS residual", st.resid.values),
+    ("shuffled residual (null check)", np.random.default_rng(0).permutation(st.resid.values)),
+]:
     mi = morans_i(z, W8, n_perm=999, rng=0)
-    print(f"  {label:32s} I={mi['I']:+.3f}  E[I]={mi['EI']:+.3f}  z={mi['z']:+.1f}  p_perm={mi['p_perm']:.3f}")
+    print(
+        f"  {label:32s} I={mi['I']:+.3f}  E[I]={mi['EI']:+.3f}  z={mi['z']:+.1f}  p_perm={mi['p_perm']:.3f}"
+    )
 note("""Raw temperature is massively autocorrelated (of course: latitude). The interesting test
 is on the residuals of the lat+elev+lon model: I is still clearly positive, meaning the
 model's errors cluster (coastal strips, basins, the Gulf). The regression's standard errors
@@ -75,11 +80,11 @@ print(f"spherical:   nugget={sph[0]:.3f} sill={sph[1]:.3f} range={sph[2]:.0f} km
 print(f"exponential: nugget={expo[0]:.3f} sill={expo[1]:.3f} range={expo[2]:.0f} km (practical)")
 print(f"residual variance = {st.resid.var():.3f}")
 fig, ax = plt.subplots(figsize=(8, 4.5))
-ax.scatter(h, gam, s=np.sqrt(cnt), alpha=.7, label="empirical (size ~ pair count)")
+ax.scatter(h, gam, s=np.sqrt(cnt), alpha=0.7, label="empirical (size ~ pair count)")
 hh = np.linspace(1, h.max(), 200)
 ax.plot(hh, spherical(hh, *sph), label="spherical fit")
 ax.plot(hh, exponential(hh, *expo), ls="--", label="exponential fit")
-ax.axhline(st.resid.var(), color="k", lw=.8, ls=":", label="sample variance")
+ax.axhline(st.resid.var(), color="k", lw=0.8, ls=":", label="sample variance")
 ax.set_xlabel("separation (km)")
 ax.set_ylabel("semivariance (C^2)")
 ax.set_title("Residual variogram: nugget, rising limb, sill")
@@ -96,7 +101,9 @@ domain, and treat an unbounded variogram as a prompt to improve the trend model.
 banner("Interpolation: IDW vs regression + kriged residuals")
 glon, glat = np.meshgrid(np.arange(-125, -66, 0.5), np.arange(24.5, 50, 0.5))
 gl = pd.DataFrame({"lon": glon.ravel(), "lat": glat.ravel()})
-Dq = haversine_km(gl.lat.values[:, None], gl.lon.values[:, None], st.lat.values[None, :], st.lon.values[None, :])
+Dq = haversine_km(
+    gl.lat.values[:, None], gl.lon.values[:, None], st.lat.values[None, :], st.lon.values[None, :]
+)
 mask = Dq.min(axis=1) < 250  # only show grid cells near a station (drops oceans, Canada, Mexico)
 
 idw_t = idw_from_distances(Dq, st.tavg.values, power=2)
@@ -115,14 +122,18 @@ def grid(v):
 
 
 fig, axes = plt.subplots(1, 3, figsize=(17, 4.6))
-for ax, field, title in [(axes[0], idw_t, "IDW (power 2) of station tavg"),
-                         (axes[1], rk_t, "Regression kriging: lat+elev+lon trend + OK residuals")]:
+for ax, field, title in [
+    (axes[0], idw_t, "IDW (power 2) of station tavg"),
+    (axes[1], rk_t, "Regression kriging: lat+elev+lon trend + OK residuals"),
+]:
     im = ax.pcolormesh(glon, glat, grid(field), cmap="RdYlBu_r", vmin=0, vmax=25, shading="auto")
-    ax.scatter(st.lon, st.lat, s=3, color="k", alpha=.4)
+    ax.scatter(st.lon, st.lat, s=3, color="k", alpha=0.4)
     ax.set_title(title)
     fig.colorbar(im, ax=ax, label="C")
-im = axes[2].pcolormesh(glon, glat, grid(np.sqrt(np.maximum(krig_var, 0))), cmap="magma_r", shading="auto")
-axes[2].scatter(st.lon, st.lat, s=3, color="w", alpha=.6)
+im = axes[2].pcolormesh(
+    glon, glat, grid(np.sqrt(np.maximum(krig_var, 0))), cmap="magma_r", shading="auto"
+)
+axes[2].scatter(st.lon, st.lat, s=3, color="w", alpha=0.6)
 axes[2].set_title("Kriging standard error of the residual (low near stations)")
 fig.colorbar(im, ax=axes[2], label="C")
 for ax in axes:
@@ -138,7 +149,13 @@ elevations, which is crude; use a DEM in real work.""")
 
 # %% ----------------------------------------------------------- leave-one-out validation
 banner("Leave-one-out cross-validation RMSE (C)")
-errs = {"IDW p=2": [], "IDW p=1": [], "OLS trend only": [], "OK on tavg": [], "regression kriging": []}
+errs = {
+    "IDW p=2": [],
+    "IDW p=1": [],
+    "OLS trend only": [],
+    "OK on tavg": [],
+    "regression kriging": [],
+}
 for i in range(n):
     keep = np.arange(n) != i
     Di = D[np.ix_(keep, keep)]
@@ -152,8 +169,10 @@ for i in range(n):
     errs["OK on tavg"].append(ok[0] - st.tavg[i])
     okr, _ = ordinary_kriging_from_distances(Di, Dqi, f.resid.values, spherical, resid_sph_fold)
     errs["regression kriging"].append(pred_trend + okr[0] - st.tavg[i])
-loo = pd.DataFrame({k: [np.sqrt(np.mean(np.square(v))), np.mean(np.abs(v))] for k, v in errs.items()},
-                   index=["RMSE", "MAE"]).T.sort_values("RMSE")
+loo = pd.DataFrame(
+    {k: [np.sqrt(np.mean(np.square(v))), np.mean(np.abs(v))] for k, v in errs.items()},
+    index=["RMSE", "MAE"],
+).T.sort_values("RMSE")
 print(loo.round(3).to_string())
 note("""Each leave-one-out fold refits the trend and both variograms on training stations only.
 Leave-one-out measures local interpolation; spatial block holdouts are needed to assess
